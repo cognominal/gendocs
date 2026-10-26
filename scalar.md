@@ -130,7 +130,7 @@ Representation and container-ness are independent axes:
 
 ### What “interned” means here
 
-For each registered integer **box type**, MoarVM preallocates one `Int` object for every value in
+For each registered integer **box type**, MoarVM preallocates one box object of that type for every value in
 
 $$\{-1, 0, 1, \dots, 14\}$$
 
@@ -204,6 +204,21 @@ flowchart TD
     B -- "no" --> D["allocate fresh Int and set value"]
 ```
 
+### Which types get a cache?
+
+The cache is keyed by **type**, not merely by value. In a stock Rakudo process, two distinct types are registered:
+
+| Type | Registered by | Representation | Used by |
+|---|---|---|---|
+| `BOOTInt` | MoarVM 6model bootstrap (`src/6model/bootstrap.c`); it is also the default `int_box_type` for an HLL that does not override it | `P6int` | NQP and VM internals |
+| `Int` | Raku's HLL configuration, `nqp::sethllconfig('Raku', nqp::hash('int_box', Int, ...))` in `src/Perl6/bootstrap.c/BOOTSTRAP.nqp`; the cache registration itself is in `src/core/hll.c` | `P6opaque` with a `bigint` box_target | Raku user code |
+
+So the boxes ordinary Raku code sees are `Int` boxes. `BOOTInt` has its own, separate 16-object pool. Boxing `5` as `Int` and boxing `5` as `BOOTInt` do not share a cache entry: the type pointer is part of the lookup key.
+
+There are four slots in total, so up to four **distinct** `int_box_type`s can be registered. Duplicate registration of an already-known type is ignored. In a stock Rakudo process the two distinct entries are `BOOTInt` and `Int`; the remaining two slots stay available for other HLLs.
+
+`uint_box_type` is **not** registered separately: `MVM_intcache_for` is called only with `int_box_type`. Some unsigned fast paths still reuse that int cache (notably `sp_fastbox_u_ic` for `0..14`), but there is no separate unsigned pool, and the generic `MVM_repr_box_uint` does not consult the cache at all.
+
 ### How the cache is populated and kept alive
 
 `MVM_intcache_for` eagerly allocates all 16 objects for a type:
@@ -217,10 +232,7 @@ for (val = -1; val < 15; val++) {
 }
 ```
 
-Registration happens:
-
-- for `BOOTInt` during 6model bootstrap (`src/6model/bootstrap.c`);
-- for an HLL’s configured `int_box_type` when HLL configuration is set (`src/core/hll.c`). In Rakudo that is `Int`.
+`MVM_intcache_for` is called for `BOOTInt` during 6model bootstrap (`src/6model/bootstrap.c`) and for each HLL's `int_box_type` when HLL configuration is set (`src/core/hll.c`); the usual Rakudo set is the table in [Which types get a cache?](#which-types-get-a-cache).
 
 Implementation details:
 
@@ -228,7 +240,7 @@ Implementation details:
 - Each cache entry and the type itself is a **permanent GC root**. They live for the life of the VM instance. That is bounded — at most 4 x 16 boxes — not a leak.
 - Lookup takes no mutex; registration does (`mutex_int_const_cache`). Once published, entries are immutable, so sharing them across threads is safe.
 - Duplicate registration of the same type is a no-op. If all four type slots are occupied by other types, a fifth type gets no cache.
-- For these values the underlying `P6bigint` body stores the value inline as a smallint (`MVM_BIGINT_32_FLAG`), so there is no separate `mp_int` allocation inside the cached box.
+- For `Int`, the cached object is a `P6opaque` whose `bigint` box_target stores these values inline as a smallint (`MVM_BIGINT_32_FLAG`), so no `mp_int` allocation is needed for the value. `BOOTInt` uses the `P6int` representation and stores the integer directly.
 
 ### Why exactly `-1..14`?
 
@@ -263,7 +275,7 @@ if (value >= -1 && value < 15) {
 }
 ```
 
-Unsigned values use the same pool for `0..14`: `sp_fastbox_u_ic` checks `value < 15`, and the unsigned autobox path rejects negative values.
+Some unsigned fast paths reuse the `int_box_type` cache for `0..14`: `sp_fastbox_u_ic` checks `value < 15`, and the unsigned autobox path also probes the cache. This is not a separate unsigned pool: `uint_box_type` is never registered by `MVM_intcache_for`, and the generic `MVM_repr_box_uint` allocates unconditionally.
 
 ### Which paths bypass it
 
