@@ -10,7 +10,8 @@ own vocabulary. Some notes are about my personal/local configuration.
 | `<leader>` | Space in LazyVim (`vim.g.mapleader = " "`). |
 | `alt+space` | The tuios leader on this machine (`leader_key` in `~/.config/tuios/config.toml`; stock default is `ctrl+b`). |
 | window mode | tuios's management mode. In terminal mode the keys go to the pane instead. |
-| tab | A Vim tabpage (`:tabnew`), not a bufferline buffer. See the buffer rows at the end. |
+| tab | Always qualified below. Ghostty tab = a split layout inside one terminal window. Vim/LazyVim tab = a tabpage (`:tabnew`), which is a split layout too. LazyVim's visible strip is *not* tabs: it is bufferline, and its entries are open files. |
+| workspace | A group of windows, splits, or panes switched as a unit: Omarchy slots 1–10 per monitor, tuios workspaces 1–9. The direct analog is a Vim tabpage. |
 
 | Area | Action | Omarchy 4.5 (Hyprland) | LazyVim (Neovim) | tuios |
 |---|---|---|---|---|
@@ -30,7 +31,7 @@ own vocabulary. Some notes are about my personal/local configuration.
 | | Reorder workspace / tab | No reorder binding. `SUPER+SHIFT+ALT+←/→/↑/↓` moves a whole workspace to another monitor. | `:tabmove N`; no default key. | Unbound `move_workspace_left` / `move_workspace_right`; drag the workspace pill in the dock. |
 | | Rename | No keybinding; workspace names come from Hyprland rules/config. | No tab rename. Buffer names are file names. | `alt+space w r`; CLI `tuios set-workspace-name N name`. |
 | | Close others | No equivalent. | `<leader><tab>o` (`:tabonly`); buffers: `<leader>bo`. | Close the workspace: `tuios close-workspace N`. |
-| **LazyVim buffers** (the visible file tabs) | Previous / next | — | `<S-h>` / `<S-l>`, `[b` / `]b`, or `<leader>bb` for the other buffer. | — |
+| **LazyVim buffers** (bufferline entries — open files, not workspaces) | Previous / next | — | `<S-h>` / `<S-l>`, `[b` / `]b`, or `<leader>bb` for the other buffer. | — |
 | | Close | — | `<leader>bd`; `<leader>bo` closes other buffers; `<leader>br` / `<leader>bl` close right/left. | — |
 | | Reorder in bufferline | — | `[B` / `]B` move the buffer left/right. | — |
 
@@ -39,7 +40,14 @@ own vocabulary. Some notes are about my personal/local configuration.
 - **Omarchy's `ALT+TAB` is locally overridden.** `~/.config/hypr/bindings.lua` rebinds `ALT+TAB` and `ALT+SHIFT+TAB` to forward the chord to tuios when the focused window is a tuios terminal, and otherwise run Omarchy's stock cycle. `ALT+SPACE` is unbound there so tuios can use it as its leader. Stock Omarchy the table describes is in `/usr/share/omarchy/default/hypr/bindings/`.
 - **Omarchy has ten slots per monitor.** `SUPER+3` means the third slot of the focused monitor's block; the next monitor owns 11–20. There is no create/close step, unlike tabs.
 - **tuios has exactly nine workspaces.** `new_workspace` means "go to the first empty one", and `close_workspace` closes every pane on one, after renumbering the rest. This is the closest thing to closing a tab.
-- **LazyVim's tab strip is usually bufferline, not tabpages.** `<S-h>` / `<S-l>` and `[B` / `]B` move between and reorder open files. The `<leader><tab>` group is the real tabpage layer that maps to workspaces.
+- **LazyVim's top strip is bufferline, not a tab bar.** It lists open files
+  (`mode = "buffers"`, the LazyVim default; `<S-h>` / `<S-l>` and `[B` / `]B`
+  move and reorder those entries). The workspace analog is the **tabpage**:
+  `:tabnew` creates one, and each tabpage keeps its own split layout, exactly
+  like a tuios workspace keeps its panes and an Omarchy workspace its windows.
+  The `<leader><tab>` group addresses that layer. Bufferline's
+  `mode = "tabs"` makes the strip show tabpages instead, if you want the
+  workspace layer visible.
 
 ## Russian dolls: Omarchy → Ghostty → tuios → LazyVim
 
@@ -51,8 +59,12 @@ Hyprland/Omarchy   windows, workspaces 1-10 per monitor
   └─ Ghostty        tabs, splits, windows
       └─ tuios      sessions, workspaces 1-9, panes
           └─ shell
-              └─ Neovim/LazyVim   buffers, splits, tabpages
+              └─ Neovim/LazyVim   tabpages (workspace analog) > splits > buffers
 ```
+
+Each level has one workspace-like container: Omarchy workspace, Ghostty tab,
+tuios workspace, Vim tabpage. Each holds a set of windows/splits/panes you
+switch between as a unit. Bufferline is not one of them; it lists files.
 
 Hyprland does not know that tuios or LazyVim exist. To Hyprland, the whole
 stack is one Ghostty surface. Ghostty does not know about tuios panes; to
