@@ -106,7 +106,7 @@ Q = XW_Q,\quad K = XW_K,\quad V = XW_V,\qquad W_Q,W_K,W_V \in \mathbb{R}^{d \tim
 $$
 
 $$
-A = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_h}} + M\right),\qquad
+A = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_h}} + M\right),\qquad
 O = AV
 $$
 
@@ -119,7 +119,7 @@ backwards.
 Multi-head attention runs $h$ such heads in parallel and concatenates:
 
 $$
-\operatorname{MHA}(X) = \operatorname{Concat}(O_1, \dots, O_h)\,W_O
+\mathrm{MHA}(X) = \mathrm{Concat}(O_1, \dots, O_h)\,W_O
 $$
 
 Two much cheaper variants matter for the rest of this document:
