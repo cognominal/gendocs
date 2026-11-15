@@ -892,25 +892,333 @@ bitmap), never as an $n \times n$ tensor.
 
 ## 15. Glossary
 
-| Term | Meaning |
+Terms as used in this document. Where the field uses a word inconsistently,
+the entry says so; several of the worst confusions (dense, sparse, block) are
+called out explicitly.
+
+### 15.1 Symbols
+
+| Symbol | Meaning |
 |---|---|
-| **prefill** | processing the prompt in one parallel pass; compute-bound |
-| **decode** | generating one token at a time; bandwidth-bound |
-| **KV cache** | stored keys and values for past tokens, re-read every decode step |
-| **dense checkpoint** | model with full attention and no sparsity trained in; the input to training-free methods |
-| **dense vs. MoE** | "dense" can mean all parameters are active per token; unrelated to attention sparsity |
-| **GQA/MQA/MLA** | ways to shrink the KV cache via shared or compressed K/V heads |
-| **attention sink** | early tokens that absorb large attention mass; must be kept |
-| **block/page** | contiguous tile of 64–256 tokens; the unit kernels can skip |
-| **vertical** | a key column visible to all queries (global token) |
-| **slash** | a diagonal band at a fixed offset from the query (MInference) |
-| **sparsity** | fraction of query–key pairs not computed |
-| **budget** | fraction of pairs (or pages/blocks) retained |
-| **estimator/indexer** | cheap scorer used to choose the retained set |
-| **arithmetic intensity** | FLOPs per byte moved; decides compute- vs memory-bound |
-| **iso-cost** | comparison at equal FLOPs (prefill) or bytes (decode) |
-| **training-free** | sparsity applied to a dense checkpoint at inference |
-| **native/trainable** | sparsity designed into the model and trained end-to-end |
+| $n$ | sequence length, in tokens |
+| $d$ | model width (residual stream dimension) |
+| $d_h$ | per-head dimension |
+| $L$ | number of transformer layers |
+| $h$ | number of query heads |
+| $h_{kv}$ | number of key/value heads (MQA/GQA) |
+| $w$ | sliding-window width |
+| $k_i$ | keys retained by query $i$ |
+| $S(i)$ | retained key set for query $i$ |
+| $s$ | sparsity, $1 - \mathbb{E}[k_i]/n$ |
+| $A$ | attention matrix, rows sum to 1 |
+| $B$ | block size in tokens |
+| $b$ | bytes per stored element |
+| $r$ | retained fraction of attention work |
+| $c$ | estimator cost as a fraction of dense attention |
+
+### 15.2 Model and architecture
+
+**token** — The unit the model reads: a subword fragment, typically 3–4 English
+characters. Context length is counted in tokens (1M tokens ≈ 750K words).
+
+**tokenizer** — Maps text to token IDs and back. BPE, WordPiece, or
+SentencePiece, fixed at pretraining time. Vocabulary 32K–256K.
+
+**embedding** — The $V \times d$ matrix mapping token IDs to vectors; often
+tied to the output projection.
+
+**decoder-only** — Architecture of GPT/Llama-style models: every token attends
+only to previous tokens. Encoder-decoder and bidirectional encoders exist;
+"LLM" in this document means decoder-only.
+
+**causal mask** — The upper-triangular $-\infty$ mask that hides future keys.
+Halves the useful attention matrix; kernels exploit the fact.
+
+**positional encoding** — How order enters a permutation-invariant operation.
+RoPE rotates Q/K by position-dependent angles and yields relative positions;
+ALiBi adds a distance-proportional bias to scores.
+
+**residual stream** — The $d$-dimensional vector flowing through the model;
+each block reads from it and adds its output back into it.
+
+**layer norm** — Normalization applied per token, usually pre-norm. RMSNorm is
+the cheaper variant used by most current models.
+
+**MLP (FFN)** — Per-token feed-forward network, typically $d \to 4d \to d$.
+Holds most parameters and most FLOPs, and mixes no information across positions.
+
+**parameter** — A trained scalar. "8B model" means $8\times10^9$ parameters,
+not operations per token.
+
+**context window** — Maximum tokens attendable in one call. Bounded by
+training, positional scheme, and memory.
+
+**scaling law** — Empirical power law relating loss to parameters, data, and
+compute; the reason the field scales before it optimizes.
+
+**Chinchilla-optimal** — Compute-optimal ratio of roughly 20 training tokens
+per parameter (Hoffmann et al., 2022). Most current models deliberately
+overtrain past it.
+
+**mixture-of-experts (MoE)** — Each token is routed to $k$ of $N$ expert MLPs.
+"Sparse model" there means sparse *parameter* activation; it has nothing to do
+with which keys attention reads.
+
+**checkpoint** — A saved weight set. A **dense checkpoint** has full attention
+and no sparsity trained in; see Section 6.
+
+**quantization** — Storing weights or KV in lower precision (FP8, INT8, 4-bit).
+Cuts bytes and can raise throughput; does not reduce the number of comparisons.
+
+### 15.3 Attention mechanics
+
+**head** — One attention channel with its own $Q,K,V$ projections and dimension
+$d_h$; $h$ heads run in parallel and are concatenated.
+
+**attention score (logit)** — $q_i^\top k_j / \sqrt{d_h}$ before softmax. Large
+positive means "attend here".
+
+**attention weight** — Post-softmax entry $A_{ij}$; each row sums to 1.
+
+**attention matrix** — The $n \times n$ table of weights. Dense, it is
+quadratic in memory; sparse, it is mostly implicit and never materialized.
+
+**attention entropy** — Entropy of a row's weight distribution. Low entropy
+means focused attention (retrieval, sinks); high entropy means diffuse
+attention (often local smoothing).
+
+**local head** — Informal: a head whose mass sits on nearby tokens. Common in
+lower layers and in models trained with sliding windows.
+
+**retrieval head** — Informal: a head whose mass concentrates on a few distant,
+task-relevant tokens. The empirical justification for per-head budgets.
+
+**induction head** — A two-head circuit that recognizes a repeated prefix and
+copies what followed it the previous time. Direct evidence that some attention
+implements lookup rather than smoothing.
+
+**attention sink** — Early tokens, usually the first few, that absorb large
+attention mass regardless of content because softmax must place unused
+probability somewhere. Removing them breaks streaming models.
+
+**softmax renormalization** — Under sparsity the denominator ranges over
+$S(i)$ only; excluded mass is redistributed. This is why sparse attention is a
+different function, not dense attention with zeros.
+
+**KV cache** — Stored keys and values for past tokens, re-read at every decode
+step. Size $2 L h_{kv} d_h n b$ bytes; the decode bottleneck.
+
+**prefill** — Processing the prompt in one parallel pass. Compute-bound, with
+$O(n^2)$ attention FLOPs.
+
+**decode** — Generating one token at a time against the cache. Bandwidth-bound,
+at roughly 1 FLOP/byte for fp16 dense attention.
+
+**MQA** — Multi-query attention: a single shared $K,V$ head. Shrinks the cache
+by $h\times$; costs quality at large head counts.
+
+**GQA** — Grouped-query attention: $h_{kv}$ KV heads shared by groups of query
+heads. Cache shrinks by $h/h_{kv}$; the default in current open models.
+
+**MLA** — Multi-head latent attention (DeepSeek-V2): cache a low-rank latent
+instead of full per-head $K,V$. Orthogonal to sparsity, and composes with it.
+
+**PagedAttention** — vLLM's cache layout: fixed-size blocks plus a block table,
+like virtual memory. Removes fragmentation and makes page-granular selection
+natural.
+
+**prefix caching** — Reusing the KV of a shared prefix (system prompt, file)
+across requests. Shifts the cost mix: cached prefill makes decode sparsity
+relatively more valuable.
+
+**continuous batching** — Iteration-level scheduling where requests join and
+leave mid-flight. Raises effective batch size, which can make decode
+compute-bound again.
+
+### 15.4 Sparse attention
+
+**sparse attention** — Attention restricted to $S(i)$ per query, with
+$|S(i)| = k \ll n$: $O(nk)$ instead of $O(n^2)$.
+
+**pattern** — The rule defining $S(i)$: window, block layout, columns,
+diagonals, or content-dependent selection.
+
+**fixed (static) pattern** — Same shape for every input. Zero estimation cost;
+cannot adapt to the content.
+
+**dynamic (content-aware) pattern** — Chosen per input from scores or routing.
+Better quality; adds an estimator whose cost must be counted.
+
+**sparsity ($s$)** — Fraction of query–key pairs not computed,
+$s = 1 - \mathbb{E}[k_i]/n$.
+
+**budget** — The complement of sparsity: retained fraction, or an absolute
+count per query, head, or layer.
+
+**block / page** — A contiguous run of tokens (typically 64–256) that a kernel
+can skip as a unit. "Page" is the KV-cache term, "block" the attention-matrix
+term; both mean the same thing to the hardware.
+
+**sliding window (SWA)** — Each query attends to the previous $w$ tokens.
+$O(nw)$; loses long-range information unless interleaved with global layers.
+
+**dilated / strided pattern** — Attend to every $s$-th token plus neighbors;
+grows the receptive field geometrically (Sparse Transformer).
+
+**global token / vertical** — A key visible to every query. The cheapest fix
+for local blindness; its trained form is an attention sink.
+
+**slash** — A diagonal band at a fixed offset from the query, capturing
+periodic structure (MInference combines slashes with verticals).
+
+**random attention** — A fixed set of random edges added to window plus global
+(BigBird). Good theory, awkward for kernels.
+
+**LSH attention** — Hash queries and keys into buckets and attend within
+buckets (Reformer). $O(n \log n)$; requires shared Q/K and balanced buckets.
+
+**clustering attention** — Cluster queries/keys and attend within cluster
+(Routing Transformer). $O(n^{1.5})$; quality depends on cluster quality.
+
+**top-$k$ selection** — Keep the $k$ highest-scoring units per query. Exact
+scoring is quadratic, so practical systems score cheap proxies instead.
+
+**threshold selection** — Keep units until a target fraction of attention mass
+(e.g. 95%) is covered; adapts the budget per head. Used by FlexPrefill and
+SampleAttention.
+
+**indexer / estimator** — The cheap scorer that chooses $S(i)$. Its cost
+belongs in the accounting: net speedup $\approx 1/(r+c)$.
+
+**eviction** — Permanently dropping KV entries (H2O, SnapKV). Irreversible: a
+later query that needs an evicted token cannot get it back.
+
+**selection** — Choosing a subset of the full cache at each step (Quest).
+Keeps the option to choose differently next step; costs a metadata pass over
+the cache.
+
+**token merging** — Combining similar tokens before attention (ToMe). Reduces
+$n$ but changes the representation; it is not sparsity.
+
+**prompt compression** — Pruning or summarizing the input before the model sees
+it (LLMLingua). Lossy preprocessing, not an attention mechanism.
+
+**native (trainable) sparsity** — Pattern designed into the model and trained
+end-to-end (NSA, MoBA, DSA, sliding-window layers). The function adapts to the
+pattern.
+
+**training-free sparsity** — Pattern applied to a dense checkpoint at inference
+(MInference, Quest, SnapKV). Must work with attention the model already learned.
+
+**dense checkpoint** — Full-attention weights with no sparsity trained in; the
+input to, and quality reference for, training-free methods.
+
+**hybrid local/global** — Interleaving windowed and full layers (Gemma 3 at
+5:1, gpt-oss alternating). Fixed cost, no estimator, proven at scale.
+
+**attention-mass recall** — $\sum_{i}\sum_{j \in S(i)} A_{ij} / \sum_{i}\sum_j
+A_{ij}$: the fraction of dense attention mass the pattern retains. The right
+first sanity metric; not the same as task accuracy.
+
+**declared vs. achieved sparsity** — The fraction you configured versus the
+fraction the kernel actually skips. They diverge whenever a mask is
+materialized or a tile is computed anyway.
+
+**iso-cost** — Comparison at equal prefill FLOPs or equal decode bytes. The
+only fair way to compare a sparse 70B against a dense 8B.
+
+**2:4 structured sparsity** — NVIDIA feature that skips two of every four
+*weights* in a matmul. Unrelated to attention sparsity; a frequent source of
+confusion in search results.
+
+### 15.5 Kernels and hardware
+
+**FLOPs / MAC** — Floating-point operations; one multiply-add is 2 FLOPs. A
+"MAC" counts multiply-accumulates, so MACs are half the FLOP count.
+
+**arithmetic intensity** — FLOPs per byte moved. Below the ridge point the
+kernel is bandwidth-limited; above it, compute-limited.
+
+**roofline / ridge point** — Performance model against intensity; the ridge is
+peak FLOPs ÷ peak bandwidth (≈295 FLOP/byte for H100 fp16).
+
+**compute-bound / memory-bound** — Which resource limits throughput. Prefill at
+long $n$ is compute-bound; decode at small batch is memory-bound.
+
+**HBM** — High-bandwidth DRAM, off-chip (3.35 TB/s on H100). Home of weights
+and KV cache.
+
+**SRAM** — On-chip memory per SM, hundreds of KB. Home of tiles during a
+matmul; the reason tiling exists at all.
+
+**tile** — A sub-block small enough for SRAM and large enough for tensor cores,
+typically 64–256 tokens per side.
+
+**fused kernel** — One kernel performing matmul, mask, softmax, and the second
+matmul without writing intermediates to HBM. FlashAttention is the canonical
+example.
+
+**FlashAttention** — IO-aware exact attention: tile over K/V, track a running
+max and sum (online softmax), never materialize $A$. Exact math, not sparse.
+
+**online softmax** — Computing softmax in one streaming pass by rescaling the
+running sum whenever a new maximum appears.
+
+**block-sparse kernel** — A kernel that loads only selected tiles. The only
+implementation that reliably converts sparsity into wall-clock time.
+
+**FlexAttention** — PyTorch's mask-function-to-fused-kernel compiler; skips
+fully masked blocks and is the sane default for research.
+
+**Triton / CUTLASS** — Kernel DSL (Triton) and C++ template library (CUTLASS)
+used to write production block-sparse attention.
+
+**coalescing** — Adjacent threads accessing adjacent addresses. Irregular
+gathers break it, which is why fine-grained selection loses to block selection.
+
+**occupancy** — Active warps per SM relative to the maximum. Kernels with
+variable work per block often run at low occupancy.
+
+**tensor core** — Matrix-multiply unit requiring fixed tile shapes and low
+precision. Patterns that break tile shapes cannot use it efficiently.
+
+**FP16 / BF16 / FP8** — Numeric formats for weights, activations, and caches.
+Bytes per element set both cache size and the arithmetic-intensity thresholds.
+
+**Amdahl's law** — Speedup is capped by the fraction left unoptimized. At 30%
+attention share, the prefill ceiling is 3.3×.
+
+**TTFT** — Time to first token; dominated by prefill and queueing.
+
+**TPOT / ITL** — Time per output token / inter-token latency; dominated by
+decode bandwidth at small batch.
+
+**throughput** — Aggregate tokens per second across the batch; the cost metric,
+as opposed to latency.
+
+**batch size** — Sequences processed together. Larger batches amortize the KV
+read and can flip decode from memory- to compute-bound.
+
+### 15.6 Evaluation
+
+**perplexity** — $\exp$ of mean negative log-likelihood. Cheap and sensitive to
+local fluency, nearly blind to long-range retrieval; necessary, not sufficient.
+
+**NIAH** — Needle-in-a-haystack: plant a fact, ask for it. Saturates early and
+overstates real long-context capability.
+
+**RULER** — Suite with retrieval, multi-hop, aggregation, and variable tracking
+at controlled lengths. Better than NIAH, still synthetic.
+
+**lost in the middle** — Finding that models use information at the start and
+end of a context better than the middle. A long window is not a usable window.
+
+**multi-hop / aggregation** — Tasks needing several pieces of evidence, or
+counting/summing across the whole context. The first tasks a sparse pattern
+fails.
+
+**Pareto frontier** — Configurations not dominated on both cost and quality.
+"Sparse beats dense" is a frontier claim, not a point comparison.
 
 ## 16. References
 
