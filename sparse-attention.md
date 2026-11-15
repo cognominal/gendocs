@@ -363,6 +363,34 @@ model is not "dense attention with 90% of the matrix thrown away"; it never had
 the long-range edges. Conversely, H2O on Llama is an approximation and can be
 scored by how much attention mass it retains.
 
+### What "dense checkpoint" means here
+
+"Dense" is overloaded in LLM writing. In this document it means **full
+attention**: every query scores every allowed key, and no sparse pattern is
+baked into the weights. It does *not* mean:
+
+- *dense weights* (as opposed to quantized or pruned) — orthogonal, and
+  compatible with attention sparsity;
+- *dense model* (as opposed to a mixture-of-experts model) — there "sparse"
+  describes which parameters fire per token, not which keys are attended to.
+
+The distinction matters because **training-free sparsity operates on the
+attention distribution the dense checkpoint already learned**. It can preserve
+mass that exists; it cannot create long-range behavior the model never had.
+That is why the 2023–2026 methods are pattern *discovery* rather than pattern
+*design*: profile the checkpoint, find the heads that are already local or
+already sparse, and skip what they do not use. It also fixes the quality
+reference — approximation error is measured against this checkpoint's outputs
+— and means that changing the base model invalidates the calibration, because
+head patterns, sink positions, and per-layer budgets are properties of
+specific weights.
+
+The practical consequence for Section 13: a "dense checkpoint" row in the
+design table is a statement about *what you are allowed to change*. You can
+change the kernel and the selection policy; you cannot change the function
+without retraining, which is exactly what separates that row from the native
+sparsity row.
+
 ## 7. A gallery of patterns
 
 Masks below are causal: row = query, column = key, `█` = computed, `·` = skipped.
@@ -869,6 +897,8 @@ bitmap), never as an $n \times n$ tensor.
 | **prefill** | processing the prompt in one parallel pass; compute-bound |
 | **decode** | generating one token at a time; bandwidth-bound |
 | **KV cache** | stored keys and values for past tokens, re-read every decode step |
+| **dense checkpoint** | model with full attention and no sparsity trained in; the input to training-free methods |
+| **dense vs. MoE** | "dense" can mean all parameters are active per token; unrelated to attention sparsity |
 | **GQA/MQA/MLA** | ways to shrink the KV cache via shared or compressed K/V heads |
 | **attention sink** | early tokens that absorb large attention mass; must be kept |
 | **block/page** | contiguous tile of 64–256 tokens; the unit kernels can skip |
