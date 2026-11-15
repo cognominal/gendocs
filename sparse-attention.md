@@ -819,18 +819,21 @@ the measurements:
    kernels, or a fixed page count for decode) so that sparsity increases only
    as fast as the sequence does.
 
-**Deployment checklist.**
+**Deployment checklist.** Work through these in order. The recall metric
+referenced below is
+
+$$
+\mathrm{recall} = \frac{\sum_i \sum_{j \in S(i)} A_{ij}}{\sum_i \sum_j A_{ij}}
+$$
+
+the fraction of the dense model's attention mass that the selected pattern
+retains.
 
 - [ ] Profile the phase mix (prefill vs decode) on the actual workload.
 - [ ] Compute the attention share of total time; if it is under ~20%, stop.
 - [ ] Pick block granularity ≥ 64, ideally 128, aligned to the kernel.
 - [ ] Measure achieved FLOPs/bytes with a profiler, not the config.
-- [ ] Check attention-mass recall on real inputs, per head:
-
-  $$
-  \text{recall} = \frac{\sum_i \sum_{j \in S(i)} A_{ij}}{\sum_i \sum_j A_{ij}}
-  $$
-
+- [ ] Check attention-mass recall on real inputs, per head.
 - [ ] Evaluate on aggregation and multi-hop tasks, not just NIAH.
 - [ ] Sweep sparsity at your target $n$; do not reuse a 4K-derived setting.
 - [ ] Verify batch-size behavior at production concurrency.
