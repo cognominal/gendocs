@@ -139,7 +139,7 @@ It is an orthogonal compression axis to sparsity and composes with it.
 A decoder-only LLM is trained on one objective: predict the next token.
 
 $$
-\mathcal{L} = -\frac{1}{n}\sum_{i=1}^{n} \log p_\theta(x_i \mid x_{<i})
+\mathcal{L} = -\frac{1}{n}\sum_{i=1}^{n} \log p_\theta(x_i \mid x_{\lt i})
 $$
 
 Everything else — instruction tuning, RLHF, reasoning traces — is layered on
