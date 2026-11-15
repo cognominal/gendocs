@@ -953,6 +953,13 @@ Holds most parameters and most FLOPs, and mixes no information across positions.
 **parameter** — A trained scalar. "8B model" means $8\times10^9$ parameters,
 not operations per token.
 
+**loss** — The scalar minimized during training. For an LLM it is the mean
+negative log-likelihood of the next token, equivalently the cross-entropy
+between the predicted distribution and the one-hot target:
+$-\frac{1}{n}\sum_i \log p_\theta(x_i \mid x_{\lt i})$. Perplexity is
+$e^{\text{loss}}$. Training loss and validation loss are the same quantity on
+different data; neither measures long-context retrieval.
+
 **context window** — Maximum tokens attendable in one call. Bounded by
 training, positional scheme, and memory.
 
