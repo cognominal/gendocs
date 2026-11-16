@@ -1,13 +1,14 @@
-# Zsh prompts and completion
+# Zsh prompts, completion, and multiline editing
 
-*What zsh actually does, and how Rak — a hypothetical Raku shell — could do it differently.*
+*What zsh and Nushell actually do, and how Rak — a hypothetical Raku shell — could do it differently.*
 
 ## Scope, sources, and status
 
-This note covers the two interactive subsystems a shell user touches constantly:
+This note covers the three interactive subsystems a shell user touches constantly:
 
 * the **prompt**: everything printed before the line editor accepts input;
-* **completion**: the candidates offered for the word or expression under the cursor.
+* **completion**: the candidates offered for the word or expression under the cursor;
+* the **editor**: the multiline buffer, cursor, history, and rendering that host both.
 
 It is written as a design note for **Rak**, the proposed shell/language described in
 `~/PLANS/rak.md` and `~/PLANS/shell.md`. Those plans sketch shell mode, naked strings,
@@ -31,6 +32,8 @@ language itself is still moving.
 | compinit dump size | 48,925 bytes in a fresh `ZDOTDIR` |
 | baseline `zsh -f -i -c exit` | 1.9 ms minimum, 2.4 ms median over 7 runs |
 | Raku | Rakudo Star 2026.08, implementing Raku v6.d on MoarVM 2026.08 |
+| Nushell / Reedline | `nu 0.117.0`; Nushell line-editor documentation; Reedline README, `Validator`, `NuValidator`, `PromptLines`, and internal design notes |
+| Charmbracelet | Bubble Tea v2, Bubbles v2 (`textarea`, `viewport`), and Ultraviolet documentation/source; local Go module cache has only partial Charm modules |
 
 The measurements are local, warm-cache, and only meant to establish order of magnitude. The
 manual-page claims are from the installed 5.9.2 documentation; the observations about the
@@ -51,11 +54,13 @@ engine**, and completion is a **stream of typed candidates produced by providers
 parse-derived context**. The hard part is not the data model; it is coverage. zsh has 792
 completion functions and thousands of accumulated edge cases. Rak should therefore treat
 zsh compatibility as a *provider*, not as the architecture, and should derive as much
-completion as possible from the same command signatures that already drive dispatch.
+completion as possible from the same command signatures that already drive dispatch. The
+editor is the substrate for both: Nushell's Reedline shows why a parser-aware multiline
+buffer, not a generic textarea, is the right third component.
 
 ---
 
-## 1. The loop both subsystems live in
+## 1. The loop the interactive subsystems live in
 
 A shell is an event loop wrapped around a terminal. The prompt is the output edge of that
 loop; completion is a special input operation inside the line editor. In zsh both are
@@ -95,9 +100,9 @@ Important properties of the zsh arrangement:
 * **The line editor owns cursor layout.** A prompt that lies about its visible width corrupts
   cursor positioning; that is why zsh has `%{...%}` and `%G`.
 
-This is the design tension Rak must resolve: prompt and completion need shared context
-(cwd, mode, parser state, command signatures, terminal width), but sharing a *mutable shell
-environment* is exactly what makes zsh hard to reason about.
+This is the design tension Rak must resolve: prompt, completion, and the multiline editor
+need shared context (cwd, mode, parser state, command signatures, terminal width), but
+sharing a *mutable shell environment* is exactly what makes zsh hard to reason about.
 
 ---
 
@@ -1705,15 +1710,407 @@ should run it once, cache the result, and make the behavior explicit.
 
 ---
 
-## 7. Implementation plan
+## 7. A multiline editor à la Nushell
+
+A prompt says where the user is; completion helps type the next token; the editor is where
+the command line actually lives. Rak cannot stop at a single-line buffer. Indentation
+blocks, tree expressions, pipelines, heredocs, multi-line literals, and pasted scripts all
+need a buffer that spans lines while remaining a **command line**, not a file in a text
+editor.
+
+Nushell is the best current reference. Its editor, **Reedline**, is deliberately a *line
+editor* in the tradition of readline and zle, not a full-screen text editor. Nushell
+0.117.0 is installed here; its documentation and Reedline's source are the basis for this
+section. The important lesson is not the widget set. It is that Nushell keeps the buffer,
+the parser, the prompt, the completion menu, and the history in one coherent inline
+editing model.
+
+### 7.1 What Nushell does
+
+Nushell lets a command line grow across lines in four ways:
+
+| Trigger | Behavior |
+|---|---|
+| `Enter` while a bracketed expression is open | insert a newline instead of running; the command continues |
+| `Enter` at the end of a line with a trailing pipe `\|` | insert a newline; the pipeline continues |
+| `Shift`+`Enter` or `Alt`+`Enter` | insert a newline unconditionally |
+| `Ctrl`+`O` | open the current buffer in `$env.config.buffer_editor`; saving and exiting updates the buffer |
+
+The first two are parser-driven. Nushell's `NuValidator` parses the line with the real
+Nushell parser and returns `ValidationResult::Incomplete` only when the first parse error in
+the line is `UnexpectedEof` or `Unclosed`. An unbalanced *closer* is not incomplete: the
+line is submitted and the diagnostic is shown. That distinction matters. A bracket counter
+that only checks balance would either accept a line too early or refuse to submit a line
+that is wrong but complete.
+
+The default `Enter` binding is therefore "run the input, or insert a newline if it is
+incomplete". `Ctrl`+`J` has the same fallback. `Shift`+`Enter` and `Alt`+`Enter` bypass the
+validator and always insert a newline; terminals may intercept those chords, so Nushell
+also allows rebinding `insertnewline`. In Vi and Helix modes, `Enter` has the same
+run-or-newline behavior in insert mode.
+
+Once the buffer is multiline, the rest of the editor has to follow:
+
+* `Up` and `Down` move within the buffer; at the first or last line they walk history.
+  Nushell documents this as a fallback chain: an open menu first, then buffer movement,
+  then history at the edge.
+* `Home`/`End` operate on the current line; `Ctrl`+`Home`/`Ctrl`+`End` move to the buffer
+  start or end.
+* Selection, cut/copy/paste, word motions, undo/redo, and mouse click-to-cursor operate on
+  the whole buffer, not one line.
+* History stores the whole multiline entry, so recalling it restores the shape of the
+  command, not a sequence of separate lines.
+* The completion menu, history menu, help menu, and status line are drawn below the buffer
+  and can be paged.
+* The status line parses the line as the user types and shows the signature under the
+  cursor, the inferred output type, a constant preview, or the first error. An unfinished
+  line shows no error.
+* Reedline supports Emacs, Vi, and Helix modes; Rak does not need all three on day one, but
+  the buffer and keymap abstractions should not assume a single editing model.
+
+Reedline's internals explain why this works as a shell rather than a TUI:
+
+| Component | Role |
+|---|---|
+| `Reedline` engine | input loop, history, completer, validator, prompt, menus, external printer |
+| `Editor` / `LineBuffer` | logical buffer, cursor, selection, undo, grapheme-aware edits |
+| `Painter` / `PromptLines` | prompt layout, wrapping, cursor placement, status/footer, menu rows |
+| `Validator` | parses the buffer and says complete/incomplete |
+| `Prompt` | left/right prompt, indicator, continuation/search prompt, transient prompt |
+| `Completer` / `Menu` | candidates and columnar/list/IDE-style menus |
+| `History` | file or SQLite history, search, multiline entries |
+| `EditMode` | Emacs/Vi/Helix keymaps and motions |
+| `Hinter` / `StatusLine` | fish-style hints and parser diagnostics under the buffer |
+
+Reedline's own developer notes state the invariant that matters most for Rak: **the
+displayed and submitted version must not deviate**, the editor must avoid display artifacts
+and preserve scrollback, and terminal resizes should be handled gracefully. Reedline is
+also explicit that it is not a standalone text editor and does not aim to be a shared
+library with a maintained ABI. That is a warning against treating it as a drop-in Rak
+component, but it is an excellent architectural reference.
+
+### 7.2 Why a textarea is not enough
+
+A generic multiline text area solves the easy half: storing lines, wrapping, a viewport,
+and a cursor. A shell editor has to solve the other half:
+
+| Requirement | Why a text area is insufficient |
+|---|---|
+| Submit vs. newline | `Enter` must consult the parser, not always insert a newline |
+| Prompt and continuation gutter | the first line has a primary prompt; continuation lines need an aligned gutter or prompt |
+| Logical lines vs. visual rows | soft wrapping and hard wrapping change cursor row/column mapping |
+| Completion menu | candidates are anchored to a buffer position and may replace a span across lines |
+| History | `Up`/`Down` are buffer motions until the buffer edge, then history |
+| Diagnostics | parse errors, incomplete constructs, signatures, and types live below the buffer |
+| Inline scrollback | command output must appear above the editor and remain in terminal history |
+| Job control | executing a command hands the terminal to a child; the editor must suspend and resume |
+| Shell quoting | inserting a path or option must escape according to shell/Rak quoting, not HTML textarea rules |
+| Untrusted text | filenames, branches, and pasted bytes can contain control sequences |
+| Performance | a 10,000-line paste must not trigger a full render or a full parse per byte |
+
+The hardest of these is **completeness**, because it couples the editor to the language.
+Nushell can ask its parser. Rak needs an equivalent API from the Rak parser, not a second
+bracket-matching lexer. A second implementation will disagree with execution on exactly the
+cases users notice: naked strings, heredocs, indentation blocks, tree expressions, and
+trailing operators.
+
+### 7.3 A Rak editor design
+
+The editor should be a separate state machine that the shell drives, not a widget embedded
+in the prompt renderer. A sketch:
+
+```rak
+unit module Rak::Interactive::Editor;
+
+enum Completeness is export <complete incomplete invalid>;
+
+class Position is export {
+    has Int $.line;      # logical line, 0-based
+    has Int $.column;    # grapheme index within the line
+}
+
+class Selection is export {
+    has Position $.anchor;
+    has Position $.head;
+}
+
+class Buffer is export {
+    has Str @.lines;
+
+    method text(--> Str) { @.lines.join("\n") }
+
+    method insert(Position $at, Str $text) { ... }
+    method delete(Position $from, Position $to) { ... }
+    method replace(Position $from, Position $to, Str $text) { ... }
+}
+
+role Validator is export {
+    method completeness(Str $text --> Completeness) { ... }
+}
+
+class EditorState is export {
+    has Buffer $.buffer;
+    has Position $.cursor;
+    has Selection $.selection;
+    has @.undo;
+    has @.kill-ring;
+    has Int $.scroll-row;
+    has Str $.mode;              # insert, normal, visual, ...
+    has Str $.prompt-mode;       # normal, continuation, search, completion
+}
+```
+
+`Position.column` is a grapheme index, not a byte offset. The buffer may store strings, but
+all cursor motion, selection, wrapping, and completion spans need one consistent unit. Use
+the same grapheme/width machinery as the prompt renderer.
+
+#### Submission rule
+
+The editor's `Enter` action is the core of the Nushell model:
+
+```rak
+method on-enter() {
+    given $!validator.completeness($!buffer.text) {
+        when Complete  { $!accept-line }
+        when Invalid   { $!accept-line }   # submit; show the diagnostic
+        when Incomplete { $!insert-newline }
+    }
+}
+```
+
+`Shift`+`Enter` and `Alt`+`Enter` call `insert-newline` directly. `Ctrl`+`J` calls
+`on-enter`. `Ctrl`+`O` calls the external-editor flow. The validator is injected from the
+Rak parser; the editor does not know Rak grammar.
+
+Completeness rules should be expressed in parser terms:
+
+| Input | Result |
+|---|---|
+| open `{`, `(`, `[`, or an indentation block | incomplete |
+| open single/double quote or heredoc | incomplete |
+| trailing `\|` or trailing binary operator | incomplete |
+| tree expression waiting for a right operand | incomplete |
+| unmatched closing delimiter | invalid, not incomplete: submit and diagnose |
+| complete statement followed by whitespace | complete |
+| syntactically wrong but not unfinished | invalid: submit and diagnose |
+
+This mirrors Nushell's `UnexpectedEof`/`Unclosed` versus complete-but-wrong distinction.
+Rak should expose a `parse-completeness` API from the compiler that returns
+`complete | incomplete | invalid` plus the first diagnostic, rather than forcing the
+editor to guess.
+
+#### Layout and painting
+
+The painter converts the buffer to rows:
+
+```rak
+class Row is export {
+    has Int $.logical-line;
+    has Int $.visual-start;      # grapheme offset in the logical line
+    has Int $.visual-end;
+    has Str $.gutter;            # continuation indent or prompt
+    has Bool $.first-row;
+    has Bool $.cursor-row;
+}
+
+class Layout is export {
+    has Row @.rows;
+    has Int $.cursor-row;
+    has Int $.cursor-column;
+    has Int $.menu-start-row;
+    has Int $.status-row;
+}
+```
+
+Rules:
+
+1. The first row uses the primary prompt; continuation rows use the continuation prompt
+   or an aligned gutter. For a multi-line prompt, the prompt's own last line is the
+   baseline for the first buffer row.
+2. Soft-wrap at the terminal width after subtracting the prompt/gutter width. If a single
+   grapheme is wider than the available width, hard-wrap it; never let it overflow.
+3. Tabs expand to configured stops before width calculation.
+4. `Right`/`End` at a wrapped row boundary must move to the next visual row, not jump to
+   the logical line end.
+5. The menu starts below the last buffer row; the status line sits between the buffer and
+   the menu. Reserve rows so the menu cannot overwrite the buffer.
+6. Scroll to keep the cursor visible; preserve the prompt's scrollback. Do not enter the
+   alternate screen for normal shell editing.
+7. On submit, print the final buffer plus a newline so the command remains in scrollback,
+   then execute. The editor must not leave the buffer's last row on screen as a stale live
+   region.
+
+Painting should use the same semantic runs as the prompt: text plus style, never raw ANSI.
+The renderer owns escapes, width, and dirty-row diffing. A full-screen TUI library is a
+different rendering model: a shell wants an inline live region embedded in ordinary
+terminal scrollback.
+
+#### History, selection, and paste
+
+* Store the whole buffer as one history entry, including newlines. Do not split a
+  multiline command into separate history entries.
+* `Up`/`Down` move within the buffer until the first/last logical line, then recall
+  history. This is the Nushell/Reedline fallback chain, and it is more predictable than
+  "history always wins".
+* History search should search across the full entry, but display matches as a single
+  line with visible newline markers.
+* Selection is anchored to buffer positions; `Shift`+arrows extend by grapheme/line/word;
+  mouse selection is optional.
+* Bracketed paste inserts the pasted text as text, never as keystrokes that could trigger
+  `Enter`. Normalize CRLF, strip or visibly escape control characters, and cap the size.
+* External editor: write the buffer to a temporary file, spawn the editor with the
+  terminal, read the file back, and make the whole round trip one undo group. Do not run
+  the buffer through the shell.
+
+#### Completion, prompts, and status
+
+The completion system from section 6 consumes `(buffer, cursor)` and returns candidates
+with replace spans. The editor:
+
+* sends the current buffer and cursor when completion is requested;
+* displays the menu below the buffer, anchored to the cursor row;
+* applies the candidate's quote policy when inserting across lines;
+* cancels the completion request if the buffer changes;
+* pauses asynchronous prompt repainting while the menu is visible.
+
+The status line can reuse the parser result that drives highlighting and completeness:
+signature under the cursor, inferred type, first diagnostic, and an "incomplete" marker.
+An unfinished line should not be shown as an error, just as in Nushell.
+
+#### Performance and limits
+
+* Repaint only dirty rows; do not rerender the whole buffer for every key.
+* Index logical lines and visual rows so cursor mapping is O(log n) or O(1) per edit, not
+  a full scan.
+* Cap buffer size and paste size (the Bubbles textarea has a 10,000-line guard; a shell
+  should choose its own configurable limit).
+* Parse completeness on a budget; if parsing the full buffer is too expensive, parse the
+  changed region or cancel the previous parse. Do not block input on a stale parse.
+* Keep the scrollback stable across resize; recompute rows and cursor, but do not replay
+  old output.
+
+### 7.4 Would Charmbracelet help?
+
+Charmbracelet is a Go terminal-UI stack, not a Raku line editor. Its pieces map unevenly:
+
+| Library | What it actually provides | Fit for a Rak shell |
+|---|---|---|
+| **Ultraviolet** | terminal lifecycle, raw mode, cell-based screen buffers, diffing renderer, inline and alternate screen, keyboard/mouse input, Kitty protocol, bracketed paste, suspend/resume, width helpers | **High for the terminal layer.** The architecture (Screen, Buffer, Window, screen context, diff renderer) is close to what a native Rak editor needs. It is Go, and its README says the API may change. |
+| **Bubble Tea v2** | Elm-style model/update/view runtime, cell renderer, color downsampling, key/mouse/clipboard handling, inline mode, `Println` above the live region, `ExecProcess` terminal handoff | **Medium.** Useful as a sidecar/prototype runtime; a shell is not a full-window TUI app, and the shell still owns job control and output. |
+| **Bubbles `textarea`** | multiline buffer, soft wrapping, viewport scrolling, selection, per-line prompt via `SetPromptFunc`, line numbers, dynamic height, cursor, 10,000-line guard | **High for the widget, low for shell semantics.** It is the closest existing widget to a Nushell-like buffer, but it has no parser-aware Enter, shell completion spans, history-at-edges, status line, or shell quoting. |
+| **Bubbles `viewport`** | vertical scrolling and paging | useful for menus and paged output, not sufficient for a buffer |
+| **Lip Gloss** | styling and layout | useful in a Go sidecar; the Rak prompt renderer already owns styles/width |
+| **`x/ansi`, `x/input`, `x/term`, `colorprofile`** | width, wrapping, escape parsing, terminal capabilities, input decoding | useful as reference or small helpers; not an editor |
+| **`gum`** | standalone prompt/input/choose widgets | not a line editor; cannot own a shell buffer |
+
+Bubble Tea v2 and Bubbles v2 have moved to `charm.land/...` module paths; Ultraviolet is
+still published under `github.com/charmbracelet/ultraviolet`. Any sidecar or Go helper
+should pin exact versions: the ecosystem is explicitly evolving.
+
+None of these libraries is a C library. Raku's `NativeCall` cannot load Go packages
+directly; the only direct integrations are a Go sidecar process or a `-buildmode=c-shared`
+wrapper, and the latter exposes a C ABI, not the Go API. That boundary, not the widget
+quality, is the deciding constraint.
+
+The Bubbles textarea is instructive. It renders a `Prompt` at the beginning of every line,
+can replace it with `SetPromptFunc(promptWidth, func(PromptInfo) string)`, supports soft
+wrapping through ANSI word/hard wrapping, and keeps a viewport, selection, cursor, and
+line numbers. That is a good starting point for the *visual* part of a Nushell-like editor.
+But its default `Enter` inserts a newline, its `Value()` joins lines, and it has no concept
+of a parser saying "this line is incomplete". It also does not provide shell history
+semantics, completion menu anchoring, candidate replacement spans, or command execution
+and terminal handoff.
+
+#### Integration paths
+
+| Path | How it works | Cost | Verdict |
+|---|---|---|---|
+| **Native Rak editor** | implement buffer, layout, painter, keymap, history, and completion view in Rak; use `NativeCall` for termios/`ioctl(TIOCGWINSZ)`/`wcwidth` or a tiny C helper; borrow Reedline/Ultraviolet architecture | highest initial work, lowest long-term coupling | **recommended** |
+| **Go sidecar editor** | a `rak-editor` process uses Bubble Tea v2 + Bubbles textarea + Ultraviolet; Rak talks to it over JSONL/Unix socket; editor owns terminal and buffer; Rak executes commands and completion providers | fast prototype, Go binary, IPC, duplicate state, terminal handoff | useful fallback/prototype, not the core |
+| **Go `c-shared` + Raku `NativeCall`** | build a Go shared library exporting a C ABI; call it from Rak | cgo callbacks, Go runtime in-process, no stable ABI, hard lifecycle | **not recommended** |
+| **Port Reedline or Ultraviolet** | translate Rust/Go source into Rak | huge, maintenance burden, licensing/attribution | only targeted ideas, not wholesale |
+| **Use `gum`** | invoke CLI widgets | no persistent buffer or shell editor | no |
+
+A sidecar could look like this:
+
+```mermaid
+flowchart LR
+    R[Rak core<br/>parser, completion, commands] <-->|JSONL over Unix socket| E[Go editor<br/>Bubble Tea + Bubbles + UV]
+    E --> T[terminal raw mode<br/>inline renderer]
+    R --> C[child process / job control]
+    E -. suspend/resume .-> T
+```
+
+Messages would include `init` (prompt/state/capabilities), `resize`, `completion-request`
+(line/cursor/mode), `completion-result`, `submit`, `cancel`, and `output`. The editor keeps
+the live buffer; Rak only receives the submitted text and cursor/selection when needed.
+Bubble Tea's `ExecProcess` can release the terminal for a child command, and Ultraviolet's
+`Stop()`/`Start()` supports suspend/resume. But the shell still owns process groups, job
+control, signals, and output streaming, so the boundary is much larger than "call a
+textarea widget".
+
+The sidecar's deeper problem is architectural: the prompt and completion engines already
+described in this note live in Rak, but the Go process would own the terminal and the
+rendering loop. Either the Go process renders semantic prompt data sent by Rak (a second
+renderer), or Rak renders strings for the sidecar (losing the typed layout model). Both
+duplicate the design. A native editor keeps one owner for terminal, buffer, prompt, and
+menu.
+
+#### Verdict
+
+**Charmbracelet helps most as a reference and as an optional prototype, not as a drop-in
+dependency.** Ultraviolet's cell/diff renderer and inline-mode architecture are directly
+relevant; Bubbles textarea is a useful demonstration of wrapping, viewport, per-line
+prompts, and selection; Bubble Tea's event loop and `ExecProcess` are useful if a sidecar is
+built. None of them removes the shell-specific work: parser completeness, prompt
+continuations, completion spans, history-at-edges, job control, scrollback, and safe
+insertion. Reedline is the closer reference precisely because it is a line editor for a
+shell, not a TUI framework.
+
+### 7.5 Acceptance scenarios
+
+These should become PTY tests when the editor exists:
+
+| Scenario | Expected |
+|---|---|
+| `if 1` + `Enter` | newline, continuation prompt aligned; no execution |
+| complete `if` block + `Enter` | execute as one buffer |
+| `ls \|` + `Enter` | newline; pipeline continues |
+| `Alt`+`Enter` / `Shift`+`Enter` | newline regardless of completeness |
+| unbalanced `}` + `Enter` | submit and show diagnostic; do not keep waiting |
+| `Up` in the middle of a buffer | move cursor; do not recall history |
+| `Up` on the first line | recall previous multiline entry |
+| paste a multiline script | insert text; do not execute on pasted newlines |
+| resize with a 20-line buffer | cursor remains visible; no scrollback corruption |
+| completion on line 5 | menu below buffer; accept replaces the correct span |
+| `Ctrl`+`O` round trip | buffer replaced; one undo group |
+| wide CJK/emoji line | wrap and cursor mapping remain correct |
+
+Latency targets:
+
+| Operation | Target |
+|---|---|
+| keystroke to repaint, 100-line buffer | < 10 ms p95 |
+| keystroke to repaint, 10,000-line buffer | < 20 ms p95, with capped parsing |
+| completion menu open/close | < 10 ms p95 |
+| paste 1 MB | no input freeze; cap and report truncation |
+| resize | < 20 ms p95; cursor visible |
+
+The editor should be built before broad completion coverage: a completion menu is a
+consumer of the buffer layout, not a separate rendering system.
+
+---
+
+## 8. Implementation plan
 
 The ordering below is chosen to produce a usable shell early, not to build the most
-elegant system first. Prompt and path completion are the vertical slice; broad command
-coverage comes later.
+elegant system first. Terminal, multiline buffer, prompt, and path completion are the
+vertical slice; broad command coverage comes later.
 
 | Milestone | Scope | Acceptance |
 |---|---|---|
 | **M0 — Terminal and editor** | raw mode, key decoding, resize, cursor save/restore, bracketed paste, PTY harness | a Rak REPL can edit a line, move the cursor, and survive resize; PTY tests pass |
+| **M0b — Multiline editor** | logical buffer, wrapping/layout, cursor mapping, continuation prompt, validator-driven Enter, history at edges, paste, external editor | open block/trailing pipe insert newlines; unbalanced closer submits with diagnostic; Up/Down history only at buffer edges; PTY scenarios pass |
 | **M1 — Static prompt** | `State`, segments, layout, renderer, theme config, width tests | prompt renders correctly at 20–200 cols; no raw escapes in semantic layer; golden tests pass |
 | **M2 — Async prompt** | providers, cache, deadlines, git, stale-while-revalidate, transient/continuation | first paint < 5 ms p99; git result appears without blocking; doctor reports timings |
 | **M3 — Completion core** | lexer, context, `Candidate`, path/command providers, menu, insertion/quoting | `cd`, `cat`, and `rak` builtins complete; menu works; no shell fork per Tab |
@@ -1729,18 +2126,24 @@ coverage comes later.
    state, and command index. This avoids the zsh problem where `precmd` and completion
    functions disagree about the world.
 3. **One width function.** Test it against real terminals; expose the ambiguous-width knob.
-4. **Path completion before command completion.** Paths exercise lexing, quoting, spans,
+4. **The multiline buffer and painter before completion.** A completion menu is a consumer
+   of buffer layout; building it first avoids a second, inconsistent layout model.
+5. **Path completion before command completion.** Paths exercise lexing, quoting, spans,
    display truncation, and insertion, and they are immediately useful.
-5. **Signature-derived specs before external specs.** They prove the "one source of truth"
+6. **Signature-derived specs before external specs.** They prove the "one source of truth"
    idea on Rak's own commands and avoid writing shell code for completion.
-6. **A diagnostic view from day one.** `rak completion doctor` and `rak prompt doctor` make
-   latency and coverage visible; otherwise the design will regress into folklore.
+7. **A diagnostic view from day one.** `rak completion doctor`, `rak prompt doctor`, and
+   `rak editor doctor` make latency, layout, and coverage visible; otherwise the design
+   will regress into folklore.
 
 ### Suggested repository seams
 
 | Seam | Interface | Test strategy |
 |---|---|---|
 | Terminal | `size`, `raw`, `write`, `read-key`, `capabilities` | fake terminal + PTY |
+| Buffer | `insert`, `delete`, `replace`, `text`, `position-at` | property tests, grapheme edge cases |
+| Validator | `completeness(text) --> Completeness` | parser fixtures, incomplete/invalid split |
+| Editor layout | `layout(buffer, cursor, cols, prompt) --> Layout` | golden rows + PTY cursor checks |
 | Prompt renderer | `render(List[Run], width, capabilities) --> Str` | golden tests |
 | Prompt provider | `fetch(State) --> Promise` | synthetic states, timeouts |
 | Lexer | `tokens(line, cursor) --> List[Token]` | table-driven and fuzz |
@@ -1752,7 +2155,7 @@ coverage comes later.
 
 ---
 
-## 8. Risks and open questions
+## 9. Risks and open questions
 
 1. **Coverage is the adoption risk.** zsh's 792 functions encode years of edge cases. Rak
    cannot hand-port them. The realistic strategy is native specs for common tools, generated
@@ -1787,6 +2190,14 @@ coverage comes later.
 10. **Accessibility.** Color-only status, animated prompts, and menu redraws can be hostile
     to screen readers. A plain mode and non-redrawing completion listing should be part of
     the first release, not a later accessibility pass.
+11. **Multiline editing is a second full subsystem.** A textarea is not enough: parser
+    completeness, continuation prompts, row mapping, scrollback, history-at-edges, and
+    terminal handoff are all shell-specific. Building the buffer and painter before broad
+    completion coverage is the safer order.
+12. **The Charmbracelet boundary is Go-shaped.** Ultraviolet and Bubbles are useful
+    references and can support a sidecar prototype, but a Go `c-shared` call from Raku is
+    not a stable or boring foundation. If a sidecar is used, the protocol must keep prompt
+    and completion semantics in Rak and treat the editor as replaceable.
 
 ---
 
@@ -1908,7 +2319,10 @@ coverage comes later.
 | Term | Meaning |
 |---|---|
 | **candidate** | a possible completion; in Rak, a typed value with display/insertion metadata |
+| **completeness** | parser verdict for a buffer: complete, incomplete, or invalid |
 | **context** | the parse-derived description of the cursor position |
+| **inline editor** | a line editor that draws a live region in normal terminal scrollback, not the alternate screen |
+| **logical line / visual row** | buffer line versus its wrapped screen row |
 | **completer** | a stage in zsh's completion dispatch chain |
 | **compinit** | zsh's completion initializer and function scanner |
 | **compadd** | zsh builtin that adds matches |
@@ -1939,3 +2353,16 @@ coverage comes later.
   `~/PLANS/subscripting.md`, `~/PLANS/yaml-matcher.md`, `~/PLANS/tree-exprs.md`.
 * Raku introspection checks: `&MAIN.signature.params`, `&MAIN.candidates`,
   `Type.^enum_values` on Rakudo Star 2026.08.
+* Nushell 0.117.0 line-editor documentation:
+  <https://www.nushell.sh/book/line_editor.html> — multiline triggers, `Enter`/`Ctrl`+`J`,
+  explicit newline bindings, external editor, history, hints, status line, menus.
+* Reedline sources and design notes: <https://github.com/nushell/reedline> —
+  `src/README.md`, `src/engine.rs`, `src/painting/prompt_lines.rs`,
+  `Validator`/`ValidationResult`, edit modes and keybindings.
+* Nushell `NuValidator`: `crates/nu-cli/src/validation.rs` in
+  <https://github.com/nushell/nushell> — `UnexpectedEof`/`Unclosed` map to incomplete;
+  complete-but-wrong lines are submitted.
+* Charmbracelet: <https://github.com/charmbracelet/bubbletea> (v2 README and `Exec`),
+  <https://github.com/charmbracelet/bubbles> (`textarea`, `viewport`),
+  <https://github.com/charmbracelet/ultraviolet> (terminal primitives and diff renderer),
+  <https://github.com/charmbracelet/lipgloss>.
