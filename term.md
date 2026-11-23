@@ -65,58 +65,58 @@ $ command typed by you, as a normal user
 
 ## Table of contents
 
-Part I: Concepts
+[Part I: Concepts](#part-i-concepts)
 
-1. A short history of terminals
-2. File descriptors: the common currency
-3. Pipes
-4. The TTY layer: line discipline and termios
-5. Sessions, process groups and job control
-6. Pseudo-terminals
-7. Talking to the screen: escape sequences
-8. Window size, terminfo and terminal capabilities
+1. [A short history of terminals](#1-a-short-history-of-terminals)
+2. [File descriptors: the common currency](#2-file-descriptors-the-common-currency)
+3. [Pipes](#3-pipes)
+4. [The TTY layer: line discipline and termios](#4-the-tty-layer-line-discipline-and-termios)
+5. [Sessions, process groups and job control](#5-sessions-process-groups-and-job-control)
+6. [Pseudo-terminals](#6-pseudo-terminals)
+7. [Talking to the screen: escape sequences](#7-talking-to-the-screen-escape-sequences)
+8. [Window size, terminfo and terminal capabilities](#8-window-size-terminfo-and-terminal-capabilities)
 
-Part II: Languages
+[Part II: Languages](#part-ii-languages)
 
-9. C: the ecosystem
-10. C: pipes, fork and exec
-11. C: termios and raw mode
-12. C: pseudo-terminals
-13. C: a tiny job-control shell
-14. Raku: the ecosystem
-15. Raku: pipes and processes
-16. Raku: terminals and termios
-17. Raku: pseudo-terminals through NativeCall
-18. Raku: TUIs with the Terminal modules
-19. Rust: the ecosystem
-20. Rust: pipes and processes
-21. Rust: termios and raw mode
-22. Rust: pseudo-terminals
-23. Rust: TUIs with crossterm and ratatui
-24. Go: the ecosystem
-25. Go: pipes and processes
-26. Go: terminals with x/term
-27. Go: pseudo-terminals with creack/pty
-28. Go: the Charm stack (Bubble Tea, Lip Gloss, Bubbles, Wish)
+9. [C: the ecosystem](#9-c-the-ecosystem)
+10. [C: pipes, fork and exec](#10-c-pipes-fork-and-exec)
+11. [C: termios and raw mode](#11-c-termios-and-raw-mode)
+12. [C: pseudo-terminals](#12-c-pseudo-terminals)
+13. [C: a tiny job-control shell](#13-c-a-tiny-job-control-shell)
+14. [Raku: the ecosystem](#14-raku-the-ecosystem)
+15. [Raku: pipes and processes](#15-raku-pipes-and-processes)
+16. [Raku: terminals and termios](#16-raku-terminals-and-termios)
+17. [Raku: pseudo-terminals through NativeCall](#17-raku-pseudo-terminals-through-nativecall)
+18. [Raku: TUIs with the Terminal modules](#18-raku-tuis-with-the-terminal-modules)
+19. [Rust: the ecosystem](#19-rust-the-ecosystem)
+20. [Rust: pipes and processes](#20-rust-pipes-and-processes)
+21. [Rust: termios and raw mode](#21-rust-termios-and-raw-mode)
+22. [Rust: pseudo-terminals](#22-rust-pseudo-terminals)
+23. [Rust: TUIs with crossterm and ratatui](#23-rust-tuis-with-crossterm-and-ratatui)
+24. [Go: the ecosystem](#24-go-the-ecosystem)
+25. [Go: pipes and processes](#25-go-pipes-and-processes)
+26. [Go: terminals with x/term](#26-go-terminals-with-xterm)
+27. [Go: pseudo-terminals with creack/pty](#27-go-pseudo-terminals-with-creackpty)
+28. [Go: the Charm stack (Bubble Tea, Lip Gloss, Bubbles, Wish)](#28-go-the-charm-stack)
 
-Part III: Projects and comparisons
+[Part III: Projects and comparisons](#part-iii--projects)
 
-29. Project: `script` in four languages
-30. Project: an `expect`-like driver
-31. Project: a terminal multiplexer in miniature
-32. Debugging terminals and pipes
-33. Comparing the four languages
+29. [Project: `script` in four languages](#29-project-script-in-four-languages)
+30. [Project: an `expect`-like driver](#30-project-an-expect-like-driver)
+31. [Project: a terminal multiplexer in miniature](#31-project-a-terminal-multiplexer-in-miniature)
+32. [Debugging terminals and pipes](#32-debugging-terminals-and-pipes)
+33. [Comparing the four languages](#33-comparing-the-four-languages)
 
-Appendices
+[Appendices](#appendices)
 
-- A. termios reference
-- B. Escape sequence reference
-- C. Signals reference
-- D. Glossary
-- E. Exercises
-- F. Troubleshooting
-- G. Further reading
-- H. Extracting the listings
+- [A. termios reference](#appendix-a-termios-reference)
+- [B. Escape sequence reference](#appendix-b-escape-sequence-reference)
+- [C. Signals reference](#appendix-c-signals-reference)
+- [D. Glossary](#appendix-d-glossary)
+- [E. Exercises](#appendix-e-exercises)
+- [F. Troubleshooting](#appendix-f-troubleshooting)
+- [G. Further reading](#appendix-g-further-reading)
+- [H. Extracting the listings](#appendix-h-extracting-the-listings)
 
 ---
 
@@ -2622,6 +2622,9 @@ Code ...) lets the shell mark where the prompt, the command and the output
 start, so the emulator can jump between prompts or select a command's
 output.
 
+These numbers come from several unrelated sources, with collisions:
+7.16 tells who defined which, and where to find the specifications.
+
 ### 7.12 Character width and Unicode
 
 The terminal is a grid of cells. Most characters occupy one cell, but:
@@ -2698,6 +2701,279 @@ You will see implementations: `Terminal::ANSIParser` in Raku is a
 compact version; the Rust `vte` crate (used by Alacritty) and Go's
 `charmbracelet/x/ansi` parser implement it fully. In chapter 31 we use a
 simplified parser to build a tiny terminal multiplexer.
+
+### 7.16 Where OSC numbers come from
+
+Section 7.11 listed OSC sequences as if they came from one standard.
+They do not. The number after `OSC` is chosen by whoever invents the
+sequence. There are several sources, no registry, and the occasional
+collision.
+
+**ECMA-48 defines the envelope, not the contents.**
+[ECMA-48](https://ecma-international.org/publications-and-standards/standards/ecma-48/)
+(5th edition, 1991, identical to ISO/IEC 6429) defines five *control
+strings*:
+
+- OSC, operating system command;
+- DCS, device control string;
+- APC, application program command;
+- PM, privacy message;
+- SOS, start of string.
+
+Each starts with its introducer (`ESC ]` for OSC, or the single byte
+0x9D) and ends with ST, the string terminator (`ESC \`, or 0x9C). For
+OSC, the standard leaves the meaning of the string to the operating
+system. It defines no numbers, and not even the `Ps ; Pt` shape that
+everybody uses: that shape comes from xterm. The standard also limits
+the string to the bytes 0x08–0x0D and 0x20–0x7E, so a UTF-8 window
+title is, strictly speaking, outside the standard. Every modern
+terminal accepts one anyway.
+
+This has two practical consequences:
+
+- **Only the 7-bit forms work.** The 8-bit introducers 0x9D and 0x9C
+  are also UTF-8 continuation bytes. Terminals in UTF-8 mode therefore
+  recognize only `ESC ]` and `ESC \`.
+- **BEL is a second terminator.** ECMA-48 does not allow BEL (0x07)
+  there, but xterm accepted it from the start, and every emulator
+  followed. xterm answers a query with the terminator the query used.
+
+**xterm is the de facto registry.** Thomas Dickey's
+[XTerm Control Sequences](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html)
+documents what xterm does. Almost every emulator claims to be xterm
+(`TERM=xterm-256color`), so its numbers became the common base:
+
+| OSC     | Meaning           |
+|---------|-------------------|
+| 0, 1, 2 | icon and title    |
+| 3       | X property        |
+| 4       | palette color     |
+| 5, 6    | special colors    |
+| 10–19   | dynamic colors    |
+| 22      | pointer shape     |
+| 46      | log file          |
+| 50      | font              |
+| 52      | clipboard         |
+| 104–119 | reset colors      |
+
+Some details:
+
+- **Titles.** 0 sets both the icon name and the window title, 1 only
+  the icon name, and 2 only the window title.
+- **Dynamic colors** (10–19). 10 is the default foreground, 11 the
+  background, 12 the cursor, 13 and 14 the mouse pointer, and 17 and
+  19 the selection highlight. 15, 16 and 18 are for the Tektronix
+  window that xterm still emulates.
+- **Queries.** A `?` in place of a value asks for the current value.
+  The answer uses the X11 color syntax, `rgb:RRRR/GGGG/BBBB`.
+- **Resets.** 104, 110, 111 and 112 undo what 4, 10, 11 and 12 set.
+- **Clipboard.** In OSC 52, the first parameter names the X
+  selection: `c` is the clipboard and `p` is the primary selection.
+
+**Other emulators took the free numbers.** Numbers that xterm does
+not use were taken by whoever needed them:
+
+| OSC  | Meaning           | Origin        |
+|------|-------------------|---------------|
+| 7    | current directory | Terminal.app  |
+| 8    | hyperlink         | VTE, iTerm2   |
+| 9    | notification      | iTerm2        |
+| 9;N  | many commands     | ConEmu        |
+| 99   | notification      | kitty         |
+| 133  | prompt marks      | FinalTerm     |
+| 633  | shell integration | VS Code       |
+| 777  | notification      | urxvt         |
+| 1337 | many commands     | iTerm2        |
+| 3008 | context           | systemd       |
+
+- **OSC 7** carries `file://HOST/PATH`, with the path
+  percent-encoded. macOS Terminal and VTE (the library behind GNOME
+  Terminal) popularized it. With it, a new tab or split opens in the
+  same directory, and the host part tells the terminal when the
+  directory is on another machine. Windows Terminal used ConEmu's
+  `OSC 9 ; 9 ; PATH` for the same job.
+- **OSC 8** hyperlinks were specified by Egmont Koblinger in 2017 for
+  GNOME Terminal, together with iTerm2
+  ([the specification](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda)).
+  The optional `id=` parameter joins the pieces of one link that a
+  full-screen program draws in several places.
+- **OSC 9 collides.** iTerm2 reads `OSC 9 ; TEXT` as "show TEXT as a
+  notification". ConEmu reads `OSC 9 ; N ; ...` as command number N:
+  9;4 is a progress bar and 9;9 the current directory. The terminal
+  cannot tell `OSC 9 ; 4 ; 1 ; 50` (progress at 50 %) from a
+  notification that reads "4;1;50". The progress bar escaped ConEmu
+  (Windows Terminal draws it in the tab), so terminals that support
+  both have to guess.
+- **Notifications have three protocols.** These are iTerm2's OSC 9,
+  urxvt's `OSC 777 ; notify ; TITLE ; BODY`, and kitty's OSC 99. Only
+  kitty's has identifiers, urgency and a report when the notification
+  is clicked.
+- **OSC 133** comes from FinalTerm, an experimental terminal of 2013.
+  The shell sends `A` where the prompt starts, `B` where the command
+  starts, `C` where the output starts, and `D;STATUS` at the end. The
+  terminal can then jump from prompt to prompt, select one command's
+  output, and mark failed commands. VS Code needed more (the exact
+  command line, for example) and defined OSC 633 with the same
+  letters plus its own.
+- **OSC 1337** is iTerm2's grab bag: `File=` for inline images
+  (7.14), `SetUserVar=`, `CurrentDir=`, `SetMark` and a few dozen
+  more. WezTerm implements some of them.
+- **OSC 3008** is the most recent. It appeared with systemd 257 in
+  2024, and is specified by the
+  [UAPI group](https://uapi-group.org/specifications/specs/osc_context/).
+  Tools that change context (`ssh`, a container, a VM, `run0` for
+  privileges) announce where the following output comes from, so
+  that the terminal can show it.
+
+**There is no standards body.** The closest thing is the
+[terminal-wg](https://gitlab.freedesktop.org/terminal-wg/specifications)
+project at freedesktop.org. There, emulator authors file proposals and
+argue about them: hyperlinks, semantic prompts, and many more that
+never reached consensus. Otherwise, the documentation of the terminal
+that invented a sequence is its specification. That means kitty's
+protocol extensions, iTerm2's "proprietary escape codes" page, and
+the Windows Terminal documentation. A practical rule: look in
+ctlseqs first; if xterm does not have the number, read the inventor's
+page.
+
+**Detecting support is guesswork.** Modes can be queried (`DECRQM`,
+B.9), but there is no general way to ask whether an OSC is supported.
+Unknown OSC sequences are dropped silently, which is convenient: a
+shell can always emit OSC 7 and 133, and terminals that do not know
+them ignore them. A query is different, because an unsupported query
+is never answered (7.10). terminfo knows a few:
+
+- the standard `tsl`, `fsl` and `hs` capabilities, for a status line
+  that some entries use for the title;
+- the extended `Ms` capability (OSC 52), set by tmux;
+- the extended `Cs` and `Cr` capabilities (cursor color), also set by
+  tmux.
+
+For the rest, programs look at environment variables:
+
+- `TERM_PROGRAM`, set to `iTerm.app`, `WezTerm`, `vscode`, `ghostty`
+  or `tmux`;
+- `KITTY_WINDOW_ID`;
+- `VTE_VERSION`;
+- `WT_SESSION`, for Windows Terminal.
+
+These variables cross `ssh` badly, and they lie inside a multiplexer.
+
+**Multiplexers stand in the middle.** tmux and screen are terminals
+(chapter 31), so they parse every OSC their programs send.
+
+- **What recent tmux implements.** That includes titles (with
+  `set-titles on`), the colors 4, 10, 11 and 12, OSC 7, OSC 8 and
+  OSC 52 (with `set-clipboard on`). It also reads the OSC 133 marks,
+  for `next-prompt` and `previous-prompt` in copy mode.
+- **What it drops.** It drops everything else: an iTerm2 image or a
+  kitty notification sent inside tmux never reaches the outer
+  terminal.
+- **Passthrough.** To reach the outer terminal, wrap the sequence in
+  tmux's own DCS and double every ESC inside it. This needs
+  `allow-passthrough on` (tmux 3.3 and later):
+
+```sh
+# a notification for the terminal outside tmux
+printf '\ePtmux;\e\e]9;build done\a\e\\'
+```
+
+(muxi, in 31.2, implements only the titles: its `osc` state swallows
+the rest.)
+
+**Shell integration in practice.** A few lines in `~/.zshrc` emit
+OSC 7 and OSC 133 from the prompt hooks:
+
+```zsh
+# OSC 7 and OSC 133 for zsh: add to ~/.zshrc
+autoload -Uz add-zsh-hook
+_osc_precmd() {
+  local st=$?
+  print -n "\e]133;D;$st\e\\"                    # last command ended
+  print -n "\e]7;file://$HOST${PWD// /%20}\e\\"  # current directory
+  print -n "\e]133;A\e\\"                        # prompt starts
+}
+_osc_preexec() { print -n "\e]133;C\e\\" }       # output starts
+add-zsh-hook precmd _osc_precmd
+add-zsh-hook preexec _osc_preexec
+PS1='%~ %# '$'%{\e]133;B\e\\%}'                  # input starts
+```
+
+`%{...%}` tells zsh that the sequence takes no room on the screen
+(7.12). Only spaces are percent-encoded, which is enough for most
+paths. The sequences of a session that ran `false`, `cd /etc` and
+`exit`, extracted from a `script` log with `cat -v`:
+
+```text
+^[]133;D;0
+^[]7;file://om/usr/share
+^[]133;A
+^[]133;B
+^[]133;C
+^[]133;D;1
+^[]7;file://om/usr/share
+^[]133;A
+^[]133;B
+^[]133;C
+^[]133;D;0
+^[]7;file://om/etc
+^[]133;A
+^[]133;B
+^[]133;C
+```
+
+`D;1` is the status of `false`. The first `D;0` comes before any
+command; terminals ignore a `D` without a `C`.
+
+A query, from a shell script. Raw mode with `min 0 time 5` makes the
+read return after half a second of silence, so a terminal that does
+not answer costs half a second:
+
+```sh
+#!/bin/sh
+# osc11.sh: ask the terminal for its background color (OSC 11).
+old=$(stty -g)
+stty raw -echo min 0 time 5   # a read returns after 0.5 s of silence
+printf '\033]11;?\033\\' > /dev/tty
+reply=$(dd bs=100 count=1 2>/dev/null < /dev/tty)
+stty "$old"
+printf '%s\n' "$reply" | cat -v
+```
+
+In a tmux pane with `window-style 'bg=#102030'`:
+
+```console
+$ ./osc11.sh
+^[]11;rgb:1010/2020/3030^[\
+```
+
+The query ended with ST, and so does the answer. Each 8-bit channel
+is written as 16 bits, with the byte repeated.
+
+**OSC sequences are a security matter.** Text printed to a terminal
+is code for the terminal. A `cat` of an untrusted file, a log line
+that contains user input, or a file name with an ESC in it can send
+any OSC:
+
+- **Title reporting.** xterm's `CSI 21 t` sends the title back as
+  input, as if typed. Combined with `OSC 2`, a file could type a
+  command into your shell. This was one of the terminal emulator
+  vulnerabilities published in 2003. xterm now disables title
+  reporting by default, and most emulators never implemented it.
+- **Clipboard.** Reading through OSC 52 would let any program, even
+  one on a remote machine, read your clipboard. Most terminals refuse
+  to read, and some ask before writing.
+- **Hyperlinks.** With OSC 8, the text of a link and its URI can
+  differ, as in HTML. Terminals show the URI on hover.
+- **Unterminated strings.** A stray `ESC ]` without a terminator
+  makes the terminal swallow the following output, up to a BEL, an
+  ST or a length limit. muxi's parser has the same state.
+
+The defense is the same as for any injection: do not print untrusted
+text raw. `less` shows control characters as `^[` unless told
+otherwise (`-r`). GNU `ls` quotes a file name containing ESC as
+`$'\033'` when its output is a terminal. `cat -v` makes everything
+visible.
 
 ---
 
@@ -15914,6 +16190,9 @@ know their exit statuses. It comes from FinalTerm; kitty, WezTerm,
 foot, iTerm2, Windows Terminal and others support it. **OSC 7** tells
 the terminal the current directory, so that a new tab opens in the
 same place.
+
+For the origin of each number (ECMA-48, xterm, iTerm2, kitty,
+ConEmu, FinalTerm, systemd) and the collisions between them, see 7.16.
 
 ### B.8 What keys send
 
