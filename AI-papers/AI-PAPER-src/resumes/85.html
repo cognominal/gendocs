@@ -1,0 +1,42 @@
+<h4>Objet</h4>
+<p>Cette synthèse (Tianxin Wei et al., UIUC avec Meta, Amazon, Google DeepMind, UCSD et Yale ; janvier 2026, révisée en septembre) porte sur le <b>raisonnement agentique</b> : un raisonnement qui ne se contente pas de produire du texte, mais qui planifie, agit, observe et s'adapte dans des environnements ouverts. C'est le prolongement naturel des modèles de raisonnement (papiers 69 et 33) et des agents (papiers 56 et 64). Le sous-titre annonce l'horizon : des agents qui s'améliorent récursivement et qui forment des collectifs.</p>
+
+<h4>Trois couches</h4>
+<ol>
+<li><b>Raisonnement agentique fondamental</b> : les capacités d'un agent isolé dans un environnement stable.
+<ul>
+<li>planification : décomposer un but, ordonner des sous-tâches, réviser le plan ;</li>
+<li>usage d'outils : choisir, appeler, composer des outils (papier 57) ;</li>
+<li>recherche : explorer des solutions et des informations (papier 59), y compris la recherche web approfondie.</li>
+</ul></li>
+<li><b>Raisonnement agentique auto-évolutif</b> : un agent qui s'améliore à partir de son expérience.
+<ul>
+<li>retour d'information : réflexion sur les échecs (papier 60), critiques, vérificateurs ;</li>
+<li>mémoire : épisodique, sémantique, procédurale (papier 64), y compris des bibliothèques de compétences ;</li>
+<li>adaptation : modifier ses outils, ses prompts, son code, voire ses poids.</li>
+</ul></li>
+<li><b>Raisonnement collectif multi-agents</b> : plusieurs agents qui coordonnent leurs rôles, partagent leurs connaissances et poursuivent des buts communs.</li>
+</ol>
+
+<h4>Deux régimes d'optimisation</h4>
+<p>Pour chaque couche, la synthèse distingue :</p>
+<ul>
+<li>le raisonnement <b>en contexte</b> : orchestration au moment de l'inférence, prompts, structures de contrôle, sans modifier le modèle ;</li>
+<li>le raisonnement <b>post-entraîné</b> : apprentissage par renforcement, affinage supervisé sur des trajectoires d'agents, entraînement multi-agents.</li>
+</ul>
+<p>La tendance est claire : des comportements autrefois obtenus par orchestration externe (ReAct, réflexion, planification explicite) sont de plus en plus appris directement par le modèle, comme la recherche explicite a été absorbée par la longue chaîne de pensée.</p>
+
+<h4>Applications</h4>
+<p>La synthèse passe en revue les agents de science (découverte, expériences automatisées), de robotique, de santé, de mathématiques, de code (agents qui travaillent dans des dépôts) et de recherche web. Elle recense les benchmarks associés.</p>
+
+<h4>Défis ouverts</h4>
+<ul>
+<li><b>Personnalisation</b> : adapter un agent à un utilisateur sur le long terme.</li>
+<li><b>Interactions à long horizon</b> : tâches de plusieurs heures ou jours, avec gestion de la mémoire et des erreurs cumulées.</li>
+<li><b>Modèles du monde</b> : prévoir l'effet de ses actions avant de les faire.</li>
+<li><b>Entraînement multi-agents évolutif</b> : passer à l'échelle l'apprentissage de collectifs.</li>
+<li><b>Gouvernance</b> : sécurité, contrôle et responsabilité d'agents qui modifient leur propre comportement. APPA (papier 95) traite un aspect concret de cette question.</li>
+</ul>
+
+<h4>Intérêt</h4>
+<p>Cette synthèse clôt la section en montrant où mène la trajectoire « chaîne de pensée → modèles de raisonnement → agents ». Les system cards de fin 2026 en montrent la réalité : 1 000 agents Claude collaborant pour prouver le dernier théorème de Fermat (papier 99), ou des évaluations d'auto-amélioration de l'IA qui atteignent le seuil « High » chez OpenAI (papier 101).</p>

@@ -1,0 +1,128 @@
+<h3 class="part" id="tf-11">XI. Le Transformer dans cette collection</h3>
+
+<h4>11.1 Une chronologie</h4>
+<p>Les fiches de ce document permettent de suivre l'histoire du Transformer presque pas à pas. Le tableau ci-dessous relie chaque étape au papier résumé et à la partie du dossier qui en traite.</p>
+<table class="chap-table">
+<tr><th>Année</th><th>Étape</th><th>Fiche</th><th>Partie</th></tr>
+<tr><td>1986</td><td>Rétropropagation</td><td><a href="#p3">3</a></td><td><a href="#tf-1">I</a></td></tr>
+<tr><td>2013</td><td>Plongements de mots</td><td><a href="#p6">6</a></td><td><a href="#tf-2">II</a></td></tr>
+<tr><td>2015</td><td>Distillation</td><td><a href="#p86">86</a></td><td><a href="#tf-7">VII</a></td></tr>
+<tr><td>2017</td><td>Le Transformer</td><td><a href="#p9">9</a></td><td><a href="#tf-3">III</a>, <a href="#tf-4">IV</a></td></tr>
+<tr><td>2018</td><td>BERT</td><td><a href="#p10">10</a></td><td><a href="#tf-6">VI</a></td></tr>
+<tr><td>2022</td><td>Chaîne de pensée</td><td><a href="#p53">53</a></td><td><a href="#tf-9">IX</a></td></tr>
+<tr><td>2022</td><td>RLHF, InstructGPT</td><td><a href="#p29">29</a></td><td><a href="#tf-7">VII</a></td></tr>
+<tr><td>2023</td><td>GPT-4</td><td><a href="#p24">24</a></td><td><a href="#tf-6">VI</a></td></tr>
+<tr><td>2023</td><td>SoundStorm</td><td><a href="#p88">88</a></td><td><a href="#tf-10">X</a></td></tr>
+<tr><td>2024</td><td>DeepSeekMoE</td><td><a href="#p36">36</a></td><td><a href="#tf-4">IV</a></td></tr>
+<tr><td>2024</td><td>CoT et circuits sériels</td><td><a href="#p65">65</a></td><td><a href="#tf-9">IX</a></td></tr>
+<tr><td>2024</td><td>Moshi</td><td><a href="#p89">89</a></td><td><a href="#tf-10">X</a></td></tr>
+<tr><td>2024</td><td>FineWeb</td><td><a href="#p91">91</a></td><td><a href="#tf-7">VII</a></td></tr>
+<tr><td>2024</td><td>DeepSeek-VL2</td><td><a href="#p37">37</a></td><td><a href="#tf-10">X</a></td></tr>
+<tr><td>2024</td><td>DeepSeek-V3</td><td><a href="#p32">32</a></td><td><a href="#tf-7">VII</a>, <a href="#tf-8">VIII</a></td></tr>
+<tr><td>2025</td><td>Janus-Pro</td><td><a href="#p39">39</a></td><td><a href="#tf-10">X</a></td></tr>
+<tr><td>2026</td><td>Crosscoders</td><td><a href="#p47">47</a></td><td><a href="#tf-9">IX</a></td></tr>
+<tr><td>2026</td><td>DeepSeek-V4</td><td><a href="#p31">31</a></td><td><a href="#tf-4">IV</a>, <a href="#tf-7">VII</a></td></tr>
+<tr><td>2026</td><td>JEPA platonicienne</td><td><a href="#p93">93</a></td><td><a href="#tf-10">X</a></td></tr>
+<tr><td>2026</td><td>Concepts suivants</td><td><a href="#p96">96</a></td><td><a href="#tf-10">X</a></td></tr>
+</table>
+<p>La synthèse sur l'attention de Niu et al. (<a href="#p87">fiche 87</a>) couvre toute la période et sert de complément à la partie I. Les cartes système d'Anthropic et d'OpenAI (fiches 11 à 15, 21 à 23, 48, 97 à 102) ne décrivent presque jamais l'architecture des modèles qu'elles présentent, mais tous sont des Transformers décodeurs, très probablement à mélange d'experts pour les plus grands ; gpt-oss (<a href="#p30">fiche 30</a>), le seul modèle d'OpenAI à poids ouverts de la collection, en donne une idée : un MoE de 117 milliards de paramètres (5,1 milliards actifs), 36 couches, attention alternant fenêtre glissante de 128 jetons et attention complète, GQA et RoPE avec YaRN.</p>
+
+<h4>11.2 Ce qui a changé depuis 2017, et ce qui n'a pas changé</h4>
+<p>Si l'on compare le Transformer de base de 2017 à un modèle frontière ouvert de 2026, la liste des changements est longue :</p>
+<table class="chap-table">
+<tr><th>Élément</th><th>2017</th><th>2026</th></tr>
+<tr><td>Architecture</td><td>enc.-déc.</td><td>décodeur</td></tr>
+<tr><td>Normalisation</td><td>post-LN</td><td>pré-RMSNorm</td></tr>
+<tr><td>Activation</td><td>ReLU</td><td>SwiGLU</td></tr>
+<tr><td>Position</td><td>sinusoïdes</td><td>RoPE (+ YaRN)</td></tr>
+<tr><td>Attention</td><td>8 têtes</td><td>GQA ou MLA</td></tr>
+<tr><td>FFN</td><td>dense</td><td>MoE</td></tr>
+<tr><td>Contexte</td><td>≈ 100</td><td>10⁵ à 10⁶</td></tr>
+<tr><td>Paramètres</td><td>65 M</td><td>10¹¹ à 10¹²</td></tr>
+<tr><td>Données</td><td>4,5 M paires</td><td>≈ 3 × 10¹³ jetons</td></tr>
+<tr><td>Précision</td><td>FP32</td><td>BF16, FP8</td></tr>
+</table>
+<p>Pourtant, l'essentiel est intact : une séquence de vecteurs, un flux résiduel, une alternance d'attention softmax multi-têtes par produit scalaire et de FFN appliqués position par position. Le cœur de l'architecture est l'un des objets techniques les plus stables de l'histoire récente de l'informatique. Le papier de 2017 compte parmi les plus cités de tous les temps, et ses huit auteurs ont presque tous quitté Google pour fonder ou rejoindre des entreprises du domaine (Cohere, Character.AI, Essential AI, Sakana AI, NEAR, Inceptive, OpenAI) ; Noam Shazeer y est revenu en 2024.</p>
+
+<h4>11.3 Questions ouvertes</h4>
+<ul>
+<li><b>Le contexte infini</b> : peut-on combiner la mémoire exacte de l'attention et la mémoire constante des récurrences ? Les hybrides et l'attention parcimonieuse apprise sont les pistes actuelles.</li>
+<li><b>Le raisonnement</b> : les chaînes de pensée en texte sont-elles la bonne façon de donner au Transformer du calcul séquentiel, ou faut-il des boucles internes (Transformers récurrents en profondeur) ou un raisonnement latent, au risque de perdre la lisibilité ?</li>
+<li><b>La tokenisation</b> : apprendre la segmentation de bout en bout à partir des octets (Byte Latent Transformer, Meta, 2024) pourrait éliminer la dernière étape non apprise de la chaîne.</li>
+<li><b>La compréhension</b> : l'interprétabilité mécaniste saura-t-elle expliquer un modèle frontière entier, et pas seulement des circuits choisis ?</li>
+<li><b>L'efficacité des données</b> : un enfant apprend sa langue avec environ cent millions de mots, un LLM en voit cent mille fois plus. Les données textuelles de qualité s'épuisent ; l'apprentissage par renforcement, les données synthétiques et les autres modalités prennent le relais.</li>
+</ul>
+
+<h4>11.4 Dix questions pour vérifier sa compréhension</h4>
+<ol>
+<li><b>Pourquoi un RNN ne peut-il pas être entraîné en parallèle sur les positions d'une séquence, alors qu'un Transformer le peut ?</b> L'état <i>h<sub>t</sub></i> dépend de <i>h</i><sub><i>t</i>−1</sub> ; dans un Transformer, le masque causal suffit à empêcher chaque position de voir le futur, et toutes les positions sont calculées à la fois (sections 1.5 et 7.1).</li>
+<li><b>Que se passerait-il sans la division par √<i>d</i><sub>k</sub> ?</b> Les scores auraient un écart-type de √<i>d</i><sub>k</sub>, la softmax saturerait et ses gradients s'annuleraient (section 3.3).</li>
+<li><b>Pourquoi séparer clés et valeurs ?</b> Ce qui permet de trouver une information n'est pas ce qu'il faut transmettre une fois trouvée (section 3.1).</li>
+<li><b>Que voit un Transformer sans encodage de position ?</b> Un ensemble de jetons : la sortie est équivariante par permutation. Seul le masque causal brise cette symétrie (sections 2.6 et 5.6).</li>
+<li><b>Pourquoi RoPE ne dépend-il que des positions relatives ?</b> Le produit scalaire de deux vecteurs tournés de <i>m</i>θ et <i>n</i>θ ne dépend que de (<i>m</i> − <i>n</i>)θ (section 5.4).</li>
+<li><b>Où se trouve la plupart des paramètres d'un Transformer dense ?</b> Dans les FFN, environ les deux tiers, contre un tiers pour l'attention (section 4.6).</li>
+<li><b>Combien coûte l'entraînement d'un modèle de 7 milliards de paramètres sur 2 000 milliards de jetons ?</b> Environ 6 × 7·10⁹ × 2·10¹² ≈ 8,4·10²² FLOP (section 4.6).</li>
+<li><b>Pourquoi la recherche en faisceau convient-elle à la traduction mais pas au dialogue ?</b> Elle cherche la séquence la plus probable, ce qui convient quand il existe une bonne réponse, mais produit un texte terne et répétitif en génération ouverte (section 8.2).</li>
+<li><b>Pourquoi la génération est-elle limitée par la mémoire plutôt que par le calcul ?</b> Chaque jeton oblige à relire tous les poids pour seulement deux opérations par paramètre (section 8.6).</li>
+<li><b>Quelle est la plus petite profondeur qui permet une tête d'induction ?</b> Deux couches : une tête de jeton précédent, puis la tête d'induction qui s'en sert (section 9.2).</li>
+</ol>
+
+<h4>Repères bibliographiques</h4>
+<p>Les références ci-dessous sont citées dans le dossier sans faire l'objet d'une fiche ; celles qui en ont une sont indiquées par leur numéro dans le texte.</p>
+<ul class="refs">
+<li>Hochreiter, S. et Schmidhuber, J. (1997). <i>Long Short-Term Memory</i>. Neural Computation.</li>
+<li>Bengio, Y., Simard, P. et Frasconi, P. (1994). <i>Learning Long-Term Dependencies with Gradient Descent is Difficult</i>. IEEE TNN.</li>
+<li>Sutskever, I., Vinyals, O. et Le, Q. (2014). <i>Sequence to Sequence Learning with Neural Networks</i>. NeurIPS.</li>
+<li>Cho, K. et al. (2014). <i>Learning Phrase Representations using RNN Encoder-Decoder</i>. EMNLP.</li>
+<li>Bahdanau, D., Cho, K. et Bengio, Y. (2015). <i>Neural Machine Translation by Jointly Learning to Align and Translate</i>. ICLR.</li>
+<li>Luong, M.-T., Pham, H. et Manning, C. (2015). <i>Effective Approaches to Attention-based NMT</i>. EMNLP.</li>
+<li>Wu, Y. et al. (2016). <i>Google's Neural Machine Translation System</i>. arXiv.</li>
+<li>Gehring, J. et al. (2017). <i>Convolutional Sequence to Sequence Learning</i>. ICML.</li>
+<li>Sennrich, R., Haddow, B. et Birch, A. (2016). <i>Neural Machine Translation of Rare Words with Subword Units</i>. ACL.</li>
+<li>Kudo, T. et Richardson, J. (2018). <i>SentencePiece</i>. EMNLP.</li>
+<li>Press, O. et Wolf, L. (2017). <i>Using the Output Embedding to Improve Language Models</i>. EACL.</li>
+<li>He, K. et al. (2016). <i>Deep Residual Learning for Image Recognition</i>. CVPR.</li>
+<li>Ba, J., Kiros, J. et Hinton, G. (2016). <i>Layer Normalization</i>. arXiv.</li>
+<li>Xiong, R. et al. (2020). <i>On Layer Normalization in the Transformer Architecture</i>. ICML.</li>
+<li>Zhang, B. et Sennrich, R. (2019). <i>Root Mean Square Layer Normalization</i>. NeurIPS.</li>
+<li>Tenney, I., Das, D. et Pavlick, E. (2019). <i>BERT Rediscovers the Classical NLP Pipeline</i>. ACL.</li>
+<li>Telgarsky, M. (2016). <i>Benefits of Depth in Neural Networks</i>. COLT.</li>
+<li>Biran, E. et al. (2024). <i>Hopping Too Late: Exploring the Limitations of LLMs on Multi-Hop Queries</i>. EMNLP.</li>
+<li>Gromov, A. et al. (2024). <i>The Unreasonable Ineffectiveness of the Deeper Layers</i>. arXiv.</li>
+<li>Dehghani, M. et al. (2019). <i>Universal Transformers</i>. ICLR.</li>
+<li>Hendrycks, D. et Gimpel, K. (2016). <i>Gaussian Error Linear Units</i>. arXiv.</li>
+<li>Shazeer, N. (2020). <i>GLU Variants Improve Transformer</i>. arXiv.</li>
+<li>Geva, M. et al. (2021). <i>Transformer Feed-Forward Layers Are Key-Value Memories</i>. EMNLP.</li>
+<li>Shazeer, N. et al. (2017). <i>Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</i>. ICLR.</li>
+<li>Fedus, W., Zoph, B. et Shazeer, N. (2021). <i>Switch Transformers</i>. JMLR.</li>
+<li>Shaw, P., Uszkoreit, J. et Vaswani, A. (2018). <i>Self-Attention with Relative Position Representations</i>. NAACL.</li>
+<li>Press, O., Smith, N. et Lewis, M. (2022). <i>Train Short, Test Long: Attention with Linear Biases</i>. ICLR.</li>
+<li>Su, J. et al. (2021). <i>RoFormer: Enhanced Transformer with Rotary Position Embedding</i>. arXiv.</li>
+<li>Chen, S. et al. (2023). <i>Extending Context Window of LLMs via Positional Interpolation</i>. arXiv.</li>
+<li>Peng, B. et al. (2023). <i>YaRN: Efficient Context Window Extension of LLMs</i>. ICLR 2024.</li>
+<li>Kazemnejad, A. et al. (2023). <i>The Impact of Positional Encoding on Length Generalization in Transformers</i>. NeurIPS.</li>
+<li>Radford, A. et al. (2018, 2019). <i>Improving Language Understanding by Generative Pre-Training</i> ; <i>Language Models are Unsupervised Multitask Learners</i>. OpenAI.</li>
+<li>Brown, T. et al. (2020). <i>Language Models are Few-Shot Learners</i>. NeurIPS.</li>
+<li>Raffel, C. et al. (2020). <i>Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer</i>. JMLR.</li>
+<li>Wang, T. et al. (2022). <i>What Language Model Architecture and Pretraining Objective Work Best for Zero-Shot Generalization?</i> ICML.</li>
+<li>Loshchilov, I. et Hutter, F. (2019). <i>Decoupled Weight Decay Regularization</i>. ICLR.</li>
+<li>Micikevicius, P. et al. (2018). <i>Mixed Precision Training</i>. ICLR.</li>
+<li>Shoeybi, M. et al. (2019). <i>Megatron-LM</i>. arXiv. Rajbhandari, S. et al. (2020). <i>ZeRO</i>. SC.</li>
+<li>Kaplan, J. et al. (2020). <i>Scaling Laws for Neural Language Models</i>. arXiv.</li>
+<li>Hoffmann, J. et al. (2022). <i>Training Compute-Optimal Large Language Models</i>. NeurIPS.</li>
+<li>Dehghani, M. et al. (2023). <i>Scaling Vision Transformers to 22 Billion Parameters</i>. ICML.</li>
+<li>Holtzman, A. et al. (2020). <i>The Curious Case of Neural Text Degeneration</i>. ICLR.</li>
+<li>Leviathan, Y., Kalman, M. et Matias, Y. (2023). <i>Fast Inference from Transformers via Speculative Decoding</i>. ICML.</li>
+<li>Elhage, N. et al. (2021). <i>A Mathematical Framework for Transformer Circuits</i>. Anthropic.</li>
+<li>Olsson, C. et al. (2022). <i>In-context Learning and Induction Heads</i>. Anthropic.</li>
+<li>Elhage, N. et al. (2022). <i>Toy Models of Superposition</i>. Anthropic.</li>
+<li>Bricken, T. et al. (2023) ; Templeton, A. et al. (2024). <i>Towards Monosemanticity</i> ; <i>Scaling Monosemanticity</i>. Anthropic.</li>
+<li>Meng, K. et al. (2022). <i>Locating and Editing Factual Associations in GPT</i>. NeurIPS.</li>
+<li>Merrill, W. et Sabharwal, A. (2023). <i>The Parallelism Tradeoff: Limitations of Log-Precision Transformers</i>. TACL.</li>
+<li>Dosovitskiy, A. et al. (2021). <i>An Image is Worth 16x16 Words</i>. ICLR.</li>
+<li>Radford, A. et al. (2021). <i>Learning Transferable Visual Models From Natural Language Supervision</i>. ICML.</li>
+<li>Katharopoulos, A. et al. (2020). <i>Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention</i>. ICML.</li>
+<li>Gu, A. et Dao, T. (2023). <i>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</i>. arXiv.</li>
+<li>Lieber, O. et al. (2024). <i>Jamba: A Hybrid Transformer-Mamba Language Model</i>. arXiv.</li>
+<li>Sutton, R. (2019). <i>The Bitter Lesson</i>. Billet de blog.</li>
+</ul>

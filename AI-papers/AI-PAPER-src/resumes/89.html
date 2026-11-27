@@ -1,0 +1,26 @@
+<h4>Le problème</h4>
+<p>Les assistants vocaux classiques enchaînent plusieurs modèles : reconnaissance de la parole, LLM textuel, synthèse vocale. Ce pipeline a trois défauts. La <b>latence</b> s'additionne (plusieurs secondes). L'<b>information non verbale</b> (émotion, ton, rires, hésitations) se perd au passage par le texte. Enfin, le dialogue est découpé en <b>tours de parole</b> rigides : le système attend que l'utilisateur ait fini, ne gère ni les interruptions ni les chevauchements, ni les « hm-hm » d'acquiescement qui font 10 à 20 % d'une conversation naturelle. Alexandre Défossez et l'équipe du laboratoire parisien Kyutai présentent <b>Moshi</b>, le premier modèle de dialogue oral en temps réel <b>full-duplex</b>.</p>
+
+<h4>Les composants</h4>
+<ul>
+<li><b>Helium</b> : un LLM textuel de 7 milliards de paramètres, pré-entraîné sur 2 100 milliards de jetons, qui apporte connaissances et raisonnement.</li>
+<li><b>Mimi</b> : un codec audio neuronal à <b>12,5 Hz</b> (une trame toutes les 80 ms) avec quantification vectorielle résiduelle (RVQ) à 8 niveaux, débit de 1,1 kbit/s. Le premier niveau est entraîné par distillation à partir d'un modèle auto-supervisé (WavLM) pour capturer l'information <b>sémantique</b>, les suivants capturent l'acoustique. Mimi est entièrement causal, donc utilisable en streaming.</li>
+<li>Un <b>Transformer de profondeur</b> (Depth Transformer) : à chaque trame, le grand Transformer « temporel » produit un contexte, et un petit Transformer génère les niveaux RVQ un par un. Cela évite de dérouler tous les niveaux dans la séquence temporelle, comme le faisait la hiérarchie de SoundStorm (papier 88) par une autre voie.</li>
+</ul>
+
+<h4>Le dialogue multi-flux</h4>
+<p>Moshi modélise <b>deux flux audio en parallèle</b> : sa propre voix et celle de l'utilisateur. À chaque pas de 80 ms, il reçoit l'audio de l'utilisateur et produit le sien. Il n'y a plus de tours de parole explicites : Moshi peut parler en même temps, s'interrompre, acquiescer, ou se taire en produisant du silence. La dynamique de la conversation est apprise à partir des données.</p>
+
+<h4>Le monologue intérieur</h4>
+<p>Pour profiter des capacités linguistiques d'Helium, Moshi prédit aussi, avant ses jetons audio, le <b>texte</b> de ce qu'il dit, aligné dans le temps sur sa parole. Ce « monologue intérieur » améliore nettement la cohérence et la factualité. En décalant le texte par rapport à l'audio dans un sens ou dans l'autre, le même modèle devient un système de reconnaissance vocale ou de synthèse vocale en streaming.</p>
+
+<h4>Entraînement et résultats</h4>
+<ul>
+<li>Pré-entraînement audio sur 7 millions d'heures, puis données de dialogue avec séparation des locuteurs (Fisher), puis 20 000 heures de dialogues synthétiques générés avec des voix variées.</li>
+<li>Latence théorique de <b>160 ms</b> (80 ms de trame + 80 ms de délai acoustique), environ 200 ms en pratique sur un GPU L4 : comparable aux 230 ms moyens d'une conversation humaine.</li>
+<li>Qualité de dialogue et factualité supérieures aux modèles de parole ouverts de l'époque, mais nettement en deçà des LLM textuels comparables.</li>
+<li>Les auteurs détaillent la sécurité : détection de contenu toxique, filigrane audio, et une voix unique pour limiter l'usurpation.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>Publié avec ses poids sous licence ouverte, Moshi a servi de base à de nombreux travaux de dialogue oral. Sa principale faiblesse, la factualité limitée d'un petit modèle qui doit répondre vite, est l'objet de MoshiRAG (papier 90).</p>

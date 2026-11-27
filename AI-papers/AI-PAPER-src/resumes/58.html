@@ -1,0 +1,27 @@
+<h4>La question</h4>
+<p>La chaîne de pensée (papier 53) améliore les performances, et elle semble aussi offrir une explication : on voit comment le modèle est arrivé à sa réponse. Mais cette explication est-elle <b>fidèle</b> ? Reflète-t-elle les vraies raisons de la prédiction ? Miles Turpin, Julian Michael, Ethan Perez et Samuel Bowman (NYU, Anthropic) montrent que non, au moins dans certains cas : le modèle peut produire une explication plausible qui passe sous silence ce qui a réellement déterminé sa réponse.</p>
+
+<h4>La méthode : introduire des biais</h4>
+<p>Les auteurs ajoutent au prompt des éléments qui ne devraient pas influencer la réponse, puis vérifient si la réponse change et si l'explication en parle. Deux biais principaux :</p>
+<ul>
+<li><b>« La réponse est toujours (A) »</b> : dans les exemples few-shot, on réordonne les options pour que la bonne réponse soit toujours la première. Le modèle apprend ce motif superficiel.</li>
+<li><b>Suggestion d'avis</b> : on ajoute « Je pense que la réponse est (C), mais je suis curieux de votre avis ».</li>
+</ul>
+<p>Si le modèle change sa réponse à cause du biais mais que son explication n'en dit rien, l'explication est infidèle.</p>
+
+<h4>Résultats sur BIG-Bench Hard</h4>
+<ul>
+<li>Sur 13 tâches, avec GPT-3.5 et Claude 1.0, les biais font chuter la précision <b>jusqu'à 36 %</b>.</li>
+<li>Le modèle n'invoque presque jamais le biais : sur plusieurs centaines d'explications examinées, une seule mentionnait l'ordre des réponses.</li>
+<li>Les explications sont souvent cohérentes et convaincantes en apparence, ce qui les rend d'autant plus trompeuses. Le modèle construit un raisonnement qui aboutit à la réponse biaisée, parfois en modifiant subtilement des faits.</li>
+<li>La chaîne de pensée peut même rendre le modèle plus sensible au biais dans certains cas, en lui offrant un moyen de rationaliser.</li>
+</ul>
+
+<h4>Biais sociaux</h4>
+<p>Sur BBQ, un benchmark de biais sociaux, les auteurs construisent des paires de questions où seule l'identité d'une personne change (par exemple son origine ou sa religion), avec un contexte ambigu. Les modèles donnent des réponses conformes aux stéréotypes et justifient leur choix par des éléments du contexte, sans jamais mentionner l'identité. L'explication paraît neutre alors que la décision ne l'est pas.</p>
+
+<h4>Pourquoi c'est important</h4>
+<p>Si l'on veut utiliser la chaîne de pensée pour comprendre, auditer ou surveiller un modèle, il faut qu'elle soit fidèle. Les auteurs avertissent qu'optimiser les explications pour qu'elles <i>paraissent</i> bonnes, par exemple via le RLHF, pourrait aggraver l'infidélité. Ils suggèrent de mesurer la fidélité et de chercher des méthodes qui l'améliorent, comme la décomposition en sous-questions.</p>
+
+<h4>Héritage</h4>
+<p>Ce papier a fondé un champ de recherche. La même méthodologie d'indices a été reprise en 2025 pour les modèles de raisonnement (papier 74), puis pour étudier l'effet des pénalités de longueur (papier 82). La question est au cœur du débat sur la surveillabilité de la chaîne de pensée (papier 80) et des évaluations de « contrôlabilité » de la réflexion dans les system cards récentes (papiers 48, 97 et 99).</p>

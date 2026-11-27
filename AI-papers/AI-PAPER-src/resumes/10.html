@@ -1,0 +1,19 @@
+<h4>Contexte</h4>
+<p>En 2018, le transfert d'apprentissage en TAL fait ses premiers pas. ELMo (Peters et al.) produit des représentations contextuelles en concaténant deux LSTM, l'un lisant de gauche à droite, l'autre de droite à gauche. GPT (Radford et al., OpenAI) pré-entraîne un Transformer décodeur de gauche à droite puis l'affine sur chaque tâche. Jacob Devlin, Ming-Wei Chang, Kenton Lee et Kristina Toutanova (Google AI Language) soutiennent que ces approches sont limitées par leur unidirectionnalité : pour comprendre un mot, il faut voir simultanément son contexte gauche et droit, à chaque couche.</p>
+
+<h4>Le pré-entraînement</h4>
+<p>BERT (Bidirectional Encoder Representations from Transformers) est un encodeur Transformer pur. Le problème : on ne peut pas entraîner un modèle de langage bidirectionnel classique, car chaque mot « se verrait » indirectement. Deux tâches de pré-entraînement contournent cette difficulté :</p>
+<ul>
+<li><b>Masked Language Model (MLM)</b> : 15 % des tokens sont sélectionnés au hasard ; parmi eux, 80 % sont remplacés par un jeton [MASK], 10 % par un mot aléatoire et 10 % laissés intacts. Le modèle doit retrouver le mot d'origine. Ce mélange réduit l'écart entre pré-entraînement et affinage, où [MASK] n'apparaît jamais. La tâche s'inspire du test de closure de Taylor (1953).</li>
+<li><b>Next Sentence Prediction (NSP)</b> : étant donné deux phrases A et B, prédire si B suit réellement A dans le texte (50 %) ou est tirée au hasard (50 %). L'objectif est d'apprendre les relations entre phrases, utiles en questions-réponses et en inférence. Des travaux ultérieurs (RoBERTa) ont montré que cette tâche était en fait peu utile.</li>
+</ul>
+<p>Le corpus combine BooksCorpus (800 millions de mots) et Wikipédia anglaise (2,5 milliards de mots). Deux tailles sont publiées : BERT-Base (12 couches, 110 millions de paramètres, taille comparable à GPT) et BERT-Large (24 couches, 340 millions).</p>
+
+<h4>L'affinage</h4>
+<p>Toutes les tâches sont reformulées dans un même format d'entrée : un jeton spécial [CLS] en tête, dont la représentation finale sert à la classification, et un séparateur [SEP] entre deux segments. Pour une tâche donnée, on ajoute une seule couche de sortie et on affine tous les paramètres pendant quelques époques, en une heure environ sur un TPU. Plus besoin d'architecture spécialisée par tâche.</p>
+
+<h4>Résultats</h4>
+<p>BERT bat l'état de l'art sur onze tâches : le score GLUE passe à 80,5 (+7,7 points), le F1 sur SQuAD v1.1 atteint 93,2 et dépasse la performance humaine de référence, et SQuAD v2.0 gagne 5,1 points. Les ablations montrent que la bidirectionnalité est l'ingrédient clé, et que l'augmentation de taille améliore les résultats même sur de petits jeux de données — une observation importante à l'époque. BERT peut aussi servir d'extracteur de caractéristiques figées, presque aussi bien qu'en affinage complet.</p>
+
+<h4>Héritage</h4>
+<p>BERT déclenche une vague de variantes (RoBERTa, ALBERT, DistilBERT, ELECTRA, CamemBERT pour le français) et entre dans la recherche Google en 2019. Pendant trois ans, les encodeurs de type BERT dominent la compréhension du langage. La lignée décodeur de GPT, qui génère du texte et passe mieux à l'échelle, a finalement pris le dessus pour les modèles généralistes ; mais les modèles de type BERT restent très utilisés pour la classification, la recherche d'information et les embeddings, notamment dans les systèmes RAG.</p>

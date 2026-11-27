@@ -1,0 +1,30 @@
+<h4>L'idée</h4>
+<p>Les rêves assemblent des personnes, des lieux et des époques qui ne se sont jamais rencontrés. Les neurosciences suggèrent que cette recombinaison n'est pas du bruit : les phases de sommeil qui la produisent sont aussi celles associées à l'intuition et à la découverte créative. On pense généralement que la <b>consolidation de la mémoire</b> sert à lutter contre l'oubli, en rejouant ce qu'on a appris. Oliver Zahn (Sapience Labs), James Evans (Université de Chicago, Santa Fe Institute) et le neuroscientifique David Eagleman proposent une autre lecture : la valeur mesurable de la consolidation viendrait de la <b>recombinaison</b> de connaissances issues d'expériences qui n'ont jamais coexisté. Leur slogan : la consolidation ne sert pas à se souvenir mais à découvrir.</p>
+
+<h4>Le dispositif expérimental</h4>
+<p>Pour isoler l'effet de la recombinaison, les auteurs comparent, à budget égal :</p>
+<ul>
+<li>un rejeu <b>inter-domaines</b> : on rejoue ensemble des connaissances de domaines différents ;</li>
+<li>un rejeu <b>intra-domaine</b> : on répète les connaissances de chaque domaine séparément, comme une révision fidèle ;</li>
+<li>des contrôles, dont un « brouillage » aléatoire.</li>
+</ul>
+<p>L'expérience est menée sur <b>deux systèmes</b> sans rapport, pour montrer que l'effet ne dépend pas du support :</p>
+<ul>
+<li><b>Dreams</b>, un bras neuronal : un LLM affiné avec LoRA sur des données « rêvées » ;</li>
+<li><b>Sapience</b>, un bras symbolique : un moteur de connaissances qui cherche des « ponts » entre domaines.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li>Le rejeu inter-domaines crée de la valeur ; le rejeu intra-domaine n'en crée <b>aucune</b>.</li>
+<li>Bras symbolique : la valeur des ponts trouvés est corrélée à la distance entre domaines (ρ de Spearman = 0,54). 5 ponts sur 5 sont jugés authentiques, contre 0 à 1 sur 5 dans le contrôle brouillé.</li>
+<li>Validation historique : les 35 grandes découvertes interdisciplinaires du passé étudiées se situent toutes au-delà du 99,8<sup>e</sup> percentile d'une distribution de 50 000 paires de domaines tirées d'OpenAlex.</li>
+<li>Bras neuronal : +5,64 points au total et <b>+14,5 points</b> sur les sous-tâches de transfert entre domaines de GSM8K.</li>
+<li>Placer le même matériel <b>dans le contexte</b> d'un modèle d'environ 671 milliards de paramètres, au lieu de le consolider dans les poids, <b>inverse</b> l'effet : la recombinaison doit passer par une consolidation hors ligne.</li>
+</ul>
+
+<h4>Une prédiction pour les neurosciences</h4>
+<p>Le papier formule une prédiction <b>falsifiable</b> : dans les enregistrements de l'hippocampe pendant le sommeil, le rejeu qui associe des contextes distincts devrait prédire mieux les gains de résolution de problèmes ultérieurs que le rejeu fidèle d'un seul contexte. Cela précise la théorie des systèmes d'apprentissage complémentaires (CLS), qui décrit un hippocampe rapide et un néocortex lent.</p>
+
+<h4>Portée</h4>
+<p>Ce travail relie neurosciences, science de la découverte et apprentissage automatique. Pour l'IA, il suggère que les phases hors ligne d'agents qui apprennent en continu, comme les phases de « rêve » ou de consolidation de mémoire, devraient mélanger les domaines plutôt que réviser. Cela rejoint la catégorie « auto-évolution » de la synthèse sur le raisonnement agentique (papier 85). Les résultats restent à confirmer à plus grande échelle.</p>

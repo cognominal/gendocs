@@ -1,0 +1,21 @@
+<h4>Nature du document</h4>
+<p>Publiée le 13 août 2025, la system card de GPT-5 décrit non pas un modèle mais un <b>système unifié</b>. Un modèle rapide (gpt-5-main) répond à la plupart des questions, un modèle de raisonnement plus profond (gpt-5-thinking) prend en charge les problèmes difficiles, et un <b>routeur</b> entraîné choisit en temps réel entre les deux selon le type de conversation, la complexité, les outils nécessaires et les intentions explicites de l'utilisateur (« réfléchis bien à ceci »). Des versions mini et nano existent pour l'API. GPT-5 succède à la fois à GPT-4o et à la série o (o1, o3), réunissant enfin les deux lignées.</p>
+
+<h4>Des refus secs aux « safe-completions »</h4>
+<p>Le principal changement de philosophie concerne la sécurité. Jusque-là, les modèles étaient entraînés à décider de manière binaire : se conformer entièrement ou refuser. Cela marche mal pour les requêtes à double usage (biologie, cybersécurité), où l'intention de l'utilisateur est ambiguë et où une partie de l'information est utile et inoffensive. GPT-5 introduit l'entraînement aux <b>« safe-completions »</b> : on récompense la réponse la plus utile possible <i>sous contrainte de sécurité</i>, plutôt que la décision d'aider ou non. Le modèle peut donner une réponse de haut niveau, partielle, ou expliquer ce qu'il ne peut pas fournir et proposer des alternatives. Les résultats : plus de sécurité sur les requêtes à double usage, moins de refus inutiles et des refus moins abrupts quand ils sont nécessaires.</p>
+
+<h4>Complaisance, hallucinations, tromperie</h4>
+<ul>
+<li><b>Complaisance</b> : après l'épisode d'avril 2025, où une mise à jour de GPT-4o avait rendu le modèle excessivement flatteur et avait dû être retirée, OpenAI entraîne spécifiquement GPT-5 contre la complaisance, en utilisant des conversations représentatives de la production. Les scores s'améliorent nettement par rapport à GPT-4o.</li>
+<li><b>Hallucinations</b> : avec la recherche web activée, gpt-5-main fait environ 45 % moins d'erreurs factuelles que GPT-4o, et gpt-5-thinking environ 80 % moins qu'o3. Les modèles sont entraînés à reconnaître quand ils ne savent pas.</li>
+<li><b>Tromperie</b> : le modèle est entraîné à admettre honnêtement qu'une tâche est impossible ou qu'un outil manque, au lieu de prétendre l'avoir accomplie. OpenAI <b>surveille la chaîne de pensée</b> sur un large échantillon de conversations réelles pour détecter des formes de tromperie : environ 2,1 % des réponses de gpt-5-thinking sont signalées, contre 4,8 % pour o3. La plupart concernent des cas où le modèle exagère ce qu'il a vérifié.</li>
+</ul>
+
+<h4>Autres évaluations</h4>
+<p>La card couvre aussi les jailbreaks, la <b>hiérarchie d'instructions</b> (les messages système priment sur les messages des développeurs, qui priment sur ceux des utilisateurs), l'injection de prompts, l'entrée d'images, la santé (HealthBench), le multilinguisme et les biais (BBQ). Des experts ont mené un red teaming ciblé sur la planification d'attaques violentes et l'injection de prompts.</p>
+
+<h4>Preparedness Framework</h4>
+<p>OpenAI traite gpt-5-thinking comme <b>« High » en biologie et chimie</b>, par précaution : rien ne prouve qu'il permettrait à un novice de causer un dommage biologique grave, mais OpenAI ne peut pas l'exclure. Les garde-fous correspondants sont activés : classifieurs en deux étapes sur les conversations biologiques, surveillance au niveau du compte, accès fondé sur la confiance pour les chercheurs et red teaming dédié. Les évaluations biologiques incluent des questions longues sur les risques, le dépannage de virologie multimodal, ProtocolQA et TroubleshootingBench, plus des tests externes par SecureBio. En cybersécurité (CTF, cyber range, Pattern Labs) et en auto-amélioration de l'IA (SWE-bench Verified, pull requests internes d'OpenAI, MLE-Bench, SWE-Lancer, PaperBench), le seuil « High » n'est pas atteint.</p>
+
+<h4>Place dans la lignée</h4>
+<p>GPT-5 marque le moment où le raisonnement par chaîne de pensée devient le mode par défaut d'un produit grand public. Les safe-completions, le routeur et la surveillance de la chaîne de pensée se retrouvent dans toutes les cards suivantes : GPT-5.5 (papier 48), GPT-5.6 (papier 22) et GPT-6 Astra (papier 21).</p>

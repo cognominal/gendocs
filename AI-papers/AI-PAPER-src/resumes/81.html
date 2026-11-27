@@ -1,0 +1,27 @@
+<h4>Le problème</h4>
+<p>Les modèles de raisonnement entraînés par renforcement ont appris à se relire : « Wait », « Let me double-check », « Alternatively… ». Ces réflexions corrigent parfois des erreurs, mais elles continuent souvent bien après que la bonne réponse a été trouvée et vérifiée. C'est de la <b>redondance réflexive</b> : le modèle revérifie ce qu'il a déjà vérifié. Les méthodes existantes pour l'éviter demandent soit un réentraînement, soit des seuils fixés à la main qui conviennent mal à des problèmes de difficultés variées. Renliang Sun et ses collègues (UCLA, NEC Labs) proposent <b>REFRAIN</b> (REFlective-Redundancy for Adaptive INference), une méthode sans entraînement.</p>
+
+<h4>Le discriminateur d'arrêt en deux étapes</h4>
+<p>Pendant la génération, REFRAIN surveille la chaîne de pensée et décide à certains points s'il faut l'arrêter :</p>
+<ol>
+<li><b>Détection de réflexion</b> : on repère les passages où le modèle entre dans une phase de vérification ou de reconsidération, grâce aux marqueurs lexicaux typiques.</li>
+<li><b>Détection de redondance</b> : on évalue si cette nouvelle réflexion apporte quelque chose, en mesurant sa similarité avec le raisonnement précédent et la stabilité de la réponse provisoire. Si la réflexion répète des vérifications déjà faites et que la réponse ne change pas, elle est jugée redondante.</li>
+</ol>
+<p>Quand la redondance dépasse un seuil, on interrompt la réflexion et on force le modèle à donner sa réponse finale.</p>
+
+<h4>Un seuil qui s'adapte : SW-UCB</h4>
+<p>Un seuil fixe est soit trop prudent pour les problèmes faciles, soit trop agressif pour les difficiles. REFRAIN choisit le seuil avec un <b>bandit manchot</b> : un algorithme qui équilibre l'exploration de nouveaux réglages et l'exploitation des réglages qui marchent. Plus précisément, une variante à fenêtre glissante de l'algorithme UCB (Upper Confidence Bound), qui ne tient compte que des observations récentes, ce qui lui permet de s'adapter quand la difficulté des problèmes change. La récompense du bandit combine la cohérence de la réponse et les jetons économisés. Aucune étiquette ni supervision n'est nécessaire.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur quatre benchmarks de mathématiques et de raisonnement (dont GSM8K, MATH-500 et AIME) et deux familles de modèles (dont des modèles Qwen et DeepSeek-R1 distillés), REFRAIN réduit l'usage de jetons de <b>20 à 55 %</b>.</li>
+<li>La précision est maintenue, voire améliorée, par rapport à la chaîne de pensée complète : interrompre une réflexion redondante évite aussi que le modèle ne « se convainque » d'une mauvaise réponse à force de douter.</li>
+<li>REFRAIN dépasse les méthodes d'arrêt fondées sur la confiance seule ou sur des seuils fixes.</li>
+<li>Les ablations montrent que chacune des deux étapes du discriminateur et l'adaptation du seuil contribuent au résultat.</li>
+</ul>
+
+<h4>Portée</h4>
+<p>REFRAIN illustre un message de cette famille de travaux : savoir <b>quand</b> s'arrêter est une dimension du passage à l'échelle au moment de l'inférence, au même titre que savoir réfléchir plus. La méthode s'ajoute à n'importe quel modèle sans réentraînement, ce qui la rend facile à déployer. Elle peut toutefois arrêter une réflexion qui aurait fini par trouver une erreur subtile.</p>
+
+<h4>Liens</h4>
+<p>REFRAIN appartient à la famille des méthodes adaptatives (L2) décrites dans la synthèse « Reasoning on a Budget » (papier 79). CALM (papier 83) propose une alternative qui, au lieu de couper la réflexion, oriente le décodage vers la conclusion. Le papier 84 étudie la structure de la surréflexion que ces méthodes cherchent à réduire, et le papier 82 rappelle qu'une réflexion plus courte peut aussi devenir moins surveillable.</p>

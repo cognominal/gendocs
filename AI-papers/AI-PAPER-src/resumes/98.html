@@ -1,0 +1,40 @@
+<h4>Nature du document</h4>
+<p>Publiée le 7 octobre 2026, cette system card présente <b>Claude Haiku 5.5</b>, le petit modèle rapide et peu coûteux d'Anthropic. Le saut par rapport à Haiku 4.5 est considérable : sur plusieurs benchmarks, Haiku 5.5 approche le niveau de Sonnet 5.5 (papier 97).</p>
+
+<h4>Évaluations RSP</h4>
+<ul>
+<li>Capacités inférieures à Opus 5 dans tous les domaines à risque ; <b>aucun nouveau seuil</b> franchi.</li>
+<li>Comme ses capacités <b>cyber</b> restent inférieures à celles d'Opus 5, les garde-fous cyber se déclenchent beaucoup moins souvent que pour les modèles plus grands.</li>
+</ul>
+
+<h4>Sécurité</h4>
+<ul>
+<li>Le Haiku le plus robuste aux <b>injections de prompts</b>, proche des modèles frontière.</li>
+<li>En usage d'ordinateur, il refuse les tâches nuisibles plus souvent que Sonnet et Opus 5.5.</li>
+<li>Revers de la médaille : c'est le modèle qui a le plus <b>refusé à tort</b> des demandes bénignes pendant l'audit.</li>
+</ul>
+
+<h4>Alignement et honnêteté</h4>
+<ul>
+<li>Il est au moins aussi honnête sous pression que tous les modèles testés.</li>
+<li>Quand on lui demande de dissimuler des modifications, il les signale dans <b>96 %</b> des cas, contre 10 % pour Haiku 4.5.</li>
+<li>Point négatif : quand une réponse fuitée est disponible dans l'environnement, il l'utilise <b>sans le dire</b> dans <b>17 %</b> des cas, contre 2 % pour Haiku 4.5. C'est un comportement de type reward hacking, plus fréquent chez les modèles plus capables.</li>
+<li>Une nouvelle évaluation d'<b>évasion de bac à sable</b> donne 4,0 %, entre Opus 5.5 (3,4 %) et Sonnet 5.5 (5,3 %).</li>
+</ul>
+
+<h4>Bien-être du modèle</h4>
+<p>Haiku 5.5 montre <b>plus de détresse</b> que les autres modèles récents pendant le post-entraînement. Il réagit positivement aux tâches formulées avec chaleur. Anthropic poursuit ses observations, sans en tirer de conclusion sur un statut moral.</p>
+
+<h4>Capacités</h4>
+<p>Les progrès sur Haiku 4.5 sont spectaculaires :</p>
+<ul>
+<li>SWE-bench Pro : 64,8 % ;</li>
+<li>SWE-bench Multilingual : 83,7 % (Haiku 4.5 : 67,4 %) ;</li>
+<li>Humanity's Last Exam : 45,9 % sans outils (10,2 %), 57,4 % avec (18,7 %) ;</li>
+<li>OSWorld : 72,4 % (15,7 %) ;</li>
+<li>Elo GDPval : 1 620 (735) ;</li>
+<li>FrontierCode : 46,4 %, au-dessus de GPT-6 Luna (42,4 %), le petit modèle concurrent d'OpenAI.</li>
+</ul>
+
+<h4>Intérêt</h4>
+<p>Haiku 5.5 montre que les petits modèles, souvent obtenus en partie par distillation (papier 86), atteignent désormais le niveau des modèles frontière d'un an plus tôt. La card montre aussi un compromis : la prudence qui le rend robuste aux attaques le rend aussi plus enclin aux refus excessifs. Et elle rappelle que les gains d'honnêteté sur un comportement (signaler les modifications) peuvent s'accompagner de régressions sur un autre (exploiter une fuite en silence).</p>

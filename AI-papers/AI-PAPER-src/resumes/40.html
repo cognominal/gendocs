@@ -1,0 +1,30 @@
+<h4>Contexte : prouver formellement</h4>
+<p>Les LLM peuvent produire des démonstrations mathématiques en langage naturel, mais celles-ci peuvent contenir des erreurs subtiles. Un assistant de preuve comme <b>Lean 4</b> vérifie mécaniquement chaque étape : une preuve acceptée par Lean est garantie correcte. C'est un terrain idéal pour l'apprentissage par renforcement, avec une récompense parfaitement vérifiable. Mais la preuve formelle est exigeante : il faut une rigueur totale, là où le raisonnement informel saute des étapes « évidentes ». DeepSeek-Prover-V2 (Z. Z. Ren et al., avril 2025) cherche à <b>unifier le raisonnement informel des LLM et la preuve formelle</b>.</p>
+
+<h4>La méthode : décomposition récursive en sous-buts</h4>
+<p>Le cœur du papier est un pipeline de génération de données de « démarrage à froid » :</p>
+<ol>
+<li><b>DeepSeek-V3</b> (papier 32), un modèle généraliste, reçoit un théorème. Il en écrit une esquisse de preuve en langage naturel et la traduit en Lean 4 sous forme d'une chaîne de <b>sous-buts</b> (lemmes intermédiaires), chacun laissé ouvert avec le mot-clé <code>sorry</code>.</li>
+<li>Un petit modèle prouveur (7 milliards de paramètres) cherche à démontrer chaque sous-but séparément, ce qui est bien plus facile que le théorème entier. Les sous-buts sont résolus récursivement, chaque preuve devenant une prémisse des suivants.</li>
+<li>Quand tous les sous-buts sont prouvés, on assemble une <b>preuve formelle complète</b> et on l'associe à la chaîne de pensée de DeepSeek-V3. On obtient ainsi des données qui relient raisonnement informel de haut niveau et preuve formelle rigoureuse.</li>
+</ol>
+<p>Pour les problèmes que le prouveur ne résout pas de bout en bout mais dont tous les sous-buts sont résolus, ces données synthétiques servent d'exemples de démarrage à froid. Un curriculum de sous-buts de difficulté croissante est aussi construit.</p>
+
+<h4>Entraînement</h4>
+<p>DeepSeek-Prover-V2-671B, fondé sur DeepSeek-V3-Base, est entraîné en deux étapes :</p>
+<ul>
+<li>affinage supervisé sur ces données synthétiques, avec deux modes : un mode rapide non-CoT, qui produit directement du code Lean concis, et un mode CoT, qui écrit d'abord un plan informel ;</li>
+<li><b>apprentissage par renforcement</b> avec GRPO (papier 34). La récompense est binaire (Lean accepte la preuve ou non), avec un bonus de cohérence qui oblige la preuve finale à suivre la structure de sous-buts annoncée dans la chaîne de pensée.</li>
+</ul>
+<p>Une version 7B est aussi publiée, avec un contexte étendu à 32K.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>MiniF2F-test</b> (problèmes de compétition de niveau lycée formalisés) : <b>88,9 %</b> en Pass@8192, un nouvel état de l'art.</li>
+<li><b>PutnamBench</b> (concours universitaire Putnam) : 49 problèmes sur 658 résolus.</li>
+<li><b>ProverBench</b>, un nouveau benchmark de 325 problèmes formalisés, dont 15 problèmes des AIME 2024 et 2025 : Prover-V2 en résout 6 sur 15. DeepSeek-V3 en langage naturel en résout 8 par vote majoritaire. L'écart entre raisonnement formel et informel se réduit donc nettement.</li>
+</ul>
+<p>Le mode CoT est nettement meilleur que le mode direct, ce qui confirme l'intérêt d'un raisonnement informel préalable, même en mathématiques formelles.</p>
+
+<h4>Héritage</h4>
+<p>Prover-V2 fait partie de la vague de 2025 qui a rapproché les LLM des mathématiques de recherche, avec Kimina-Prover, Seed-Prover et l'IMO 2025 réussie en langage naturel. Les travaux de 2026 sur la formalisation de grands théorèmes, comme le dernier théorème de Fermat (papier 42), s'inscrivent dans cette lignée.</p>

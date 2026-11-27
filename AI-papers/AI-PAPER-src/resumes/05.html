@@ -1,0 +1,24 @@
+<h4>Contexte</h4>
+<p>En 2012, la vision par ordinateur repose sur des caractéristiques conçues à la main (SIFT, HOG), encodées puis passées à des classifieurs linéaires ou à des SVM. Le concours ILSVRC (ImageNet Large Scale Visual Recognition Challenge) demande de classer 1,2 million d'images d'entraînement en 1 000 catégories. Alex Krizhevsky, Ilya Sutskever et Geoffrey Hinton (Université de Toronto) y présentent un réseau convolutif profond entraîné sur deux GPU grand public.</p>
+
+<h4>Architecture</h4>
+<p>Le réseau compte huit couches apprises : cinq convolutives et trois entièrement connectées, pour environ 60 millions de paramètres et 650 000 neurones, avec une sortie softmax à 1 000 classes. Plusieurs choix, peu courants alors, font la différence :</p>
+<ul>
+<li><b>ReLU</b> (<i>f(x)</i> = max(0, <i>x</i>)) au lieu de la tangente hyperbolique : l'entraînement est environ six fois plus rapide, car le gradient ne sature pas pour les grandes valeurs.</li>
+<li><b>Entraînement sur deux GPU</b> GTX 580 de 3 Go : le réseau est réparti en deux moitiés qui ne communiquent qu'à certaines couches. Cette contrainte matérielle est devenue l'image même du passage à l'échelle.</li>
+<li><b>Normalisation locale de la réponse</b>, inspirée de l'inhibition latérale des neurones, et <b>pooling chevauchant</b> (fenêtres 3×3 avec un pas de 2), qui réduisent légèrement l'erreur.</li>
+</ul>
+
+<h4>Lutter contre le surapprentissage</h4>
+<p>Avec 60 millions de paramètres, le risque de surapprentissage est majeur. Deux techniques sont employées :</p>
+<ul>
+<li><b>Augmentation de données</b> : extraction de sous-images 224×224 aléatoires et de leurs symétries horizontales, ce qui multiplie la taille effective du jeu d'entraînement ; et perturbation des intensités RVB selon une analyse en composantes principales des couleurs.</li>
+<li><b>Dropout</b> : pendant l'entraînement, chaque neurone des couches entièrement connectées est désactivé avec une probabilité de 0,5. Le réseau ne peut pas compter sur une co-adaptation fragile entre neurones, ce qui revient à entraîner un ensemble de réseaux partageant leurs poids.</li>
+</ul>
+<p>L'entraînement utilise une descente de gradient stochastique avec moment et dégradation des poids, et dure cinq à six jours.</p>
+
+<h4>Résultats</h4>
+<p>Sur ILSVRC-2012, le modèle atteint une erreur top-5 de 15,3 %, contre 26,2 % pour le deuxième, qui utilisait des méthodes classiques. L'écart est spectaculaire et ne laisse pas de place au doute. Les auteurs montrent aussi que les filtres de la première couche apprennent spontanément des détecteurs de contours orientés et de taches de couleur, et que les vecteurs de la dernière couche cachée regroupent des images sémantiquement proches même quand leurs pixels diffèrent. Retirer une seule couche convolutive dégrade les performances d'environ 2 %, preuve que la profondeur compte.</p>
+
+<h4>Héritage</h4>
+<p>AlexNet est considéré comme le « big bang » du deep learning. En deux ans, toute la vision par ordinateur bascule vers les CNN (VGG, GoogLeNet, puis ResNet en 2015), et l'industrie investit massivement dans les GPU. Les leçons du papier — données massives, calcul massif, architectures simples, régularisation — préfigurent les lois d'échelle des LLM. Ilya Sutskever cofondera OpenAI en 2015.</p>

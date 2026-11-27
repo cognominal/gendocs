@@ -1,0 +1,27 @@
+<h4>Contexte</h4>
+<p>Les modèles à <b>mélange d'experts</b> (Mixture-of-Experts, MoE) remplacent la couche « feed-forward » de chaque bloc Transformer par plusieurs sous-réseaux, les experts, dont seuls quelques-uns sont activés pour chaque token par un routeur. On augmente ainsi le nombre total de paramètres, donc la connaissance stockée, sans augmenter le calcul par token. Mais les architectures classiques, comme GShard ou Switch Transformer, avec 8 ou 16 experts et 1 ou 2 actifs, souffrent de deux problèmes que ce papier de DeepSeek (Damai Dai et al., janvier 2024) identifie clairement.</p>
+
+<h4>Deux problèmes de spécialisation</h4>
+<ul>
+<li><b>Hybridité des connaissances</b> : avec peu d'experts, chacun doit couvrir des connaissances très diverses, qu'il mélange dans ses paramètres sans pouvoir s'y spécialiser.</li>
+<li><b>Redondance des connaissances</b> : les tokens routés vers des experts différents ont souvent besoin de connaissances communes (syntaxe, mots fréquents). Plusieurs experts apprennent donc la même chose, ce qui gaspille des paramètres.</li>
+</ul>
+<p>L'objectif est l'<b>« ultime spécialisation des experts »</b> : chaque expert devrait détenir des connaissances non redondantes et ciblées.</p>
+
+<h4>Deux solutions</h4>
+<ol>
+<li><b>Segmentation fine des experts</b> : chaque expert est découpé en <i>m</i> experts plus petits (en divisant la dimension cachée du feed-forward par <i>m</i>), et l'on active <i>m</i> fois plus d'experts. Le calcul et le nombre de paramètres restent les mêmes, mais les combinaisons possibles explosent. Avec 16 experts dont 2 actifs, il y a 120 combinaisons ; avec 64 experts dont 8 actifs, plus de 4 milliards. Le modèle peut assembler les connaissances de manière bien plus flexible et précise.</li>
+<li><b>Isolation d'experts partagés</b> : quelques experts sont <b>toujours actifs</b>, pour tous les tokens. Ils capturent les connaissances communes, ce qui libère les experts routés de cette redondance et leur permet de se spécialiser.</li>
+</ol>
+<p>Un équilibrage de charge par pertes auxiliaires, au niveau des experts et des appareils, évite que le routeur s'effondre sur quelques experts.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>À 2 milliards de paramètres</b>, DeepSeekMoE égale GShard 2,9B, qui a 1,5 fois plus de paramètres et de calcul d'experts, et approche presque le modèle dense de même taille totale, la borne supérieure théorique d'un MoE.</li>
+<li><b>À 16 milliards</b> (2,8 milliards actifs), entraîné sur 2 000 milliards de tokens, il égale LLaMA2 7B et DeepSeek LLM 7B avec environ <b>40 % de leur calcul</b>.</li>
+<li><b>À 145 milliards</b> (expériences préliminaires), il égale DeepSeek LLM 67B avec seulement 28,5 % (voire 18,2 %) du calcul.</li>
+</ul>
+<p>Des analyses confirment que les experts sont plus spécialisés : désactiver les experts routés les plus utilisés dégrade bien plus DeepSeekMoE que GShard, signe d'une redondance plus faible. Le modèle 16B a été publié et pouvait tourner sur un seul GPU de 40 Go.</p>
+
+<h4>Héritage</h4>
+<p>DeepSeekMoE est la fondation architecturale de tous les grands modèles DeepSeek suivants : V2 (160 experts), V3 (256 experts routés plus 1 partagé, 8 actifs, papier 32) et V4 (papier 31). La combinaison « experts fins plus experts partagés » a été adoptée par Qwen-MoE, Kimi K2 et beaucoup d'autres, et la tendance vers de très nombreux petits experts est devenue la norme des MoE de pointe, y compris gpt-oss (papier 30).</p>

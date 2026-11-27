@@ -1,0 +1,28 @@
+<h4>Le problème</h4>
+<p>Pour obtenir les meilleures performances, on entraîne souvent de très grands modèles ou des <b>ensembles</b> de modèles dont on moyenne les prédictions. Mais ces systèmes sont trop lourds pour être déployés à grande échelle. Geoffrey Hinton, Oriol Vinyals et Jeff Dean (Google, 2015) comparent la situation aux insectes : la larve est optimisée pour se nourrir, l'adulte pour se déplacer et se reproduire. De même, le modèle d'entraînement et le modèle de déploiement peuvent être différents. Comment transférer la connaissance du gros modèle vers un petit ?</p>
+
+<h4>La « connaissance sombre »</h4>
+<p>Un classifieur entraîné ne donne pas seulement la bonne classe : il attribue aussi des probabilités aux mauvaises. Une image de BMW peut avoir une probabilité de 10<sup>-6</sup> d'être un camion poubelle et de 10<sup>-9</sup> d'être une carotte. Ces petites différences portent une information précieuse sur la manière dont le modèle <b>généralise</b> : elles disent quelles classes se ressemblent. Hinton appelle cette information la <b>« dark knowledge »</b>. Les étiquettes « dures » (une seule bonne classe) la perdent complètement.</p>
+
+<h4>La méthode : la température</h4>
+<p>Les probabilités des mauvaises classes sont si petites qu'elles influencent à peine la perte. La solution : adoucir la distribution avec une <b>température</b> T dans la fonction softmax. Avec T grand, la distribution devient plus plate et les écarts entre petites probabilités deviennent visibles. La distillation consiste à :</p>
+<ol>
+<li>calculer les probabilités « douces » du modèle professeur avec une température élevée ;</li>
+<li>entraîner le modèle élève à reproduire ces probabilités, avec la même température ;</li>
+<li>ajouter éventuellement une perte classique sur les vraies étiquettes, avec un poids plus faible ;</li>
+<li>déployer l'élève avec une température de 1.</li>
+</ol>
+<p>Les auteurs montrent que, à haute température, la distillation revient à faire correspondre les logits du professeur et de l'élève, une méthode proposée auparavant par Caruana et ses collègues.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>MNIST</b> : un petit réseau distillé fait presque aussi bien que le grand. Même quand on retire tous les exemples du chiffre 3 de l'ensemble de transfert, l'élève apprend à reconnaître les 3, uniquement grâce aux probabilités douces sur les autres chiffres.</li>
+<li><b>Reconnaissance vocale</b> : un modèle unique distillé à partir d'un ensemble de 10 modèles conserve l'essentiel du gain de l'ensemble.</li>
+<li>Les étiquettes douces agissent comme un <b>régularisateur</b> puissant : avec seulement 3 % des données d'entraînement, un modèle entraîné sur les cibles douces généralise presque aussi bien qu'avec toutes les données, alors qu'un modèle entraîné sur les étiquettes dures surapprend fortement.</li>
+</ul>
+
+<h4>Ensembles de spécialistes</h4>
+<p>Le papier propose aussi des modèles <b>spécialistes</b>, chacun entraîné sur un sous-ensemble de classes faciles à confondre (par exemple différentes races de chiens), combinés à un modèle généraliste. Sur le très grand jeu de données JFT de Google, cette approche améliore la précision à moindre coût. Cette idée annonce, de loin, les mélanges d'experts (papier 36).</p>
+
+<h4>Héritage</h4>
+<p>La distillation est devenue un outil central de l'IA moderne. Les petits modèles des grands laboratoires (Haiku, Flash, Mini) sont souvent obtenus en partie par distillation. DeepSeek a distillé R1 (papier 33) dans des modèles Qwen et Llama, et le papier 75 montre que la distillation élargit vraiment les capacités, contrairement au RL. Les system cards de GPT-6.2 (papier 101) décrivent même des mesures anti-distillation (raisonnement chiffré, rétention du flux) pour empêcher des concurrents de copier les modèles.</p>

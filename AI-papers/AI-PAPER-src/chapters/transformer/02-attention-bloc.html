@@ -1,0 +1,291 @@
+<h3 class="part" id="tf-3">III. L'attention en détail</h3>
+
+<h4>3.1 Une recherche floue dans une table</h4>
+<p>La meilleure image de l'attention est celle d'un dictionnaire dont la recherche serait floue. Dans un dictionnaire Python, une requête (<i>query</i>) est comparée à des clés (<i>keys</i>) ; si elle correspond exactement à l'une d'elles, on renvoie la valeur (<i>value</i>) associée. Dans l'attention, la requête est comparée à <b>toutes</b> les clés, chaque comparaison donne un score de similarité, et l'on renvoie une <b>moyenne des valeurs pondérée</b> par ces scores. Une clé très proche de la requête domine le résultat ; si plusieurs clés sont également proches, leurs valeurs sont mélangées.</p>
+<p>Dans l'auto-attention, chaque position de la séquence joue les trois rôles à la fois. À partir de son vecteur courant <i>x<sub>i</sub></i>, elle calcule par trois projections linéaires apprises :</p>
+<ul>
+<li>une <b>requête</b> q<sub>i</sub> = x<sub>i</sub> W<sub>Q</sub> : « qu'est-ce que je cherche ? » ;</li>
+<li>une <b>clé</b> k<sub>i</sub> = x<sub>i</sub> W<sub>K</sub> : « qu'est-ce que je peux offrir, à quoi est-ce que je réponds ? » ;</li>
+<li>une <b>valeur</b> v<sub>i</sub> = x<sub>i</sub> W<sub>V</sub> : « qu'est-ce que je transmets si l'on me choisit ? ».</li>
+</ul>
+<p>Séparer clés et valeurs est essentiel : ce qui permet de <i>trouver</i> un mot (par exemple « je suis un nom au pluriel ») n'est pas forcément ce qu'il faut <i>copier</i> une fois trouvé (son sens, son genre, son identité). Les trois matrices <i>W</i> sont apprises ; rien dans l'architecture ne dit à l'avance ce que représentent les requêtes et les clés.</p>
+
+<h4>3.2 La formule</h4>
+<p>En empilant les requêtes, clés et valeurs de toutes les positions en matrices <i>Q</i>, <i>K</i>, <i>V</i> (une ligne par position), l'attention de 2017 s'écrit en une ligne :</p>
+<p class="formula">Attention(Q, K, V) = softmax( Q Kᵀ / √d<sub>k</sub> ) · V</p>
+<p>Le produit <i>QK</i>ᵀ est une matrice <i>n</i> × <i>n</i> qui contient tous les produits scalaires requête-clé : la ligne <i>i</i> donne les scores de la position <i>i</i> pour chaque position <i>j</i>. La softmax s'applique ligne par ligne et transforme chaque ligne en distribution de probabilité (des poids positifs de somme 1). La multiplication par <i>V</i> forme, pour chaque position, la moyenne pondérée des valeurs. Le tout ne demande que deux multiplications de matrices et une softmax, des opérations sur lesquelles les GPU excellent.</p>
+
+<h4>3.3 Pourquoi diviser par √d<sub>k</sub></h4>
+<p>Le facteur 1/√<i>d</i><sub>k</sub> distingue l'« attention par produit scalaire mis à l'échelle » (<i>scaled dot-product attention</i>) de celle de Luong. L'argument est statistique. Si les composantes de <i>q</i> et de <i>k</i> sont des variables indépendantes de moyenne nulle et de variance 1, leur produit scalaire q·k = Σ q<sub>m</sub>k<sub>m</sub> est une somme de <i>d</i><sub>k</sub> termes de variance 1, donc de variance <i>d</i><sub>k</sub> et d'écart-type √<i>d</i><sub>k</sub>. Avec <i>d</i><sub>k</sub> = 64, les scores bruts ont un écart-type de 8. Des écarts de cet ordre entre logits suffisent à saturer la softmax : presque tout le poids va à un seul élément, et le gradient de la softmax devient quasi nul pour tous les autres, ce qui bloque l'apprentissage. Diviser par √<i>d</i><sub>k</sub> = 8 ramène les scores à une variance de 1, quelle que soit la dimension des têtes. C'est un réglage de <a href="#g-softmax-et-temperature">température</a> fixé une fois pour toutes.</p>
+
+<h4>3.4 Un exemple à la main</h4>
+<p>Prenons trois jetons, « le », « chat », « dort », et des vecteurs de dimension <i>d</i><sub>k</sub> = 2 choisis pour l'exemple. On calcule la sortie de l'attention pour la position « dort ».</p>
+<table class="chap-table">
+<tr><th>Jeton</th><th>Clé k</th><th>Valeur v</th><th>q·k</th><th>÷ √2</th><th>exp</th><th>Poids</th></tr>
+<tr><td>le</td><td>(0, 1)</td><td>(1, 0)</td><td>2</td><td>1,414</td><td>4,11</td><td>0,178</td></tr>
+<tr><td>chat</td><td>(2, 1)</td><td>(0, 1)</td><td>4</td><td>2,828</td><td>16,92</td><td>0,734</td></tr>
+<tr><td>dort</td><td>(1, 0)</td><td>(1, 1)</td><td>1</td><td>0,707</td><td>2,03</td><td>0,088</td></tr>
+</table>
+<p>La requête de « dort » vaut q = (1, 2). Les produits scalaires avec les trois clés valent 2, 4 et 1. Après division par √2 et exponentiation, la somme vaut 23,06, d'où les poids 0,178, 0,734 et 0,088. La sortie est la moyenne pondérée des valeurs :</p>
+<p class="formula">0,178·(1, 0) + 0,734·(0, 1) + 0,088·(1, 1) = (0,266 ; 0,822)</p>
+<p>Le verbe « dort » a surtout « regardé » son sujet « chat », et le vecteur qu'il reçoit est dominé par la valeur de « chat ». Dans un vrai modèle, une tête qui apprendrait ce comportement permettrait au verbe de récupérer les traits de son sujet (nombre, personne, animé ou non). C'est exactement ce que trouvent les études des têtes d'attention de BERT (Clark et al., 2019) : certaines têtes suivent très précisément des relations syntaxiques comme sujet-verbe ou déterminant-nom, sans qu'on les leur ait jamais enseignées.</p>
+
+<h4>3.5 Les masques</h4>
+<p>Avant la softmax, on peut ajouter à la matrice des scores un <b>masque</b> qui vaut 0 pour les paires autorisées et −∞ pour les paires interdites. Comme exp(−∞) = 0, une paire masquée reçoit un poids exactement nul. Deux masques sont omniprésents :</p>
+<ul>
+<li>le <b>masque causal</b> (ou triangulaire), qui interdit à la position <i>i</i> de regarder les positions <i>j</i> &gt; <i>i</i>. C'est lui qui fait d'un Transformer un modèle de langage : pour prédire le jeton suivant, il ne doit pas pouvoir lire la réponse. Grâce au masque, on peut entraîner le modèle sur toutes les positions d'une séquence <b>en parallèle</b>, chaque position ne voyant que son passé (section 7.1) ;</li>
+<li>le <b>masque de remplissage</b> (<i>padding</i>), qui ignore les jetons vides ajoutés pour donner la même longueur à toutes les séquences d'un lot.</li>
+</ul>
+<p>D'autres masques définissent des variantes : fenêtre glissante (chaque jeton ne voit que ses <i>w</i> prédécesseurs, voir le <a href="#attention">dossier attention</a>), attention bidirectionnelle sur un préfixe et causale ensuite (le « préfixe LM » de T5 et UniLM), masques par documents quand plusieurs textes sont concaténés dans une même séquence d'entraînement.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 210" width="100%" role="img" aria-label="Matrice d'attention et masque causal">
+<text class="tf-t" x="165" y="14" text-anchor="middle">Attention bidirectionnelle (encodeur)</text>
+<text class="tf-t" x="480" y="14" text-anchor="middle">Attention causale (décodeur)</text>
+<g id="tf-grid-labels">
+<text class="tf-s" x="60" y="56" text-anchor="end">Le</text><text class="tf-s" x="60" y="84" text-anchor="end">chat</text>
+<text class="tf-s" x="60" y="112" text-anchor="end">dort</text><text class="tf-s" x="60" y="140" text-anchor="end">sur</text>
+<text class="tf-s" x="60" y="168" text-anchor="end">le</text>
+<text class="tf-xs" x="82" y="190" text-anchor="middle">Le</text><text class="tf-xs" x="110" y="190" text-anchor="middle">chat</text>
+<text class="tf-xs" x="138" y="190" text-anchor="middle">dort</text><text class="tf-xs" x="166" y="190" text-anchor="middle">sur</text>
+<text class="tf-xs" x="194" y="190" text-anchor="middle">le</text>
+</g>
+<g>
+<rect x="68" y="42" width="28" height="28" fill="#fde68a" stroke="#fff"/><rect x="96" y="42" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="124" y="42" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="152" y="42" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="180" y="42" width="28" height="28" fill="#fef3c7" stroke="#fff"/>
+<rect x="68" y="70" width="28" height="28" fill="#fcd34d" stroke="#fff"/><rect x="96" y="70" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="124" y="70" width="28" height="28" fill="#fde68a" stroke="#fff"/><rect x="152" y="70" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="180" y="70" width="28" height="28" fill="#fef9e7" stroke="#fff"/>
+<rect x="68" y="98" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="96" y="98" width="28" height="28" fill="#f59e0b" stroke="#fff"/><rect x="124" y="98" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="152" y="98" width="28" height="28" fill="#fde68a" stroke="#fff"/><rect x="180" y="98" width="28" height="28" fill="#fef9e7" stroke="#fff"/>
+<rect x="68" y="126" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="96" y="126" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="124" y="126" width="28" height="28" fill="#fcd34d" stroke="#fff"/><rect x="152" y="126" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="180" y="126" width="28" height="28" fill="#fde68a" stroke="#fff"/>
+<rect x="68" y="154" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="96" y="154" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="124" y="154" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="152" y="154" width="28" height="28" fill="#fcd34d" stroke="#fff"/><rect x="180" y="154" width="28" height="28" fill="#fef3c7" stroke="#fff"/>
+</g>
+<g transform="translate(315,0)">
+<text class="tf-s" x="60" y="56" text-anchor="end">Le</text><text class="tf-s" x="60" y="84" text-anchor="end">chat</text>
+<text class="tf-s" x="60" y="112" text-anchor="end">dort</text><text class="tf-s" x="60" y="140" text-anchor="end">sur</text>
+<text class="tf-s" x="60" y="168" text-anchor="end">le</text>
+<text class="tf-xs" x="82" y="190" text-anchor="middle">Le</text><text class="tf-xs" x="110" y="190" text-anchor="middle">chat</text>
+<text class="tf-xs" x="138" y="190" text-anchor="middle">dort</text><text class="tf-xs" x="166" y="190" text-anchor="middle">sur</text>
+<text class="tf-xs" x="194" y="190" text-anchor="middle">le</text>
+<rect x="68" y="42" width="28" height="28" fill="#f59e0b" stroke="#fff"/><rect x="96" y="42" width="112" height="28" fill="#e7e5e4" stroke="#fff"/>
+<rect x="68" y="70" width="28" height="28" fill="#fcd34d" stroke="#fff"/><rect x="96" y="70" width="28" height="28" fill="#fde68a" stroke="#fff"/><rect x="124" y="70" width="84" height="28" fill="#e7e5e4" stroke="#fff"/>
+<rect x="68" y="98" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="96" y="98" width="28" height="28" fill="#f59e0b" stroke="#fff"/><rect x="124" y="98" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="152" y="98" width="56" height="28" fill="#e7e5e4" stroke="#fff"/>
+<rect x="68" y="126" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="96" y="126" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="124" y="126" width="28" height="28" fill="#fcd34d" stroke="#fff"/><rect x="152" y="126" width="28" height="28" fill="#fde68a" stroke="#fff"/><rect x="180" y="126" width="28" height="28" fill="#e7e5e4" stroke="#fff"/>
+<rect x="68" y="154" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="96" y="154" width="28" height="28" fill="#fef9e7" stroke="#fff"/><rect x="124" y="154" width="28" height="28" fill="#fef3c7" stroke="#fff"/><rect x="152" y="154" width="28" height="28" fill="#fcd34d" stroke="#fff"/><rect x="180" y="154" width="28" height="28" fill="#fef3c7" stroke="#fff"/>
+<text class="tf-xs" x="180" y="60" text-anchor="middle">−∞ (masqué)</text>
+</g>
+<text class="tf-xs" x="320" y="206" text-anchor="middle">lignes : position qui interroge (requête) — colonnes : position consultée (clé) — teinte : poids d'attention</text>
+</svg>
+<figcaption>Figure 2. Matrices d'attention illustratives. À droite, le masque causal interdit de regarder vers le futur : la moitié supérieure reçoit un poids nul.</figcaption>
+</figure>
+
+<h4>3.6 Plusieurs têtes</h4>
+<p>Une seule attention calcule une seule moyenne par position, donc ne peut suivre qu'un type de relation à la fois. L'<a href="#g-attention-multi-tetes">attention multi-têtes</a> exécute <i>h</i> attentions en parallèle, chacune avec ses propres projections, sur des sous-espaces de dimension <i>d</i><sub>k</sub> = <i>d</i>/<i>h</i>, puis concatène les résultats et les recombine par une dernière projection <i>W</i><sub>O</sub> :</p>
+<p class="formula">MultiHead(X) = Concat(tête<sub>1</sub>, …, tête<sub>h</sub>) · W<sub>O</sub>, avec tête<sub>i</sub> = Attention(X W<sub>Q</sub><sup>i</sup>, X W<sub>K</sub><sup>i</sup>, X W<sub>V</sub><sup>i</sup>)</p>
+<p>Dans le modèle de base de 2017, <i>d</i> = 512 et <i>h</i> = 8, donc chaque tête travaille en dimension 64. Le coût total est le même qu'une seule tête de dimension 512, mais le modèle peut suivre huit relations différentes à la fois : une tête qui regarde le mot précédent, une autre le sujet du verbe, une autre la parenthèse ouvrante correspondante, une autre le même mot plus haut dans le texte. En pratique, les têtes sont redondantes : Michel, Levy et Neubig (2019) montrent qu'on peut en supprimer une grande partie après entraînement en ne perdant que peu de performance, et Voita et al. (2019) identifient une poignée de têtes « spécialisées » qui portent l'essentiel du travail.</p>
+<p>Les modèles récents partagent les clés et valeurs entre plusieurs têtes de requête pour réduire la mémoire à l'inférence : c'est l'attention à requêtes multiples (MQA) puis groupées (<a href="#g-gqa">GQA</a>), ou la compression latente des clés et valeurs (<a href="#g-mla">MLA</a>) de DeepSeek. Ces variantes, qui ne changent pas le principe mais le coût, sont décrites dans le <a href="#attention">dossier attention</a>.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 200" width="100%" role="img" aria-label="Attention multi-têtes">
+<rect class="tf-bl" x="20" y="85" width="80" height="34" rx="5"/><text class="tf-t" x="60" y="106" text-anchor="middle">X (n × d)</text>
+<g>
+<rect class="tf-hl" x="160" y="20" width="150" height="30" rx="5"/><text class="tf-s" x="235" y="39" text-anchor="middle">tête 1 : Q₁ K₁ V₁ (d/h)</text>
+<rect class="tf-hl" x="160" y="62" width="150" height="30" rx="5"/><text class="tf-s" x="235" y="81" text-anchor="middle">tête 2 : Q₂ K₂ V₂</text>
+<text class="tf-t" x="235" y="118" text-anchor="middle">⋮</text>
+<rect class="tf-hl" x="160" y="140" width="150" height="30" rx="5"/><text class="tf-s" x="235" y="159" text-anchor="middle">tête h : Qₕ Kₕ Vₕ</text>
+</g>
+<path class="tf-e" d="M100,102 L158,35" marker-end="url(#tf-ar)"/><path class="tf-e" d="M100,102 L158,77" marker-end="url(#tf-ar)"/><path class="tf-e" d="M100,102 L158,155" marker-end="url(#tf-ar)"/>
+<rect class="tf-gr" x="370" y="20" width="40" height="150" rx="5"/><text class="tf-s" x="390" y="100" text-anchor="middle" transform="rotate(-90 390 100)">concaténation</text>
+<path class="tf-e" d="M310,35 L368,35" marker-end="url(#tf-ar)"/><path class="tf-e" d="M310,77 L368,77" marker-end="url(#tf-ar)"/><path class="tf-e" d="M310,155 L368,155" marker-end="url(#tf-ar)"/>
+<rect class="tf-gy" x="450" y="85" width="60" height="34" rx="5"/><text class="tf-t" x="480" y="106" text-anchor="middle">W_O</text>
+<path class="tf-e" d="M410,102 L448,102" marker-end="url(#tf-ar)"/>
+<rect class="tf-bl" x="550" y="85" width="72" height="34" rx="5"/><text class="tf-t" x="586" y="106" text-anchor="middle">n × d</text>
+<path class="tf-e" d="M510,102 L548,102" marker-end="url(#tf-ar)"/>
+<text class="tf-xs" x="320" y="192" text-anchor="middle">chaque tête calcule softmax(QKᵀ/√d_k)·V dans un sous-espace de dimension d_k = d/h</text>
+</svg>
+<figcaption>Figure 3. L'attention multi-têtes : h attentions indépendantes dans des sous-espaces, recombinées par une projection.</figcaption>
+</figure>
+
+<h4>3.7 Que font les têtes en pratique ?</h4>
+<p>L'étude des modèles entraînés a permis de dresser un petit bestiaire des têtes d'attention qu'on retrouve d'un modèle à l'autre :</p>
+<ul>
+<li>les <b>têtes positionnelles</b>, qui regardent toujours le jeton précédent (ou suivant, dans un encodeur), sont les plus simples et apparaissent dans les premières couches ;</li>
+<li>les <b>têtes syntaxiques</b> suivent des relations grammaticales : sujet vers verbe, déterminant vers nom, pronom vers son antécédent (Clark et al., 2019 ; Voita et al., 2019) ;</li>
+<li>les <b>têtes d'induction</b> et de copie reproduisent une suite déjà vue (section 9.2) ; les <b>têtes de récupération</b> (Wu et al., 2024) vont chercher une information précise dans un long contexte, et leur suppression fait échouer les tests de « l'aiguille dans la botte de foin » ;</li>
+<li>des têtes dites de <b>suppression</b> réduisent au contraire la probabilité de répéter un jeton déjà présent ;</li>
+<li>enfin, beaucoup de têtes n'ont, pour la plupart des jetons, rien d'utile à faire. Elles concentrent alors leur poids sur le premier jeton de la séquence, qui sert de point d'ancrage neutre : c'est le phénomène des <a href="#g-puits-d-attention">puits d'attention</a> (Xiao et al., 2023). La softmax impose que les poids somment à 1 ; une tête qui ne veut rien lire doit bien les mettre quelque part. Ce comportement explique pourquoi on ne peut pas simplement supprimer les premiers jetons du cache, et il a motivé des variantes qui permettent à une tête de « s'abstenir » (un puits appris dans gpt-oss, une porte de sortie sur l'attention chez Qwen).</li>
+</ul>
+<p>Cette spécialisation n'est pas programmée : elle émerge de l'entraînement, comme les détecteurs de bords et de textures émergent dans les réseaux convolutifs. Elle est aussi partiellement redondante, ce qui rend les modèles robustes à la suppression de têtes isolées.</p>
+
+<h4>3.8 L'attention croisée</h4>
+<p>Dans le Transformer original, qui traduit, le décodeur contient un second type d'attention : l'<b>attention croisée</b> (<i>cross-attention</i>, ou attention encodeur-décodeur). Les requêtes viennent du décodeur, les clés et les valeurs de la sortie de l'encodeur. C'est l'héritière directe de l'attention de Bahdanau : à chaque mot qu'il produit, le décodeur consulte la phrase source. Le même mécanisme sert aujourd'hui à injecter une condition externe dans un générateur : le texte dans un modèle de diffusion d'images (Stable Diffusion), les images dans certains modèles vision-langage (Flamingo, 2022), l'audio dans Whisper. Les modèles « décodeur seul » s'en passent : tout, consigne, document, image, est mis dans la même séquence et traité par l'auto-attention causale.</p>
+
+<h4>3.9 Ce que coûte l'attention</h4>
+<p>Pour une séquence de <i>n</i> jetons, la matrice des scores a <i>n</i>² entrées par tête et par couche. À 1 000 jetons, c'est un million ; à 128 000, seize milliards. Le calcul en O(<i>n</i>²<i>d</i>) et surtout la mémoire nécessaire pour stocker cette matrice ont longtemps limité les contextes à 512 (BERT), 1 024 (GPT-2) puis 2 048 jetons (GPT-3). Trois familles de solutions, toutes détaillées dans le <a href="#attention">dossier attention</a>, ont permis d'atteindre le million de jetons :</p>
+<ul>
+<li><b>calculer exactement mais intelligemment</b> : <a href="#g-flashattention">FlashAttention</a> découpe le calcul en tuiles qui tiennent dans la mémoire rapide du GPU et ne matérialise jamais la matrice <i>n</i> × <i>n</i> ;</li>
+<li><b>réduire ce qu'on garde en mémoire</b> à la génération : le <a href="#g-cache-kv">cache KV</a>, compressé par GQA, MLA ou la quantification (DeepSeek-V4.1-Flash, <a href="#p45">fiche 45</a>) ;</li>
+<li><b>ne pas tout regarder</b> : fenêtres glissantes, <a href="#g-puits-d-attention">puits d'attention</a>, <a href="#g-attention-parcimonieuse">attention parcimonieuse</a> apprise (DeepSeek-V4, <a href="#p31">fiche 31</a> ; FlashMemory, <a href="#p51">fiche 51</a>).</li>
+</ul>
+<p>Il faut cependant garder les ordres de grandeur en tête : pour un modèle de 70 milliards de paramètres et un contexte de 8 000 jetons, l'essentiel du calcul se trouve dans les couches denses (projections et réseau feed-forward, section 4.6), pas dans les scores d'attention. Le terme quadratique ne domine qu'au-delà de quelques dizaines de milliers de jetons.</p>
+
+<h3 class="part" id="tf-4">IV. Le bloc Transformer</h3>
+
+<h4>4.1 Vue d'ensemble</h4>
+<p>Un Transformer est un empilement de <i>L</i> blocs identiques (6 en 2017, 12 pour GPT-2 small et BERT-base, 32 pour Llama 3 8B, 61 pour DeepSeek-V3, 80 pour Llama 3 70B, 96 pour GPT-3). Chaque bloc contient deux sous-couches :</p>
+<ol>
+<li>une <b>attention multi-têtes</b>, qui fait circuler l'information <i>entre</i> les positions ;</li>
+<li>un <b>réseau feed-forward</b> (FFN, un <a href="#g-perceptron-multicouche">perceptron multicouche</a> à une couche cachée), appliqué à chaque position <i>indépendamment</i>, qui transforme l'information <i>à l'intérieur</i> de chaque position.</li>
+</ol>
+<p>Chaque sous-couche est entourée d'une <a href="#g-connexion-residuelle">connexion résiduelle</a> et d'une <a href="#g-normalisation-de-couche">normalisation</a>. Cette alternance « communiquer, puis réfléchir » est la structure de base, répétée sans changement sur toute la profondeur. Seuls changent les poids appris de chaque bloc.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 330" width="100%" role="img" aria-label="Bloc Transformer pré-normalisé">
+<path d="M150,315 L150,20" stroke="#1d4ed8" stroke-width="5" fill="none" opacity="0.35"/>
+<text class="tf-s" x="150" y="328" text-anchor="middle">flux résiduel x</text>
+<rect class="tf-gy" x="210" y="235" width="120" height="28" rx="4"/><text class="tf-s" x="270" y="253" text-anchor="middle">RMSNorm</text>
+<rect class="tf-hl" x="210" y="190" width="120" height="32" rx="4"/><text class="tf-t" x="270" y="210" text-anchor="middle">Attention multi-têtes</text>
+<path class="tf-e" d="M150,280 L270,280 L270,265" marker-end="url(#tf-ar)"/>
+<path class="tf-e" d="M270,235 L270,224" marker-end="url(#tf-ar)"/>
+<path class="tf-e" d="M270,190 L270,175 L162,175" marker-end="url(#tf-ar)"/>
+<circle cx="150" cy="175" r="10" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/><text class="tf-t" x="150" y="179" text-anchor="middle">+</text>
+<rect class="tf-gy" x="210" y="115" width="120" height="28" rx="4"/><text class="tf-s" x="270" y="133" text-anchor="middle">RMSNorm</text>
+<rect class="tf-gr" x="210" y="70" width="120" height="32" rx="4"/><text class="tf-t" x="270" y="90" text-anchor="middle">FFN (SwiGLU)</text>
+<path class="tf-e" d="M150,158 L270,158 L270,145" marker-end="url(#tf-ar)"/>
+<path class="tf-e" d="M270,115 L270,104" marker-end="url(#tf-ar)"/>
+<path class="tf-e" d="M270,70 L270,55 L162,55" marker-end="url(#tf-ar)"/>
+<circle cx="150" cy="55" r="10" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/><text class="tf-t" x="150" y="59" text-anchor="middle">+</text>
+<rect x="190" y="60" width="160" height="215" rx="8" fill="none" stroke="#7c2d12" stroke-dasharray="5 4"/>
+<text class="tf-xs" x="355" y="72">× L blocs</text>
+<g transform="translate(400,0)">
+<text class="tf-t" x="110" y="40" text-anchor="middle">Le modèle complet (décodeur seul)</text>
+<rect class="tf-bl" x="40" y="285" width="140" height="26" rx="4"/><text class="tf-s" x="110" y="302" text-anchor="middle">jetons → plongements</text>
+<rect class="tf-hl" x="40" y="235" width="140" height="26" rx="4"/><text class="tf-s" x="110" y="252" text-anchor="middle">bloc 1</text>
+<rect class="tf-hl" x="40" y="195" width="140" height="26" rx="4"/><text class="tf-s" x="110" y="212" text-anchor="middle">bloc 2</text>
+<text class="tf-t" x="110" y="175" text-anchor="middle">⋮</text>
+<rect class="tf-hl" x="40" y="135" width="140" height="26" rx="4"/><text class="tf-s" x="110" y="152" text-anchor="middle">bloc L</text>
+<rect class="tf-gy" x="40" y="95" width="140" height="26" rx="4"/><text class="tf-s" x="110" y="112" text-anchor="middle">norme finale</text>
+<rect class="tf-gr" x="40" y="55" width="140" height="26" rx="4"/><text class="tf-s" x="110" y="72" text-anchor="middle">tête de sortie → softmax</text>
+<path class="tf-e" d="M110,285 L110,263" marker-end="url(#tf-ar)"/><path class="tf-e" d="M110,235 L110,223" marker-end="url(#tf-ar)"/>
+<path class="tf-e" d="M110,135 L110,123" marker-end="url(#tf-ar)"/><path class="tf-e" d="M110,95 L110,83" marker-end="url(#tf-ar)"/>
+</g>
+</svg>
+<figcaption>Figure 4. À gauche, un bloc pré-normalisé tel qu'on le construit depuis GPT-2 : chaque sous-couche lit une version normalisée du flux résiduel et y ajoute sa contribution. À droite, l'empilement complet.</figcaption>
+</figure>
+
+<h4>4.2 Connexions résiduelles et flux résiduel</h4>
+<p>Les connexions résiduelles viennent des ResNet de vision (He et al., 2015) : au lieu de calculer <i>y</i> = F(<i>x</i>), chaque sous-couche calcule <i>y</i> = <i>x</i> + F(<i>x</i>). La sous-couche n'apprend qu'une <i>correction</i> à apporter à son entrée. Deux conséquences en découlent. Pour l'optimisation, le gradient dispose d'un chemin direct, l'identité, de la perte jusqu'aux premières couches, ce qui rend possible l'entraînement de réseaux de cent couches ; c'est la même idée que la cellule additive du LSTM. Pour l'interprétation, Elhage et al. (Anthropic, 2021) proposent de voir le vecteur de chaque position comme un <b>flux résiduel</b> (<i>residual stream</i>) : un bus de communication de dimension <i>d</i> que chaque tête d'attention et chaque FFN lit (par une projection), puis dans lequel il écrit (par addition). Rien n'est jamais effacé, seulement ajouté, et la sortie finale est la somme des contributions de tous les composants. Ce point de vue linéaire est le socle de l'<a href="#g-interpretabilite-mecaniste">interprétabilité mécaniste</a> (partie IX).</p>
+<p>Cette architecture a été revisitée récemment. Les <b>hyper-connexions</b> (Zhu et al., 2024) remplacent le flux unique par plusieurs flux parallèles mélangés par des matrices apprises ; DeepSeek-V4 (<a href="#p31">fiche 31</a>) en utilise une version contrainte, les mHC, dont les matrices de mélange sont projetées sur des matrices doublement stochastiques pour garantir la stabilité de l'entraînement.</p>
+
+<h4>4.3 Normaliser : post-LN, pré-LN et RMSNorm</h4>
+<p>La <b>normalisation de couche</b> (LayerNorm, Ba, Kiros et Hinton, 2016) recentre et remet à l'échelle chaque vecteur : on lui soustrait la moyenne de ses composantes, on le divise par leur écart-type, puis on le multiplie par un gain appris γ et on lui ajoute un biais appris β. Elle stabilise l'amplitude des activations d'une couche à l'autre. Contrairement à la normalisation par lot des réseaux convolutifs, elle ne dépend que du vecteur lui-même et se comporte donc de la même façon à l'entraînement et à l'inférence, quelle que soit la taille du lot.</p>
+<p>Le papier de 2017 place la normalisation <b>après</b> l'addition résiduelle (post-LN) : <i>x</i> ← LN(<i>x</i> + F(<i>x</i>)). Cette disposition oblige à commencer l'entraînement avec un taux d'apprentissage très faible qu'on augmente progressivement (le « warmup », section 7.2), sans quoi l'entraînement diverge. Xiong et al. (2020) montrent pourquoi : en post-LN, les gradients des dernières couches sont très grands au début de l'entraînement. Placer la normalisation <b>avant</b> chaque sous-couche (pré-LN, <i>x</i> ← <i>x</i> + F(LN(<i>x</i>))), comme le faisaient déjà GPT-2 et le Transformer de Megatron, laisse le flux résiduel non normalisé et l'entraînement devient beaucoup plus stable. Tous les grands modèles actuels sont pré-normalisés, avec une normalisation finale avant la tête de sortie.</p>
+<p><b>RMSNorm</b> (Zhang et Sennrich, 2019) simplifie encore : on ne soustrait plus la moyenne, on divise seulement par la racine de la moyenne des carrés, RMS(<i>x</i>) = √(Σ x<sub>i</sub>²/<i>d</i>), et on ne garde que le gain γ. C'est 10 à 50 % plus rapide pour une qualité égale ; Llama, DeepSeek, Qwen et Mistral l'utilisent. Certains modèles ajoutent des normalisations à d'autres endroits, par exemple sur les requêtes et les clés avant leur produit scalaire (QK-norm, section 7.5), ou après chaque sous-couche en plus d'avant (Gemma 2).</p>
+
+<h4>4.4 Le réseau feed-forward</h4>
+<p>Le FFN est un perceptron à une couche cachée, appliqué identiquement à chaque position :</p>
+<p class="formula">FFN(x) = W<sub>2</sub> · φ( W<sub>1</sub> x + b<sub>1</sub> ) + b<sub>2</sub></p>
+<p>La couche cachée est plus large que le modèle, conventionnellement <i>d</i><sub>ff</sub> = 4<i>d</i> (2 048 pour <i>d</i> = 512 en 2017). La fonction d'activation φ était la <a href="#g-relu">ReLU</a> en 2017 ; GPT et BERT passent à la <b>GELU</b> (Hendrycks et Gimpel, 2016), une version lisse qui multiplie <i>x</i> par la probabilité qu'une gaussienne soit inférieure à <i>x</i>.</p>
+<p>Shazeer (2020) teste des <b>unités linéaires à porte</b> (GLU) : la couche cachée devient le produit, composante par composante, de deux projections, dont l'une passe par une non-linéarité.</p>
+<p class="formula">SwiGLU(x) = W<sub>2</sub> · ( Swish(W<sub>1</sub> x) ⊙ W<sub>3</sub> x ), avec Swish(z) = z · σ(z)</p>
+<p>La variante <a href="#g-swiglu">SwiGLU</a> améliore nettement la perplexité à coût égal. Comme elle a trois matrices au lieu de deux, on réduit la largeur cachée à environ (8/3)<i>d</i> pour garder le même nombre de paramètres : Llama 3 8B utilise <i>d</i> = 4 096 et <i>d</i><sub>ff</sub> = 14 336 (3,5<i>d</i>). Shazeer conclut son papier, avec humour, qu'il n'offre « aucune explication » à ce succès, « que nous attribuons, comme tout le reste, à la bienveillance divine ». C'est aujourd'hui l'activation standard.</p>
+<p>Le FFN contient environ les deux tiers des paramètres d'un Transformer dense. Geva et al. (2021) proposent de le lire comme une <b>mémoire associative</b> : chaque ligne de <i>W</i><sub>1</sub> est une « clé » qui détecte un motif dans le flux résiduel (une colonne de <i>W</i><sub>2</sub> étant la « valeur » ajoutée quand le motif est présent). Les travaux d'édition de connaissances comme ROME (section 9.5) localisent effectivement des faits (« la tour Eiffel est à Paris ») dans les FFN de couches intermédiaires.</p>
+
+<h4>4.5 Mélange d'experts</h4>
+<p>Le FFN étant appliqué indépendamment à chaque jeton, rien n'oblige à appliquer le <i>même</i> FFN à tous. Un <a href="#g-moe">mélange d'experts</a> (MoE) remplace le FFN par <i>E</i> FFN parallèles, les experts, et un petit <b>routeur</b> qui choisit pour chaque jeton les <i>k</i> experts les plus pertinents (souvent <i>k</i> = 1, 2 ou 8). On multiplie ainsi le nombre de paramètres, donc la capacité de mémorisation, sans multiplier le calcul par jeton. L'idée remonte à Jacobs et al. (1991) ; Shazeer et al. (2017) l'appliquent aux LSTM avec des milliers d'experts, GShard (2020) et Switch Transformer (2021) aux Transformers. DeepSeekMoE (<a href="#p36">fiche 36</a>) la raffine avec des experts plus petits et plus nombreux et des experts « partagés » toujours actifs ; DeepSeek-V3 (<a href="#p32">fiche 32</a>) compte 671 milliards de paramètres dont seulement 37 sont actifs pour chaque jeton (1 expert partagé et 8 routés parmi 256). La difficulté principale est l'<b>équilibrage de charge</b> : sans précaution, le routeur envoie tout aux mêmes experts. On l'évite par une perte auxiliaire ou, chez DeepSeek-V3, par des biais ajustés dynamiquement.</p>
+
+<h4>4.6 Compter les paramètres et le calcul</h4>
+<p>Pour un bloc standard avec <i>d</i><sub>ff</sub> = 4<i>d</i>, l'attention apporte 4<i>d</i>² paramètres (les matrices <i>W</i><sub>Q</sub>, <i>W</i><sub>K</sub>, <i>W</i><sub>V</sub>, <i>W</i><sub>O</sub>) et le FFN 8<i>d</i>² (deux matrices <i>d</i> × 4<i>d</i>). Le modèle complet compte donc environ :</p>
+<p class="formula">N ≈ 12 · L · d² + V · d</p>
+<p>Le second terme est la table des plongements. Cette formule simple donne des résultats remarquablement justes :</p>
+<table class="chap-table">
+<tr><th>Modèle</th><th>L</th><th>d</th><th>Têtes</th><th>Contexte</th><th>Paramètres</th></tr>
+<tr><td>Transformer base</td><td>6+6</td><td>512</td><td>8</td><td>—</td><td>65 M</td></tr>
+<tr><td>BERT-base</td><td>12</td><td>768</td><td>12</td><td>512</td><td>110 M</td></tr>
+<tr><td>GPT-2 small</td><td>12</td><td>768</td><td>12</td><td>1 024</td><td>124 M</td></tr>
+<tr><td>GPT-2 XL</td><td>48</td><td>1 600</td><td>25</td><td>1 024</td><td>1,5 G</td></tr>
+<tr><td>GPT-3</td><td>96</td><td>12 288</td><td>96</td><td>2 048</td><td>175 G</td></tr>
+<tr><td>Llama 3 8B</td><td>32</td><td>4 096</td><td>32</td><td>8 192</td><td>8,0 G</td></tr>
+<tr><td>Llama 3 70B</td><td>80</td><td>8 192</td><td>64</td><td>8 192</td><td>70,6 G</td></tr>
+<tr><td>DeepSeek-V3</td><td>61</td><td>7 168</td><td>128</td><td>128 k</td><td>671 G</td></tr>
+</table>
+<p>Pour GPT-2 small, 12 × 12 × 768² + 50 257 × 768 ≈ 85 M + 39 M = 124 M ; pour GPT-3, 12 × 96 × 12 288² ≈ 174 G. Pour Llama 3, il faut tenir compte du SwiGLU (trois matrices) et de la GQA (8 têtes de clés-valeurs seulement), mais le calcul donne bien 8,03 et 70,6 milliards. DeepSeek-V3 s'écarte de la formule parce que l'essentiel de ses paramètres est dans les 256 experts, dont seuls 9 travaillent pour chaque jeton.</p>
+<p>Côté calcul, chaque paramètre participe à une multiplication et une addition par jeton : un passage avant coûte environ <b>2<i>N</i></b> opérations flottantes (FLOP) par jeton, et l'entraînement, qui ajoute le passage arrière (deux fois plus cher), environ <b>6<i>N</i></b>. Entraîner un modèle de <i>N</i> paramètres sur <i>D</i> jetons coûte donc environ 6<i>ND</i> FLOP, une formule qui sert de base aux lois d'échelle (section 7.6). S'y ajoute le terme d'attention, environ 2<i>nLd</i> FLOP par jeton pour un contexte de <i>n</i> jetons, négligeable tant que <i>n</i> reste petit devant 6<i>d</i>.</p>
+
+<h4>4.7 Suivre un jeton à travers Llama 3 8B</h4>
+<p>Pour fixer les idées, suivons une consigne de <i>n</i> = 1 000 jetons à travers Llama 3 8B (32 couches, <i>d</i> = 4 096, 32 têtes de requête de dimension 128, 8 têtes de clés et valeurs, FFN SwiGLU de largeur 14 336, vocabulaire de 128 256 jetons). Le tableau donne la forme des tenseurs à chaque étape d'une couche.</p>
+<table class="chap-table">
+<tr><th>Étape</th><th>Opération</th><th>Forme du résultat</th></tr>
+<tr><td>Entrée</td><td>lecture de la table <i>E</i></td><td>1 000 × 4 096</td></tr>
+<tr><td>Requêtes</td><td>RMSNorm, puis × <i>W</i><sub>Q</sub> (4 096 × 4 096)</td><td>32 têtes × 1 000 × 128</td></tr>
+<tr><td>Clés, valeurs</td><td>× <i>W</i><sub>K</sub>, <i>W</i><sub>V</sub> (4 096 × 1 024 chacune)</td><td>8 têtes × 1 000 × 128</td></tr>
+<tr><td>Position</td><td>rotation RoPE de <i>Q</i> et <i>K</i></td><td>inchangée</td></tr>
+<tr><td>Scores</td><td><i>QK</i>ᵀ/√128 + masque causal (4 requêtes par clé)</td><td>32 × 1 000 × 1 000</td></tr>
+<tr><td>Mélange</td><td>softmax, puis × <i>V</i></td><td>32 × 1 000 × 128</td></tr>
+<tr><td>Sortie attention</td><td>concaténation, × <i>W</i><sub>O</sub>, addition au flux</td><td>1 000 × 4 096</td></tr>
+<tr><td>FFN</td><td>RMSNorm, × <i>W</i><sub>1</sub> et <i>W</i><sub>3</sub>, produit à porte</td><td>1 000 × 14 336</td></tr>
+<tr><td>Sortie FFN</td><td>× <i>W</i><sub>2</sub>, addition au flux</td><td>1 000 × 4 096</td></tr>
+<tr><td>Après 32 couches</td><td>RMSNorm finale, × <i>W</i><sub>out</sub></td><td>1 000 × 128 256</td></tr>
+</table>
+<p>Seule la dernière ligne des logits sert à choisir le jeton suivant ; les 999 autres ne servent qu'à l'entraînement. Les 32 matrices de scores de chaque couche, d'un million d'entrées chacune, ne sont jamais stockées en entier grâce à FlashAttention. En revanche, les clés et valeurs de chaque couche sont conservées dans le cache KV pour les jetons suivants : 2 × 32 couches × 8 têtes × 128 dimensions × 2 octets, soit 128 Kio par jeton, ou 125 Mio pour cette consigne. Sans la GQA (32 têtes de clés et valeurs), ce serait quatre fois plus.</p>
+<h4>4.8 Pourquoi empiler des couches ?</h4>
+<p>Une seule couche ne fait qu'un pas de calcul : une attention, qui déplace de l'information entre positions, puis un FFN, qui la transforme sur place. Empiler <i>L</i> couches permet de <b>composer</b> ces pas, chaque couche travaillant sur ce que les précédentes ont écrit dans le flux résiduel. On peut décrire le bénéfice sous quatre angles.</p>
+<h5>Des représentations de plus en plus abstraites</h5>
+<p>Comme dans les réseaux convolutifs, où les premières couches détectent des bords et les suivantes des textures, des parties puis des objets, les couches d'un Transformer forment une hiérarchie. Tenney, Das et Pavlick (2019) montrent, par des sondes linéaires, que BERT « redécouvre la chaîne de traitement classique du TAL » : les catégories grammaticales sont lisibles dans les couches basses, la structure syntaxique au milieu, la coréférence et les rôles sémantiques plus haut. Le plongement d'entrée d'« avocat » est le même pour le fruit et le juriste ; c'est au fil des couches, en lisant le contexte, que le modèle construit le sens voulu. Dans les LLM, les toutes dernières couches se spécialisent à nouveau dans la préparation de la sortie : le passage du sens au choix d'un jeton.</p>
+<h5>Des raisonnements en plusieurs sauts</h5>
+<p>Au sein d'une couche, l'attention ne fait qu'<b>un saut</b> : la position <i>i</i> lit directement les positions <i>j</i>, mais ne peut pas utiliser ce que <i>j</i> aurait lu ailleurs pendant cette même couche. Enchaîner deux recherches demande deux couches. La tête d'induction (section 9.2) en est l'exemple canonique : elle n'existe pas dans un modèle à une seule couche d'attention, car elle a besoin qu'une tête plus basse ait d'abord inscrit dans chaque position l'identité du jeton précédent. Elhage et al. (2021) appellent <b>composition</b> ce mécanisme, par lequel la sortie d'une tête sert de requête, de clé ou de valeur à une tête d'une couche supérieure ; le nombre de circuits possibles croît alors très vite avec la profondeur.</p>
+<p>Les questions « à deux sauts » obéissent à la même logique. Pour compléter « La capitale du pays natal de Victor Hugo est », le modèle doit d'abord retrouver le pays (la France), puis sa capitale (Paris). Les études d'interprétabilité (Biran et al., 2024) trouvent que le premier saut est résolu dans les couches basses et intermédiaires, sur la position de l'entité, et le second plus haut, sur la dernière position. Quand le premier saut se résout trop tard, il ne reste plus assez de couches pour le second, et le modèle échoue alors qu'il connaît chacun des deux faits séparément : d'où le titre de leur papier, « Hopping Too Late ».</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 240" width="100%" role="img" aria-label="Question à deux sauts à travers les couches">
+<rect x="70" y="20" width="560" height="56" fill="#fef3c7" opacity="0.6"/><rect x="70" y="80" width="560" height="56" fill="#dbeafe" opacity="0.5"/><rect x="70" y="140" width="560" height="56" fill="#f5f5f4"/>
+<text class="tf-s" x="62" y="52" text-anchor="end">hautes</text><text class="tf-s" x="62" y="112" text-anchor="end">moyennes</text><text class="tf-s" x="62" y="172" text-anchor="end">basses</text>
+<text class="tf-xs" x="130" y="222" text-anchor="middle">La capitale</text><text class="tf-xs" x="230" y="222" text-anchor="middle">du pays natal de</text>
+<text class="tf-xs" x="340" y="222" text-anchor="middle">Victor</text><text class="tf-xs" x="420" y="222" text-anchor="middle">Hugo</text><text class="tf-xs" x="560" y="222" text-anchor="middle">est</text><text class="tf-xs" x="620" y="222" text-anchor="middle">→ Paris</text>
+<line x1="420" y1="200" x2="420" y2="22" stroke="#a8a29e" stroke-dasharray="3 3"/><line x1="560" y1="200" x2="560" y2="22" stroke="#a8a29e" stroke-dasharray="3 3"/>
+<path class="tf-e" d="M345,208 C350,190 370,178 392,170" marker-end="url(#tf-ar)"/><path class="tf-e" d="M420,208 L420,171" marker-end="url(#tf-ar)"/>
+<rect class="tf-n" x="376" y="146" width="88" height="22" rx="4"/><text class="tf-xs" x="420" y="161" text-anchor="middle">« Victor Hugo »</text>
+<rect class="tf-gr" x="366" y="96" width="108" height="24" rx="4"/><text class="tf-xs" x="420" y="112" text-anchor="middle">FFN : né en France</text>
+<path class="tf-e" d="M420,146 L420,122" marker-end="url(#tf-ar)"/>
+<path class="tf-ea" d="M474,104 C510,96 530,90 552,82" marker-end="url(#tf-ao)"/>
+<text class="tf-xs" x="520" y="124" text-anchor="middle">saut 1 : attention</text><text class="tf-xs" x="520" y="135" text-anchor="middle">vers « est »</text>
+<rect class="tf-hl" x="506" y="40" width="108" height="24" rx="4"/><text class="tf-xs" x="560" y="56" text-anchor="middle">FFN : capitale → Paris</text>
+<path class="tf-e" d="M560,80 L560,66" marker-end="url(#tf-ar)"/>
+<text class="tf-xs" x="500" y="56" text-anchor="end">saut 2 : rappel</text>
+
+<text class="tf-xs" x="200" y="112" text-anchor="middle">si le saut 1 n'arrive qu'en haut,</text>
+<text class="tf-xs" x="200" y="124" text-anchor="middle">il ne reste plus de couches pour le saut 2</text>
+</svg>
+<figcaption>Figure 4 bis. Schéma d'une question à deux sauts : l'entité est assemblée et ses attributs rappelés dans les couches basses et intermédiaires, transmis à la dernière position par l'attention, puis utilisés pour le second rappel dans les couches hautes.</figcaption>
+</figure>
+
+<h5>Plus de calcul séquentiel par jeton</h5>
+<p>Un Transformer de <i>L</i> couches effectue exactement <i>L</i> étapes successives pour chaque jeton qu'il produit ; tout le reste est parallèle. La profondeur fixe donc le nombre d'opérations qu'il peut enchaîner « de tête » en un seul passage. C'est l'origine de la limite théorique décrite en section 9.6 : à profondeur constante, certains problèmes intrinsèquement séquentiels restent hors de portée, quelle que soit la largeur. La chaîne de pensée contourne cette limite en ajoutant un passage complet par jeton généré, et les « Transformers en boucle » (Universal Transformer, Dehghani et al., 2019 ; modèles récurrents en profondeur) en réappliquant plusieurs fois les mêmes couches.</p>
+<h5>Plus d'efficacité que la largeur</h5>
+<p>Le théorème d'approximation universelle garantit qu'un réseau à une seule couche cachée peut approcher n'importe quelle fonction continue, mais au prix, parfois, d'un nombre de neurones exponentiel. Telgarsky (2016) exhibe des fonctions qu'un réseau de profondeur <i>k</i>² représente avec peu de neurones et qu'aucun réseau de profondeur <i>k</i> ne peut approcher sans un nombre exponentiel de neurones. Composer des fonctions simples est une manière très économe de construire des fonctions complexes.</p>
+<h5>Les limites de la profondeur</h5>
+<ul>
+<li><b>L'entraînement</b> : sans précautions, le gradient s'évanouit ou explose à travers les couches. Les connexions résiduelles et la pré-normalisation (sections 4.2 et 4.3) sont précisément ce qui rend possibles des réseaux de 60 à 120 couches.</li>
+<li><b>La latence</b> : les couches s'exécutent l'une après l'autre ; plus de couches, c'est plus de temps par jeton et un parallélisme plus difficile (il faut un pipeline, section 7.4).</li>
+<li><b>Des rendements décroissants</b> : Kaplan et al. (2020) trouvent qu'à nombre de paramètres fixé, la forme du réseau compte peu sur une large plage. En pratique, le rapport <i>d</i>/<i>L</i> se situe souvent autour de 100 à 130 (GPT-3 : 12 288/96 = 128 ; Llama 3 8B : 4 096/32 = 128).</li>
+<li><b>Des couches sous-employées</b> : Gromov et al. (2024) montrent qu'on peut retirer une bonne partie des couches profondes d'un LLM entraîné, souvent jusqu'à près de la moitié, en ne perdant que peu sur certains bancs d'essai de connaissances. Toutes les couches ne travaillent donc pas autant les unes que les autres, ce qui suggère que les grands modèles sont plutôt trop profonds que pas assez.</li>
+</ul>
+<p>C'est pourquoi les modèles actuels comptent entre 32 et 126 couches (section 6.6) et augmentent leur capacité par d'autres moyens : plus de largeur, des experts (section 4.5) ou des jetons de raisonnement.</p>
+
+<div class="box"><div class="box-t">Le Transformer en vingt lignes</div>
+<pre class="code">def bloc(x, p):                       # x : (n, d)
+    h = rmsnorm(x, p.g1)
+    q, k, v = h @ p.Wq, h @ p.Wk, h @ p.Wv
+    q, k = rope(q), rope(k)           # position (partie V)
+    q, k, v = [t.reshape(n, H, d // H).transpose(0, 1) for t in (q, k, v)]
+    s = q @ k.transpose(-1, -2) / sqrt(d // H)   # (H, n, n)
+    s = s + masque_causal(n)          # −∞ au-dessus de la diagonale
+    a = softmax(s, dim=-1) @ v        # (H, n, d/H)
+    x = x + a.transpose(0, 1).reshape(n, d) @ p.Wo
+    h = rmsnorm(x, p.g2)
+    x = x + (silu(h @ p.W1) * (h @ p.W3)) @ p.W2  # SwiGLU
+    return x
+
+def modele(jetons, P):
+    x = P.E[jetons]                   # plongements (n, d)
+    for p in P.blocs:
+        x = bloc(x, p)
+    return rmsnorm(x, P.g) @ P.Wout   # logits (n, V)</pre>
+Ce pseudo-code, proche de PyTorch, décrit à peu de chose près l'architecture de Llama 3. Tout le reste, dans un modèle frontière, relève de l'échelle, des données, de l'efficacité et de l'entraînement après coup.</div>

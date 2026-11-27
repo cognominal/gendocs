@@ -1,0 +1,139 @@
+<p class="chap-lead">La recherche arborescente Monte-Carlo (<i>Monte Carlo Tree Search</i>, MCTS) est l'algorithme de recherche qui a permis aux machines de dominer le Go, puis les échecs et le shogi sans connaissance humaine, et qui revient aujourd'hui dans la recherche sur le raisonnement des grands modèles de langage. Ce dossier en présente le principe, les variantes, la place dans la lignée AlphaGo (<a href="#p8">fiche 8</a>) et les tentatives de l'appliquer aux LLM (<a href="#p59">fiches 59</a>, <a href="#p33">33</a>, <a href="#p70">70</a>, <a href="#p73">73</a>).</p>
+
+<h4>1. Le problème : chercher sans pouvoir tout explorer</h4>
+<p>Un jeu à deux joueurs comme les échecs ou le Go se représente par un arbre : chaque nœud est une position, chaque arête un coup. La recherche classique, le <a href="#g-minimax">minimax</a> avec <a href="#g-elagage-alpha-beta">élagage alpha-bêta</a>, explore cet arbre jusqu'à une profondeur fixée puis note les feuilles avec une <a href="#g-fonction-d-evaluation">fonction d'évaluation</a> écrite à la main. Cela a suffi à Deep Blue en 1997, parce qu'aux échecs on sait assez bien évaluer une position (matériel, mobilité, sécurité du roi) et que le <a href="#g-facteur-de-branchement">facteur de branchement</a> est d'environ 35.</p>
+<p>Le Go résiste à cette approche pour deux raisons. Le facteur de branchement est d'environ 250 et une partie dure environ 150 coups, d'où un arbre de l'ordre de 250<sup>150</sup> ≈ 10<sup>360</sup> séquences. Surtout, personne ne sait écrire une bonne fonction d'évaluation : une pierre peut être forte ou condamnée selon des détails lointains du plateau. Pendant des décennies, les meilleurs programmes de Go plafonnaient au niveau d'un faible amateur.</p>
+<p>L'idée Monte-Carlo contourne le second obstacle : pour estimer la valeur d'une position, on joue un grand nombre de parties jusqu'au bout avec des coups aléatoires (des <a href="#g-rollout">rollouts</a>) et on compte la proportion de victoires. Cette estimation est bruitée et biaisée, mais elle ne demande aucune connaissance du jeu. Brügmann l'applique au Go dès 1993. La percée de 2006 consiste à combiner ces simulations avec un arbre qui grandit progressivement et concentre l'effort sur les coups prometteurs : Rémi Coulom forge le nom <i>Monte-Carlo Tree Search</i> (programme Crazy Stone), Kocsis et Szepesvári publient UCT, et Gelly, Wang, Munos et Teytaud l'intègrent dans MoGo, premier programme à battre un professionnel sur un petit plateau 9×9.</p>
+
+<h4>2. Les quatre phases d'une itération</h4>
+<p>MCTS construit un arbre partiel en mémoire. Chaque nœud <i>s</i> stocke, pour chaque action <i>a</i>, un nombre de visites <i>N(s,a)</i> et une valeur cumulée <i>W(s,a)</i>, d'où la valeur moyenne <i>Q(s,a) = W(s,a) / N(s,a)</i>. Tant que le budget (temps ou nombre de simulations) n'est pas épuisé, on répète quatre phases :</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 200" width="100%" role="img" aria-label="Les quatre phases de MCTS : sélection, expansion, simulation, rétropropagation">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker></defs>
+<style>.n{fill:#fff;stroke:#555;stroke-width:1.2}.h{fill:#fde68a;stroke:#b45309;stroke-width:1.6}.e{stroke:#888;stroke-width:1.2}.p{stroke:#b45309;stroke-width:2.4}.t{font:600 12px Helvetica,Arial,sans-serif;fill:#1f1f1f}.s{font:10px Helvetica,Arial,sans-serif;fill:#555}.r{stroke:#b45309;stroke-width:1.4;stroke-dasharray:3 3;fill:none}</style>
+<!-- panel template: root at (x+70,30) -->
+<g transform="translate(0,0)">
+ <text class="t" x="70" y="14" text-anchor="middle">1. Sélection</text>
+ <line class="p" x1="70" y1="35" x2="40" y2="75"/><line class="e" x1="70" y1="35" x2="100" y2="75"/>
+ <line class="p" x1="40" y1="75" x2="55" y2="115"/><line class="e" x1="40" y1="75" x2="22" y2="115"/>
+ <circle class="h" cx="70" cy="35" r="9"/><circle class="h" cx="40" cy="75" r="9"/><circle class="n" cx="100" cy="75" r="9"/>
+ <circle class="n" cx="22" cy="115" r="9"/><circle class="h" cx="55" cy="115" r="9"/>
+ <text class="s" x="70" y="160" text-anchor="middle">descendre par UCB</text><text class="s" x="70" y="173" text-anchor="middle">jusqu'à une feuille</text>
+</g>
+<g transform="translate(160,0)">
+ <text class="t" x="70" y="14" text-anchor="middle">2. Expansion</text>
+ <line class="e" x1="70" y1="35" x2="40" y2="75"/><line class="e" x1="70" y1="35" x2="100" y2="75"/>
+ <line class="e" x1="40" y1="75" x2="55" y2="115"/><line class="e" x1="40" y1="75" x2="22" y2="115"/>
+ <line class="p" x1="55" y1="115" x2="70" y2="150"/>
+ <circle class="n" cx="70" cy="35" r="9"/><circle class="n" cx="40" cy="75" r="9"/><circle class="n" cx="100" cy="75" r="9"/>
+ <circle class="n" cx="22" cy="115" r="9"/><circle class="n" cx="55" cy="115" r="9"/><circle class="h" cx="70" cy="150" r="9"/>
+ <text class="s" x="70" y="185" text-anchor="middle">ajouter un enfant</text>
+</g>
+<g transform="translate(320,0)">
+ <text class="t" x="70" y="14" text-anchor="middle">3. Simulation</text>
+ <line class="e" x1="70" y1="35" x2="40" y2="75"/><line class="e" x1="70" y1="35" x2="100" y2="75"/>
+ <line class="e" x1="40" y1="75" x2="55" y2="115"/><line class="e" x1="40" y1="75" x2="22" y2="115"/>
+ <line class="e" x1="55" y1="115" x2="70" y2="150"/>
+ <circle class="n" cx="70" cy="35" r="9"/><circle class="n" cx="40" cy="75" r="9"/><circle class="n" cx="100" cy="75" r="9"/>
+ <circle class="n" cx="22" cy="115" r="9"/><circle class="n" cx="55" cy="115" r="9"/><circle class="h" cx="70" cy="150" r="9"/>
+ <path class="r" d="M79,150 q20,-8 30,4 t30,0"/><text class="t" x="128" y="140">±1</text>
+ <text class="s" x="70" y="185" text-anchor="middle">rollout ou réseau de valeur</text>
+</g>
+<g transform="translate(480,0)">
+ <text class="t" x="80" y="14" text-anchor="middle">4. Rétropropagation</text>
+ <line class="e" x1="70" y1="35" x2="40" y2="75"/><line class="e" x1="70" y1="35" x2="100" y2="75"/>
+ <line class="e" x1="40" y1="75" x2="55" y2="115"/><line class="e" x1="40" y1="75" x2="22" y2="115"/>
+ <line class="e" x1="55" y1="115" x2="70" y2="150"/>
+ <circle class="h" cx="70" cy="35" r="9"/><circle class="h" cx="40" cy="75" r="9"/><circle class="n" cx="100" cy="75" r="9"/>
+ <circle class="n" cx="22" cy="115" r="9"/><circle class="h" cx="55" cy="115" r="9"/><circle class="h" cx="70" cy="150" r="9"/>
+ <path d="M86,145 C110,120 110,70 86,40" fill="none" stroke="#b45309" stroke-width="1.6" marker-end="url(#ah)"/>
+ <text class="s" x="70" y="185" text-anchor="middle">mettre à jour N et Q</text>
+</g>
+</svg>
+<figcaption>Une itération de MCTS. Le chemin surligné est celui que suit la simulation courante.</figcaption>
+</figure>
+
+<ul>
+<li><b>Sélection.</b> Depuis la racine, on descend dans l'arbre en choisissant à chaque nœud l'enfant qui maximise un score combinant la valeur estimée et un bonus d'exploration (voir § 3), jusqu'à atteindre un nœud qui n'est pas entièrement développé ou une position terminale.</li>
+<li><b>Expansion.</b> On ajoute à l'arbre un (ou plusieurs) enfant(s) de ce nœud, correspondant à des coups pas encore essayés.</li>
+<li><b>Simulation (ou évaluation).</b> On estime la valeur du nouveau nœud. Dans la version classique, on joue une partie aléatoire, ou guidée par une politique rapide, jusqu'à la fin, et on obtient un résultat +1 (victoire) ou −1 (défaite). Dans AlphaZero, cette phase est remplacée par un appel à un <a href="#g-reseau-de-valeur">réseau de valeur</a>.</li>
+<li><b>Rétropropagation.</b> On remonte le chemin jusqu'à la racine en incrémentant <i>N</i> et en ajoutant le résultat à <i>W</i> pour chaque nœud traversé, en changeant le signe à chaque niveau pour un jeu à deux joueurs à somme nulle. Cette mise à jour n'a rien à voir avec la <a href="#g-retropropagation">rétropropagation du gradient</a> (<a href="#p3">fiche 3</a>), malgré le nom.</li>
+</ul>
+<p>Quand le budget est épuisé, on joue le coup de la racine le plus <i>visité</i> (et non celui de meilleure valeur moyenne) : le nombre de visites est une statistique plus robuste, car un coup peu visité peut avoir une moyenne élevée par chance.</p>
+
+<pre class="code">fonction MCTS(racine, budget):
+    répéter budget fois:
+        nœud ← racine ; chemin ← [racine]
+        tant que nœud est entièrement développé et non terminal:   # sélection
+            nœud ← argmax_enfant UCT(nœud, enfant) ; chemin.ajouter(nœud)
+        si nœud non terminal:                                      # expansion
+            nœud ← ajouter un enfant non essayé ; chemin.ajouter(nœud)
+        v ← simuler(nœud)                                          # simulation
+        pour n dans inverse(chemin):                               # rétropropagation
+            n.N ← n.N + 1 ; n.W ← n.W + v ; v ← −v
+    renvoyer l'action de la racine de N maximal</pre>
+
+<h4>3. Le cœur : le dilemme exploration / exploitation</h4>
+<p>À chaque nœud, la sélection pose le problème du <a href="#g-bandit-manchot">bandit manchot</a> : faut-il rejouer le coup qui a donné les meilleurs résultats jusqu'ici (exploitation), ou essayer un coup encore mal connu qui pourrait être meilleur (exploration) ? Auer, Cesa-Bianchi et Fischer (2002) ont proposé la règle <a href="#g-ucb">UCB1</a>, qui assure un regret logarithmique : choisir le bras qui maximise une borne supérieure de confiance. Kocsis et Szepesvári (2006) l'appliquent à chaque nœud de l'arbre, ce qui donne <a href="#g-uct">UCT</a> (<i>Upper Confidence bounds applied to Trees</i>) :</p>
+<p class="formula">UCT(s, a) = Q(s, a) + c · √( ln N(s) / N(s, a) )</p>
+<p>Le premier terme favorise les coups qui ont bien marché, le second ceux qui ont été peu essayés par rapport à leur parent ; la constante <i>c</i> (théoriquement √2 pour des récompenses dans [0,1]) règle l'équilibre. Comme ln N(s) croît sans borne, aucun coup n'est abandonné définitivement, mais les coups médiocres sont visités de plus en plus rarement.</p>
+<p><b>Exemple chiffré.</b> Un nœud a été visité 100 fois. Le coup A a 60 visites et une valeur moyenne de 0,55 ; le coup B a 10 visites et une moyenne de 0,40 ; avec c = 1,4 : UCT(A) = 0,55 + 1,4·√(4,61/60) ≈ 0,55 + 0,39 = 0,94 ; UCT(B) = 0,40 + 1,4·√(4,61/10) ≈ 0,40 + 0,95 = 1,35. La sélection essaie donc B, moins bien noté mais encore incertain. Si B continue de décevoir, son bonus diminue et A reprend la main.</p>
+<p>Kocsis et Szepesvári démontrent qu'avec cette règle, la probabilité de choisir un coup sous-optimal à la racine tend vers zéro : avec un temps illimité, UCT converge vers la valeur <a href="#g-minimax">minimax</a>. En pratique, l'intérêt est ailleurs : l'arbre grandit de façon <b>asymétrique</b>, profond sur les lignes prometteuses et superficiel ailleurs. L'algorithme est <b>anytime</b> (on peut l'arrêter à tout moment et obtenir une réponse) et <b>agnostique</b> : il suffit de savoir générer les coups légaux et reconnaître une fin de partie.</p>
+
+<h4>4. Améliorations classiques (2006-2015)</h4>
+<ul>
+<li><b>Politiques de simulation informées</b> : remplacer les coups aléatoires par des motifs locaux (MoGo) ou une politique apprise rend les rollouts beaucoup plus informatifs.</li>
+<li><b>RAVE / AMAF</b> (<i>Rapid Action Value Estimation</i>, <i>All Moves As First</i>) : au Go, un coup bon maintenant l'est souvent plus tard ; on partage donc les statistiques d'un coup entre toutes les positions où il apparaît dans une simulation, ce qui accélère l'apprentissage des nœuds peu visités.</li>
+<li><b>Élargissement progressif</b> (<i>progressive widening</i>) : ne considérer d'abord que les meilleurs coups selon une heuristique et en ajouter d'autres à mesure que le nœud est visité. C'est indispensable quand les actions sont très nombreuses ou continues.</li>
+<li><b>Transpositions</b> : fusionner les nœuds qui représentent une même position atteinte par des chemins différents, ce qui transforme l'arbre en graphe.</li>
+<li><b>Parallélisation et perte virtuelle</b> (<i>virtual loss</i>) : plusieurs threads descendent l'arbre en même temps ; chacun ajoute provisoirement une défaite aux nœuds qu'il traverse pour pousser les autres vers des branches différentes.</li>
+</ul>
+<p>Avec ces techniques, les programmes de Go (Crazy Stone, MoGo, Fuego, Zen) atteignent le niveau d'un bon amateur, environ 6 dan, vers 2015. Le dernier écart avec les professionnels vient de la faiblesse des rollouts : il faut une intuition apprise.</p>
+
+<h4>5. AlphaGo : MCTS guidé par des réseaux de neurones</h4>
+<p>AlphaGo (<a href="#p8">fiche 8</a>, 2016) conserve le squelette de MCTS mais remplace les heuristiques par trois réseaux convolutifs (<a href="#p4">fiche 4</a>) :</p>
+<ul>
+<li>un <a href="#g-reseau-de-politique">réseau de politique</a> supervisé (SL), entraîné sur 30 millions de positions de parties d'experts, qui donne une probabilité <i>P(s,a)</i> pour chaque coup ;</li>
+<li>une version de ce réseau améliorée par <a href="#g-apprentissage-par-renforcement">apprentissage par renforcement</a> en <a href="#g-auto-jeu">auto-jeu</a>, qui sert à générer les données d'entraînement du réseau de valeur ;</li>
+<li>un <a href="#g-reseau-de-valeur">réseau de valeur</a> <i>v(s)</i> qui prédit directement le vainqueur à partir d'une position.</li>
+</ul>
+<p>La sélection utilise une variante de UCT, notée <a href="#g-puct">PUCT</a>, où la probabilité a priori du réseau de politique module le bonus d'exploration :</p>
+<p class="formula">a* = argmax<sub>a</sub> [ Q(s, a) + c · P(s, a) · √N(s) / (1 + N(s, a)) ]</p>
+<p>Les coups que le réseau juge plausibles sont explorés en priorité ; les coups absurdes ne sont presque jamais essayés, ce qui réduit fortement le facteur de branchement effectif. Chaque feuille est évaluée en mélangeant à parts égales le réseau de valeur et le résultat d'un rollout rapide : V = (1 − λ)·v(s) + λ·z avec λ = 0,5. Les deux sources d'erreur sont complémentaires, et le mélange bat chacune des deux seules. Fait notable, le réseau de politique SL, plus « humain » et plus divers, donne de meilleurs a priori pour la recherche que la version renforcée, plus forte en jeu direct mais trop concentrée sur peu de coups.</p>
+<p>AlphaGo bat Fan Hui 5-0 en 2015, puis Lee Sedol 4-1 en mars 2016. La recherche y joue un rôle mesurable : sans MCTS, le meilleur réseau de politique seul ne joue qu'au niveau d'un bon amateur.</p>
+
+<h4>6. AlphaGo Zero, AlphaZero, MuZero : la recherche comme opérateur d'amélioration</h4>
+<p><b>AlphaGo Zero</b> (2017) supprime les parties humaines et les rollouts. Un seul réseau résiduel à deux têtes, (<b>p</b>, v) = f<sub>θ</sub>(s), fournit les a priori et la valeur. L'idée clé est de faire de MCTS un <b>opérateur d'amélioration de politique</b> : la distribution des visites à la racine, π ∝ N(s,a)<sup>1/τ</sup>, est meilleure que la politique brute <b>p</b> du réseau. On entraîne donc le réseau à imiter π (perte d'entropie croisée) et à prédire le résultat final z de la partie (perte quadratique). Le réseau amélioré rend la recherche suivante plus forte, qui produit de meilleures cibles : une boucle d'<a href="#g-iteration-experte">itération experte</a>. En trois jours d'auto-jeu, AlphaGo Zero bat la version qui avait vaincu Lee Sedol, 100 parties à 0.</p>
+<p><b>AlphaZero</b> (2018) applique la même recette, sans modification spécifique au jeu, aux échecs et au shogi et bat Stockfish et Elmo. Il examine environ 60 000 positions par seconde aux échecs, contre 60 millions pour Stockfish : la sélectivité de PUCT compense un facteur 1 000 de vitesse. Un bruit de Dirichlet ajouté aux a priori de la racine garantit l'exploration pendant l'auto-jeu.</p>
+<p><b>MuZero</b> (2020) va plus loin : il ne connaît même plus les règles. Il apprend un <a href="#g-modele-du-monde">modèle du monde</a> latent (fonction de représentation, fonction de dynamique, fonction de prédiction) et fait tourner MCTS dans cet espace appris. Il atteint le niveau d'AlphaZero aux jeux de plateau et l'état de l'art sur les jeux Atari. Gumbel MuZero (2022) remplace ensuite la sélection à la racine par un échantillonnage sans remise qui garantit une amélioration de politique même avec très peu de simulations, par exemple 2 au lieu de 800.</p>
+<p>Cette lignée a dépassé les jeux : AlphaTensor (2022) découvre des algorithmes de multiplication matricielle, AlphaDev (2023) des routines de tri plus rapides, et <b>AlphaProof</b> (<a href="#p70">fiche 70</a>) cherche des preuves en Lean avec un algorithme dérivé d'AlphaZero, où chaque « coup » est une tactique de preuve et la partie est gagnée quand le vérificateur accepte la preuve.</p>
+
+<h4>7. MCTS et grands modèles de langage</h4>
+<p>Après le succès de la <a href="#g-chaine-de-pensee">chaîne de pensée</a> (<a href="#p53">fiche 53</a>), il était naturel de voir la génération d'un raisonnement comme un jeu à un joueur : l'état est le préfixe de texte, une action ajoute une étape, et la récompense vient de la justesse de la réponse finale. Plusieurs familles de méthodes ont suivi :</p>
+<ul>
+<li><b>Recherche de pensées délibérée.</b> <a href="#g-tree-of-thoughts">Tree of Thoughts</a> (<a href="#p59">fiche 59</a>) fait proposer plusieurs « pensées » candidates au LLM, les fait évaluer par le LLM lui-même, puis explore l'arbre en largeur ou en profondeur. Ce n'est pas encore MCTS, mais il en reprend l'idée d'une recherche guidée par une heuristique apprise. RAP (Hao et al., 2023) franchit le pas : le LLM sert à la fois de politique et de modèle du monde, et MCTS/UCT planifie dans cet espace. LATS (Zhou et al., 2023) combine MCTS, <a href="#g-react">ReAct</a> (<a href="#p56">fiche 56</a>) et <a href="#g-reflexion">Reflexion</a> (<a href="#p60">fiche 60</a>) pour des agents qui agissent dans un environnement.</li>
+<li><b>MCTS pour fabriquer des données d'entraînement.</b> Les rollouts Monte-Carlo servent à étiqueter automatiquement les étapes d'un raisonnement : une étape vaut la proportion de complétions qui, partant d'elle, atteignent la bonne réponse. C'est le principe de Math-Shepherd, qui produit sans annotation humaine les données d'un <a href="#g-prm">modèle de récompense de processus</a> (PRM, <a href="#p61">fiche 61</a>). D'autres travaux (AlphaMath, rStar-Math) utilisent MCTS pour générer des trajectoires correctes qui servent ensuite à l'affinage, une forme d'<a href="#g-iteration-experte">itération experte</a> à la AlphaZero.</li>
+<li><b>Recherche de preuves formelles.</b> DeepSeek-Prover-V1.5 introduit RMaxTS, une variante de MCTS récompensant la découverte de nouveaux états de preuve (curiosité intrinsèque), avant que DeepSeek-Prover-V2 (<a href="#p40">fiche 40</a>) ne privilégie la décomposition en sous-buts et l'apprentissage par renforcement. Le vérificateur Lean fournit une récompense parfaite, ce qui en fait le terrain le plus favorable à MCTS.</li>
+</ul>
+
+<h4>8. Pourquoi MCTS n'a pas (encore) gagné pour les LLM</h4>
+<p>Les modèles de raisonnement de 2024-2025, comme o1 (<a href="#p69">fiche 69</a>), DeepSeek-R1 (<a href="#p33">fiche 33</a>) et Kimi k1.5 (<a href="#p71">fiche 71</a>), n'utilisent pas d'arbre explicite au moment de l'inférence. Ils déroulent une seule longue chaîne de pensée apprise par renforcement, où l'exploration, le retour en arrière et la vérification sont <i>internalisés</i> dans le texte. Le rapport DeepSeek-R1 décrit explicitement une tentative MCTS infructueuse, pour trois raisons :</p>
+<ul>
+<li><b>Espace d'actions démesuré.</b> Au Go, environ 250 coups légaux ; pour un LLM, le vocabulaire compte plus de 100 000 jetons, et une « étape » de raisonnement a une granularité arbitraire. Limiter le nombre d'enfants par nœud conduit vite à des optima locaux.</li>
+<li><b>Pas de bon réseau de valeur.</b> AlphaZero apprend sa valeur sur des millions de parties au résultat net. Évaluer la promesse d'un raisonnement partiel est beaucoup plus difficile, et un modèle de valeur imparfait se fait exploiter (<a href="#g-reward-hacking">reward hacking</a>).</li>
+<li><b>Boucle d'amélioration fragile.</b> L'auto-jeu d'AlphaZero s'améliore régulièrement parce que l'adversaire progresse avec lui ; pour la génération de texte, la boucle « recherche → meilleures cibles → meilleur modèle » s'est révélée difficile à faire progresser à grande échelle.</li>
+</ul>
+<p>Kimi k1.5 revendique de même une formulation « sans MCTS, sans modèle de valeur, sans PRM ». La recherche explicite reste pourtant présente sous d'autres formes au moment du test : <a href="#g-self-consistency">self-consistency</a> (<a href="#p54">fiche 54</a>) et <a href="#g-best-of-n">best-of-N</a> avec un <a href="#g-verificateur">vérificateur</a> (<a href="#p52">fiche 52</a>) en sont des versions sans arbre, et les synthèses du domaine (<a href="#p73">fiches 73</a>, <a href="#p78">78</a>, <a href="#p79">79</a>) classent la recherche arborescente parmi les principaux leviers du <a href="#g-calcul-au-moment-du-test">calcul au moment du test</a>. On peut résumer ainsi ce qui distingue les cas où MCTS réussit : <b>un simulateur exact</b> (règles du jeu, vérificateur Lean), <b>un signal de résultat fiable</b> et <b>des actions en nombre gérable</b>. Là où ces trois conditions sont réunies, comme aux jeux, en preuve formelle ou en optimisation combinatoire, la recherche arborescente guidée par un réseau reste l'approche la plus forte. Là où elles manquent, comme dans le raisonnement en langue naturelle, les modèles préfèrent pour l'instant apprendre à chercher dans leur propre chaîne de pensée.</p>
+
+<h4>Repères bibliographiques</h4>
+<ul class="refs">
+<li>B. Brügmann, <i>Monte Carlo Go</i>, rapport technique, 1993.</li>
+<li>P. Auer, N. Cesa-Bianchi, P. Fischer, « Finite-time Analysis of the Multiarmed Bandit Problem », <i>Machine Learning</i>, 2002 (UCB1).</li>
+<li>R. Coulom, « Efficient Selectivity and Backup Operators in Monte-Carlo Tree Search », <i>Computers and Games</i>, 2006.</li>
+<li>L. Kocsis, C. Szepesvári, « Bandit Based Monte-Carlo Planning », <i>ECML</i>, 2006 (UCT).</li>
+<li>C. Browne et al., « A Survey of Monte Carlo Tree Search Methods », <i>IEEE TCIAIG</i>, 2012.</li>
+<li>D. Silver et al., AlphaGo (2016, <a href="#p8">fiche 8</a>) ; AlphaGo Zero (<i>Nature</i>, 2017) ; AlphaZero (<i>Science</i>, 2018).</li>
+<li>J. Schrittwieser et al., « Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model » (MuZero), <i>Nature</i>, 2020.</li>
+<li>S. Hao et al., « Reasoning with Language Model is Planning with World Model » (RAP), 2023 ; A. Zhou et al., « Language Agent Tree Search » (LATS), 2023.</li>
+</ul>

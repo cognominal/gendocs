@@ -1,0 +1,29 @@
+<h4>Le problème</h4>
+<p>En 2021, les grands modèles de langage comme GPT-3 impressionnent par leur fluidité mais échouent sur des problèmes de mathématiques élémentaires qui demandent plusieurs étapes. Une seule erreur de calcul au milieu d'une solution suffit à fausser la réponse, et un modèle autorégressif ne peut pas revenir en arrière. Cobbe et ses collègues d'OpenAI posent la question : comment rendre ces modèles fiables sur un raisonnement en plusieurs étapes, et comment le mesurer ?</p>
+
+<h4>GSM8K</h4>
+<p>Le papier introduit <b>GSM8K</b> (Grade School Math 8K) : 8 500 problèmes de mathématiques de niveau primaire et collège, rédigés par des humains, avec des solutions détaillées en langage naturel. Chaque problème demande de 2 à 8 étapes d'arithmétique élémentaire (les quatre opérations). Les problèmes sont volontairement simples pour un humain : un collégien motivé devrait tous les résoudre. Ils sont aussi variés linguistiquement, pour éviter que les modèles ne s'appuient sur des gabarits. Les solutions contiennent des annotations de calcul (par exemple <code>&lt;&lt;48/2=24&gt;&gt;</code>) qui permettent d'utiliser une calculatrice au moment de la génération.</p>
+
+<h4>Affinage contre vérification</h4>
+<p>Deux approches sont comparées :</p>
+<ul>
+<li><b>Affinage seul</b> : on entraîne GPT-3 (jusqu'à 175 milliards de paramètres) sur les solutions de référence, puis on lui demande une solution par problème. Les résultats progressent avec la taille, mais lentement : extrapoler la courbe suggère qu'il faudrait un modèle de l'ordre de 10<sup>16</sup> paramètres pour atteindre 80 %.</li>
+<li><b>Vérification</b> : on échantillonne 100 solutions candidates avec le modèle affiné. Un second modèle, le <b>vérificateur</b>, est entraîné à prédire si une solution mène à la bonne réponse. On garde la candidate jugée la plus probable.</li>
+</ul>
+<p>Le vérificateur est entraîné sur les solutions générées, étiquetées automatiquement selon que leur réponse finale est correcte. Il apprend donc sans annotation humaine supplémentaire. Une variante « au niveau des jetons » prédit la valeur à chaque position de la solution, comme une fonction de valeur ; elle généralise mieux que la prédiction sur la solution entière.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Avec vérification, un modèle de 6 milliards de paramètres dépasse légèrement un modèle de 175 milliards simplement affiné : la vérification vaut environ <b>un facteur 30 en taille de modèle</b>.</li>
+<li>Le gain augmente avec la quantité de données : avec peu de données, le vérificateur surapprend.</li>
+<li>Générer plus de candidates aide jusqu'à un certain point (environ 400). Au-delà, le vérificateur se fait piéger par des solutions « adverses » qui trompent son jugement : une forme précoce de suroptimisation de la récompense.</li>
+<li>Un peu de dropout améliore nettement le vérificateur comme le générateur.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>GSM8K est devenu l'un des benchmarks les plus utilisés de l'histoire des LLM. Il a servi à démontrer la chaîne de pensée (papier 53), l'auto-cohérence (papier 54), puis presque tous les travaux de raisonnement jusqu'à sa saturation vers 2024, quand les modèles ont dépassé 95 %. Le papier pose aussi trois idées qui reviendront tout au long de cette section :</p>
+<ul>
+<li>générer beaucoup puis choisir, c'est-à-dire dépenser du calcul au moment de l'inférence ;</li>
+<li>entraîner des modèles de récompense pour juger un raisonnement, idée reprise et raffinée par « Let's Verify Step by Step » (papier 61) ;</li>
+<li>le risque qu'un juge appris soit exploité quand on optimise trop fort contre lui.</li>
+</ul>

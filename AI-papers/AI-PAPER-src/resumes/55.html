@@ -1,0 +1,29 @@
+<h4>Le problème</h4>
+<p>La chaîne de pensée (papier 53) améliore beaucoup les grands modèles, mais elle ne fonctionne qu'à partir d'une très grande taille. Pour un modèle plus petit, on pourrait l'affiner sur des raisonnements écrits, mais rédiger des milliers de justifications à la main coûte cher. Eric Zelikman et ses collègues de Stanford proposent <b>STaR</b> (Self-Taught Reasoner) : le modèle apprend à raisonner à partir de ses propres raisonnements réussis.</p>
+
+<h4>La boucle STaR</h4>
+<ol>
+<li>On part d'un modèle pré-entraîné et de quelques exemples de raisonnement dans le prompt.</li>
+<li>Le modèle génère une justification puis une réponse pour chaque question du jeu d'entraînement.</li>
+<li>On garde uniquement les justifications qui mènent à la <b>bonne réponse</b>.</li>
+<li>On affine le modèle de départ sur ces justifications filtrées.</li>
+<li>On recommence avec le nouveau modèle, qui résout désormais plus de questions.</li>
+</ol>
+<p>La réponse correcte sert de filtre : on suppose qu'une justification qui aboutit au bon résultat est probablement correcte. C'est une forme simple d'apprentissage par renforcement avec une récompense binaire, approximé par de l'affinage supervisé sur les succès (les auteurs montrent le lien avec le gradient de politique).</p>
+
+<h4>La rationalisation</h4>
+<p>Problème : la boucle s'arrête quand le modèle ne résout plus de nouvelles questions, car il n'apprend jamais des problèmes qu'il échoue. STaR ajoute donc une étape de <b>rationalisation</b>. Pour les questions ratées, on donne la bonne réponse au modèle comme indice et on lui demande de produire une justification qui y mène. Ces justifications sont ajoutées aux données d'entraînement, mais l'indice est retiré : le modèle apprend à produire le raisonnement sans connaître la réponse à l'avance.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>CommonsenseQA</b> : GPT-J (6 milliards de paramètres) atteint 72,5 %, comparable à GPT-3 affiné (175 milliards, 73 %), un modèle trente fois plus grand. L'affinage direct sur les réponses, sans raisonnement, donne 60 %.</li>
+<li><b>Arithmétique</b> (additions à plusieurs chiffres) : la précision progresse itération après itération, et la rationalisation accélère nettement l'apprentissage des additions longues.</li>
+<li><b>GSM8K</b> : 10,7 %, contre 5,8 % sans raisonnement, un gain modeste mais net pour un modèle de cette taille.</li>
+<li>Des évaluateurs humains jugent les justifications de STaR plus convaincantes que celles écrites par des annotateurs de crowdsourcing dans un jeu de données existant.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>Le filtre par la bonne réponse laisse passer des raisonnements faux qui tombent juste par hasard, surtout pour les questions à choix multiples. La méthode suppose aussi que le modèle de départ résout déjà une partie des questions avec quelques exemples : il faut un minimum de capacité initiale.</p>
+
+<h4>Héritage</h4>
+<p>STaR est un ancêtre direct des modèles de raisonnement actuels. Son principe (générer des raisonnements, garder ceux qui sont vérifiés comme corrects, s'entraîner dessus) se retrouve dans le « rejection sampling » de nombreux pipelines de post-entraînement, y compris celui de DeepSeek-R1 (papier 33). Le même auteur l'a étendu à du texte quelconque avec Quiet-STaR (papier 67). L'idée d'un modèle qui s'améliore à partir de ses propres productions vérifiées culmine avec Absolute Zero (papier 76), où le modèle invente même ses problèmes.</p>

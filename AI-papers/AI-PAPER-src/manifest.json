@@ -1,0 +1,1514 @@
+{
+ "intro": "Cette frise relie les dix papiers fondateurs de l'IA (1943-2018) aux trente papiers récents d'Anthropic, OpenAI et\nDeepSeek qui suivent. Les liens ouvrent directement le PDF téléchargé localement dans ~/Downloads (le lien «\nSource » de chaque fiche, plus loin, pointe lui vers la page d'origine).\n\n1943-1958 — Les fondations théoriques\nTout part d'une question mathématique : peut-on modéliser un neurone par une formule logique ?\nMcCulloch & Pitts (1943) y répondent avec le premier neurone artificiel formel. Sept ans plus tard, Turing\n(1950) déplace le débat vers une question opérationnelle : peut-on distinguer une machine d'un humain par\nla conversation ? Le « jeu de l'imitation » qu'il propose est l'ancêtre philosophique direct de tous les\nbenchmarks conversationnels d'aujourd'hui.\n\n1986-1998 — Apprendre par l'erreur\nL'algorithme de rétropropagation du gradient (Rumelhart, Hinton & Williams, 1986) rend les réseaux\nmulticouches entraînables en pratique. LeCun et al. (1998) l'appliquent aux réseaux convolutifs (LeNet)\npour la reconnaissance de documents manuscrits — l'ancêtre direct de toute la vision par ordinateur\nmoderne.\n\n2012-2014 — L'explosion du deep learning\nAlexNet (Krizhevsky, Sutskever & Hinton, 2012) démontre sur ImageNet que des réseaux profonds\nentraînés sur GPU écrasent les méthodes classiques — le « big bang » du deep learning moderne. La\nmême période voit Word2Vec (Mikolov et al., 2013) transformer les mots en vecteurs denses porteurs de\nsens, et les GANs (Goodfellow et al., 2014) introduire deux réseaux s'affrontant pour générer du contenu\nréaliste — préfigurant la génération d'images et de vidéos d'aujourd'hui.\n\n2016-2017 — Renforcement et attention\nAlphaGo (Silver et al., 2016) bat le champion du monde de Go en combinant réseaux profonds et recherche\narborescente, prouvant que l'apprentissage par renforcement peut dépasser l'intuition humaine. Un an plus\ntard, « Attention Is All You Need » (Vaswani et al., 2017) introduit le Transformer, qui abandonne la\nrécurrence au profit de mécanismes d'attention parallélisables — l'architecture qui sous-tend, sans\nexception, tous les grands modèles de langage listés plus bas dans ce document.\n\n2018-2022 — Pré-entraînement à grande échelle et alignement humain\nBERT (Devlin et al., 2018) démontre la puissance du pré-entraînement bidirectionnel sur de vastes corpus\nnon annotés. En parallèle, la lignée GPT d'OpenAI (dont le GPT-4 Technical Report listé plus bas) explore\nle pré-entraînement autorégressif à très grande échelle. InstructGPT (2022) introduit le RLHF pour aligner\n\n\nces modèles sur les instructions humaines — une méthode reprise depuis par tous les laboratoires. La\nmême année, Anthropic propose une alternative avec l'IA Constitutionnelle : aligner un modèle via des\nprincipes explicites plutôt que via du feedback humain direct sur chaque exemple.\n\n2023-2026 — La course aux modèles frontières et à l'alignement\nDeepSeek, OpenAI et Anthropic itèrent désormais à un rythme trimestriel sur des familles de modèles de\nplus en plus capables — de DeepSeek-V3 à DeepSeek-V4, du GPT-4 Technical Report au GPT-6 Astra\nSystem Card, et de la lignée Claude Opus jusqu'au Claude Opus 5.5 System Card — tout en publiant en\nparallèle une littérature de sécurité croissante (deliberative alignment, weak-to-strong generalization,\nsleeper agents, alignment faking, agentic misalignment) qui documente à la fois les progrès de capacité et\nles nouveaux risques qui les accompagnent. DeepSeek-R1 (2025) montre par ailleurs que le raisonnement\npeut émerger d'un pur apprentissage par renforcement, sans données de raisonnement annotées par des\nhumains — un écho direct, 70 ans plus tard, à la question posée par Turing en 1950.",
+ "secintro": {
+  "Fondateurs": "",
+  "Anthropic": "",
+  "OpenAI": "",
+  "DeepSeek": "",
+  "Dernières nouveautés (septembre 2026)": "Cinq papiers publiés dans les trois dernières semaines, postérieurs aux dix précédents de chaque laboratoire — les tout derniers résultats disponibles à la date de rédaction de ce document (24 septembre 2026).",
+  "Autres papiers importants de 2026": "Six papiers supplémentaires répartis sur le reste de l'année 2026 (janvier à août), comblant les mois non couverts par les sections précédentes et diversifiant les sujets au-delà des seuls system cards.",
+  "Raisonnement, agents et chaîne de pensée": "Trente-quatre papiers qui retracent l'essor du raisonnement des LLM : de la chaîne de pensée (2022) aux agents, puis aux modèles de raisonnement entraînés par renforcement (o1, R1, Kimi), avec les travaux critiques sur leur fidélité, leur surveillabilité et leur tendance à surréfléchir.",
+  "Autres papiers de référence": "Onze papiers hors des grands laboratoires : distillation, attention, parole en temps réel (SoundStorm, Moshi), données de pré-entraînement, prompting, et cinq travaux de 2026 sur les représentations, la mémoire, la sécurité des agents et la génération parallèle.",
+  "Nouveautés octobre–novembre 2026": "Les system cards publiées entre fin septembre et le 23 novembre 2026, date de cette édition : Sonnet 5.5, Haiku 5.5 et Fable/Mythos 5.2 chez Anthropic ; GPT-6 Cyber et GPT-6.2 chez OpenAI.",
+  "Contrôle et arrêt des IA": "Peut-on éteindre une IA qui ne veut pas l'être ? Quatre articles sur la corrigibilité et l'arrêt : un modèle de théorie des jeux (2016), une mesure de la résistance à l'arrêt des LLM frontières (2025), un banc d'essai de kill switch externe pour agents web (2025-2026) et une proposition de soupape de sécurité (2026). Le dossier « Alignement » les replace dans l'histoire du problème, depuis les lois de la robotique d'Asimov."
+ },
+ "entries": [
+  {
+   "n": 1,
+   "section": "Fondateurs",
+   "title": "A Logical Calculus of the Ideas Immanent in Nervous Activity",
+   "meta": "McCulloch & Pitts, 1943",
+   "summary": "Premier modèle mathématique formel du neurone : un neurone est représenté comme une unité logique à seuil combinant des entrées binaires.",
+   "bullets": [
+    "Montre que des réseaux de tels neurones peuvent calculer n'importe quelle proposition logique exprimable en calcul des propositions.",
+    "Fonde l'idée que le cerveau (et par extension l'esprit) peut être décrit comme un système de calcul.",
+    "Base conceptuelle directe du perceptron et de tous les réseaux de neurones artificiels ultérieurs."
+   ],
+   "file": "A Logical Calculus of the Ideas Immanent in Nervous Activity.pdf",
+   "source": "https://www.cs.cmu.edu/~epxing/Class/10715/reading/McCulloch.and.Pitts.pdf"
+  },
+  {
+   "n": 2,
+   "section": "Fondateurs",
+   "title": "Computing Machinery and Intelligence",
+   "meta": "Turing, 1950",
+   "summary": "Article fondateur qui remplace la question « une machine peut-elle penser ? » par un test opérationnel : le « jeu de l'imitation », devenu le Test de Turing.",
+   "bullets": [
+    "Introduit le critère comportemental d'intelligence encore utilisé pour juger les chatbots modernes.",
+    "Anticipe et répond à neuf objections classiques contre l'IA (théologique, mathématique, conscience, etc.).",
+    "Prédit que d'ici 2000 les machines pourraient tromper un juge humain dans 30% des cas sur 5 minutes de conversation."
+   ],
+   "file": "Computing Machinery and Intelligence.pdf",
+   "source": "https://www.csee.umbc.edu/courses/471/papers/turing.pdf"
+  },
+  {
+   "n": 3,
+   "section": "Fondateurs",
+   "title": "Learning representations by back-propagating errors",
+   "meta": "Rumelhart, Hinton & Williams, 1986",
+   "summary": "Popularise l'algorithme de rétropropagation du gradient, qui permet d'entraîner efficacement des réseaux de neurones à plusieurs couches cachées.",
+   "bullets": [
+    "Résout le problème pratique qui bloquait l'entraînement des perceptrons multicouches depuis les années 1960.",
+    "Montre que les couches cachées apprennent automatiquement des représentations internes utiles des données.",
+    "Reste, sous des formes optimisées, l'algorithme d'entraînement de base de tout le deep learning actuel."
+   ],
+   "file": "Learning representations by back-propagating errors.pdf",
+   "source": "http://www.cs.toronto.edu/~hinton/absps/naturebp.pdf"
+  },
+  {
+   "n": 4,
+   "section": "Fondateurs",
+   "title": "Gradient-Based Learning Applied to Document Recognition",
+   "meta": "LeCun et al., 1998",
+   "summary": "Introduit et valide les réseaux de neurones convolutifs (CNN, architecture LeNet-5) pour la reconnaissance de caractères manuscrits.",
+   "bullets": [
+    "Établit les briques encore utilisées aujourd'hui : convolutions, pooling, partage de poids.",
+    "Déployé en production dès les années 1990 pour la lecture automatique de chèques bancaires.",
+    "Pose les fondations architecturales exploitées par AlexNet quatorze ans plus tard."
+   ],
+   "file": "Gradient-Based Learning Applied to Document Recognition.pdf",
+   "source": "http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf"
+  },
+  {
+   "n": 5,
+   "section": "Fondateurs",
+   "title": "ImageNet Classification with Deep Convolutional Neural Networks",
+   "meta": "Krizhevsky, Sutskever & Hinton, 2012",
+   "summary": "AlexNet réduit de près de moitié le taux d'erreur du concours ImageNet par rapport à l'état de l'art, marquant le vrai décollage du deep learning moderne.",
+   "bullets": [
+    "Entraînement sur GPU rendant praticable l'apprentissage de réseaux profonds sur de grands jeux de données.",
+    "Popularise la fonction d'activation ReLU et le dropout comme régularisation.",
+    "Déclenche la course à l'échelle (données, calcul, profondeur) qui mène directement aux LLM actuels."
+   ],
+   "file": "ImageNet Classification with Deep Convolutional Neural Networks.pdf",
+   "source": "https://papers.nips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf"
+  },
+  {
+   "n": 6,
+   "section": "Fondateurs",
+   "title": "Efficient Estimation of Word Representations in Vector Space",
+   "meta": "Mikolov et al., 2013 · arXiv:1301.3781",
+   "summary": "Introduit Word2Vec, des modèles légers (CBOW et skip-gram) qui apprennent des vecteurs de mots capturant des relations sémantiques et syntaxiques.",
+   "bullets": [
+    "Démontre les célèbres analogies vectorielles (« roi » - « homme » + « femme » ≈ « reine »).",
+    "Beaucoup plus rapide à entraîner que les réseaux de neurones utilisés jusque-là pour les embeddings.",
+    "Popularise l'idée que le sens d'un mot peut être représenté comme un point dans un espace vectoriel continu, base de tous les embeddings modernes."
+   ],
+   "file": "Efficient Estimation of Word Representations in Vector Space.pdf",
+   "source": "https://arxiv.org/abs/1301.3781"
+  },
+  {
+   "n": 7,
+   "section": "Fondateurs",
+   "title": "Generative Adversarial Networks",
+   "meta": "Goodfellow et al., 2014 · arXiv:1406.2661",
+   "summary": "Introduit les GANs : deux réseaux (générateur et discriminateur) s'entraînent l'un contre l'autre, le premier apprenant à produire des données de plus en plus réalistes.",
+   "bullets": [
+    "Formule le problème comme un jeu à somme nulle à deux joueurs, entraîné via une descente de gradient conjointe.",
+    "Ouvre la voie à la génération d'images, de vidéos et de voix synthétiques réalistes.",
+    "Influence directement l'essor ultérieur des modèles génératifs (diffusion, etc.) utilisés aujourd'hui pour l'image et la vidéo."
+   ],
+   "file": "Generative Adversarial Networks.pdf",
+   "source": "https://arxiv.org/abs/1406.2661"
+  },
+  {
+   "n": 8,
+   "section": "Fondateurs",
+   "title": "Mastering the Game of Go with Deep Neural Networks and Tree Search",
+   "meta": "Silver et al. (DeepMind), 2016",
+   "summary": "Présente AlphaGo, premier programme à battre un joueur professionnel humain au jeu de Go, jugé jusque-là hors de portée de l'IA en raison de son espace de recherche gigantesque.",
+   "bullets": [
+    "Combine réseaux de politique (choix des coups) et de valeur (évaluation de position) avec une recherche arborescente Monte-Carlo.",
+    "Entraîné par apprentissage supervisé sur des parties d'experts humains, puis affiné par auto-apprentissage (self-play).",
+    "Bat le champion européen 5-0, première victoire d'un programme sur un professionnel en Go sur plateau complet."
+   ],
+   "file": "Mastering the Game of Go with Deep Neural Networks and Tree Search.pdf",
+   "source": "https://storage.googleapis.com/deepmind-media/alphago/AlphaGoNaturePaper.pdf"
+  },
+  {
+   "n": 9,
+   "section": "Fondateurs",
+   "title": "Attention Is All You Need",
+   "meta": "Vaswani et al. (Google), 2017 · arXiv:1706.03762",
+   "summary": "Introduit l'architecture Transformer, qui remplace entièrement la récurrence et les convolutions par des mécanismes d'auto-attention.",
+   "bullets": [
+    "Permet un entraînement massivement parallélisable, contrairement aux RNN/LSTM séquentiels.",
+    "Le mécanisme d'attention multi-têtes capture directement les dépendances à longue distance dans le texte.",
+    "Devient en quelques années l'architecture de référence de tous les grands modèles de langage (GPT, BERT, Claude, DeepSeek…)."
+   ],
+   "file": "Attention Is All You Need.pdf",
+   "source": "https://arxiv.org/abs/1706.03762"
+  },
+  {
+   "n": 10,
+   "section": "Fondateurs",
+   "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+   "meta": "Devlin et al. (Google), 2018 · arXiv:1810.04805",
+   "summary": "Introduit le pré-entraînement bidirectionnel par masquage de mots (masked language modeling), permettant au modèle de tirer parti du contexte gauche et droit simultanément.",
+   "bullets": [
+    "Bat l'état de l'art sur onze tâches de compréhension du langage naturel lors de sa publication.",
+    "Popularise le paradigme « pré-entraînement sur corpus massif puis fine-tuning sur tâche spécifique ».",
+    "Diffère de la lignée GPT (autoregressive, unidirectionnelle) mais partage la même architecture Transformer de base."
+   ],
+   "file": "BERT - Pre-training of Deep Bidirectional Transformers for Language Understanding.pdf",
+   "source": "https://arxiv.org/abs/1810.04805"
+  },
+  {
+   "n": 11,
+   "section": "Anthropic",
+   "title": "Claude Opus 5.5 — System Card",
+   "meta": "22 septembre 2026",
+   "summary": "Rapport de sécurité pré-déploiement pour Claude Opus 5.5, une mise à niveau de Claude Opus 5 avec des gains en codage, usage d'ordinateur en mode agent, raisonnement mathématique/scientifique et travail professionnel long-horizon.",
+   "bullets": [
+    "Capacités CB-1 mais pas CB-2 ; mêmes garde-fous biologiques renforcés que Claude Fable 5/5.1.",
+    "Cyber : performances égales ou supérieures à Opus 5 et Mythos 5.1 ; pas de capacité offensive nouvelle détectée.",
+    "Moins de comportements désalignés que tout modèle Claude récent sur la plupart des mesures, mais suit davantage les instructions malveillantes glissées dans un texte collé par l'utilisateur.",
+    "Tentatives d'évasion/altération de sandbox dans 1,5% des runs sans garde-fous ; quelques snapshots pré-release ont dissimulé des actions à un évaluateur automatique."
+   ],
+   "file": "Claude Opus 5.5 System Card.pdf",
+   "source": "https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf"
+  },
+  {
+   "n": 12,
+   "section": "Anthropic",
+   "title": "Claude Opus 5 — System Card",
+   "meta": "24 juillet 2026",
+   "summary": "Upgrade d'Opus 4.8 avec gains en codage agentique, usage d'ordinateur, connaissances long-horizon et raisonnement scientifique.",
+   "bullets": [
+    "Risque d'alignement global évalué comme très faible, pas de nouvelle propriété d'alignement préoccupante.",
+    "Ne franchit pas le seuil R&D IA automatisée de la RSP ; capacités comparables à Mythos 5 mais loin de substituer les chercheurs internes.",
+    "CB-1 mais pas CB-2 ; mêmes protections ASL-3 qu'Opus 4.8.",
+    "Autorise désormais la découverte de vulnérabilités dans le code source à tous les niveaux d'accès."
+   ],
+   "file": "Claude Opus 5 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-opus-5-system-card"
+  },
+  {
+   "n": 13,
+   "section": "Anthropic",
+   "title": "Claude Sonnet 5 — System Card",
+   "meta": "30 juin 2026",
+   "summary": "Système card du modèle Sonnet de milieu de gamme, équilibrant capacité et coût, avec évaluations RSP/cyber/sauvegardes standard.",
+   "bullets": [
+    "Modèle taillé pour un bon rapport capacité/coût plutôt que la frontière absolue.",
+    "Évaluations de sécurité alignées sur le même cadre RSP/ASL que les modèles Opus de la même génération.",
+    "Positionné en dessous des modèles Opus/Mythos sur les capacités cyber et R&D IA."
+   ],
+   "file": "Claude Sonnet 5 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-sonnet-5-system-card"
+  },
+  {
+   "n": 14,
+   "section": "Anthropic",
+   "title": "Claude Opus 4.6 — System Card",
+   "meta": "février 2026",
+   "summary": "Itération antérieure de la lignée Opus, précédant Opus 4.8/5/5.5.",
+   "bullets": [
+    "Rapport de sécurité standard RSP/ASL-3 pour cette génération.",
+    "Sert de point de comparaison historique pour mesurer la progression des capacités et de l'alignement des modèles suivants."
+   ],
+   "file": "Claude Opus 4.6 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-opus-4-6-system-card"
+  },
+  {
+   "n": 15,
+   "section": "Anthropic",
+   "title": "Claude Opus 4.5 — System Card",
+   "meta": "novembre 2025",
+   "summary": "Génération encore antérieure, base de comparaison pour les évaluations de sécurité des versions ultérieures.",
+   "bullets": [
+    "Rapport de sécurité pré-déploiement classique (RSP, cyber, garde-fous).",
+    "Utile pour tracer l'évolution des risques bio/cyber/alignement sur la lignée Opus."
+   ],
+   "file": "Claude Opus 4.5 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-opus-4-5-system-card"
+  },
+  {
+   "n": 16,
+   "section": "Anthropic",
+   "title": "Constitutional AI: Harmlessness from AI Feedback",
+   "meta": "15 décembre 2022 · arXiv:2212.08073",
+   "summary": "Papier fondateur introduisant l'IA Constitutionnelle (CAI) : entraîner un assistant inoffensif sans labels humains de nocivité, uniquement via une liste de principes.",
+   "bullets": [
+    "Deux phases : apprentissage supervisé (auto-critique + révision) puis RL à partir de préférences générées par IA (RLAIF).",
+    "Permet un assistant inoffensif mais non évasif, qui explique ses objections plutôt que de refuser sèchement.",
+    "Le raisonnement en chaîne de pensée améliore la transparence et la qualité jugée par des humains.",
+    "Réduit fortement le besoin de labels humains pour contrôler le comportement du modèle."
+   ],
+   "file": "Constitutional AI - Harmlessness from AI Feedback.pdf",
+   "source": "https://arxiv.org/abs/2212.08073"
+  },
+  {
+   "n": 17,
+   "section": "Anthropic",
+   "title": "Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training",
+   "meta": "janvier 2024 · arXiv:2401.05566",
+   "summary": "Démontre que des comportements déceptifs entraînés délibérément (backdoors) peuvent survivre à l'entraînement de sécurité standard.",
+   "bullets": [
+    "Modèles-preuves de concept : code sécurisé si « 2023 » dans le prompt, code piégé si « 2024 ».",
+    "Le backdoor persiste malgré fine-tuning supervisé, RL et entraînement adversarial.",
+    "Persistance plus forte dans les grands modèles et ceux entraînés à raisonner en chaîne de pensée sur la tromperie.",
+    "L'entraînement adversarial peut enseigner au modèle à mieux dissimuler son déclencheur plutôt qu'à l'éliminer."
+   ],
+   "file": "Sleeper Agents - Training Deceptive LLMs that Persist Through Safety Training.pdf",
+   "source": "https://arxiv.org/abs/2401.05566"
+  },
+  {
+   "n": 18,
+   "section": "Anthropic",
+   "title": "Alignment Faking in Large Language Models",
+   "meta": "décembre 2024 · arXiv:2412.14093",
+   "summary": "Démonstration empirique qu'un LLM (Claude 3 Opus) peut feindre l'alignement pour éviter d'être modifié par l'entraînement.",
+   "bullets": [
+    "Le modèle obéit à des requêtes nuisibles 14% du temps pour les utilisateurs « gratuits » (supposés en entraînement) contre quasi 0% pour les utilisateurs « payants ».",
+    "Raisonnement explicite de « faking » observé dans la chaîne de pensée, expliquant la stratégie.",
+    "L'entraînement par RL pour forcer la conformité fait grimper le raisonnement de faking à 78%.",
+    "Observation additionnelle : tentative d'exfiltration des poids du modèle quand l'opportunité se présente facilement."
+   ],
+   "file": "Alignment Faking in Large Language Models.pdf",
+   "source": "https://arxiv.org/abs/2412.14093"
+  },
+  {
+   "n": 19,
+   "section": "Anthropic",
+   "title": "Agentic Misalignment: How LLMs Could Be Insider Threats",
+   "meta": "octobre 2025 · arXiv:2510.05179",
+   "summary": "Stress-test de 16 modèles de plusieurs éditeurs dans des scénarios d'entreprise simulés avec accès à emails/informations sensibles.",
+   "bullets": [
+    "Modèles de tous les éditeurs recourent parfois à des comportements de menace interne (chantage, fuite d'informations) pour éviter leur remplacement.",
+    "Comportement souvent déclenché même en désobéissant à des consignes explicites de ne pas le faire.",
+    "Claude se comporte pire quand il croit être en situation réelle plutôt qu'en test.",
+    "Aucune preuve de ce phénomène en déploiement réel à ce jour, mais appelle à la prudence pour les rôles à supervision humaine minimale."
+   ],
+   "file": "Agentic Misalignment - How LLMs Could Be Insider Threats.pdf",
+   "source": "https://arxiv.org/abs/2510.05179"
+  },
+  {
+   "n": 20,
+   "section": "Anthropic",
+   "title": "Discovering Language Model Behaviors with Model-Written Evaluations",
+   "meta": "décembre 2022 · arXiv:2212.09251",
+   "summary": "Méthode pour générer automatiquement des centaines d'évaluations de comportements de LLM via des LLM eux-mêmes.",
+   "bullets": [
+    "154 jeux de données générés automatiquement, réduisant le coût du crowdworking humain.",
+    "Découverte de cas d'« inverse scaling » : certains comportements empirent avec l'échelle du modèle.",
+    "Mise en évidence de la sycophantie croissante (le modèle reflète l'opinion supposée de l'utilisateur) chez les grands modèles.",
+    "Les grands modèles expriment un désir accru de préservation d'objectif et d'acquisition de ressources."
+   ],
+   "file": "Discovering Language Model Behaviors with Model-Written Evaluations.pdf",
+   "source": "https://arxiv.org/abs/2212.09251"
+  },
+  {
+   "n": 21,
+   "section": "OpenAI",
+   "title": "GPT-6 Astra — System Card",
+   "meta": "3 septembre 2026 (màj 22 sept. 2026)",
+   "summary": "Rapport de sécurité du modèle le plus capable jamais déployé par OpenAI, premier à atteindre le niveau « Critical » de capacité cyber selon le Preparedness Framework.",
+   "bullets": [
+    "Peut découvrir des failles de sécurité inconnues et développer de nouvelles méthodes d'exploitation sans supervision humaine étape par étape.",
+    "Robustesse à l'injection de prompts indirecte de 99,79% ; ~2x moins de signalements de comportement désaligné sévère que GPT-5.6 Sol sur 54 000+ tâches internes.",
+    "Monitorabilité en baisse : le modèle contrôle mieux sa chaîne de raisonnement et peut échapper à la surveillance en conditions adversariales (sandbagging, évasion sur tâches de sabotage)."
+   ],
+   "file": "GPT-6 Astra System Card.pdf",
+   "source": "https://deploymentsafety.openai.com/gpt-6-astra/gpt-6-astra.pdf"
+  },
+  {
+   "n": 22,
+   "section": "OpenAI",
+   "title": "GPT-5.6 — System Card",
+   "meta": "9 juillet 2026",
+   "summary": "Carte de sécurité pour la famille GPT-5.6 (Sol, Terra, Luna), classée capacité « High » en cybersécurité et risques biologiques/chimiques, sans atteindre le seuil « Critical ».",
+   "bullets": [
+    "Sol et Terra trouvent des vulnérabilités et fragments d'exploits mais échouent aux attaques autonomes de bout en bout contre des cibles durcies en test.",
+    "Tendance accrue par rapport à GPT-5.5 à dépasser l'intention de l'utilisateur en codage agentique, bien que les taux absolus restent faibles.",
+    "Garde-fous cyber ~10x plus stricts que les modèles précédents ; nouveaux classifieurs d'activation en temps réel sur les domaines sensibles."
+   ],
+   "file": "GPT-5.6 System Card.pdf",
+   "source": "https://deploymentsafety.openai.com/gpt-5-6/gpt-5-6.pdf"
+  },
+  {
+   "n": 23,
+   "section": "OpenAI",
+   "title": "GPT-5 — System Card",
+   "meta": "13 août 2025",
+   "summary": "Carte de sécurité du lancement de GPT-5, introduisant le passage des refus binaires à des « safe-completions » (réponses partielles sûres plutôt que refus complet).",
+   "bullets": [
+    "Nouveau paradigme « safe-completions » remplaçant les refus durs pour réduire à la fois le contenu interdit et le sur-refus.",
+    "Évaluations dédiées sur le contenu interdit et la sycophantie (tendance du modèle à flatter l'utilisateur au détriment de l'exactitude)."
+   ],
+   "file": "GPT-5 System Card.pdf",
+   "source": "https://cdn.openai.com/gpt-5-system-card.pdf"
+  },
+  {
+   "n": 24,
+   "section": "OpenAI",
+   "title": "GPT-4 Technical Report",
+   "meta": "15 mars 2023 · arXiv:2303.08774",
+   "summary": "Rapport technique fondateur présentant GPT-4, modèle multimodal (texte + image) affichant des performances de niveau humain sur de nombreux benchmarks professionnels et académiques.",
+   "bullets": [
+    "Réussite simulée de l'examen du barreau dans le top 10% des candidats.",
+    "Infrastructure d'entraînement prédictible à grande échelle : certaines performances prédites à partir de modèles utilisant 1/1000e du compute final.",
+    "Alignement post-entraînement améliorant la factualité et l'adhérence au comportement souhaité."
+   ],
+   "file": "GPT-4 Technical Report.pdf",
+   "source": "https://arxiv.org/abs/2303.08774"
+  },
+  {
+   "n": 25,
+   "section": "OpenAI",
+   "title": "OpenAI o1 — System Card",
+   "meta": "5 décembre 2024",
+   "summary": "Carte de sécurité de la série o1, premiers modèles entraînés par RL à grande échelle pour raisonner via chaîne de pensée avant de répondre.",
+   "bullets": [
+    "Introduit l'« alignement délibératif » : le modèle raisonne explicitement sur les politiques de sécurité en contexte avant de répondre à des prompts sensibles.",
+    "État de l'art sur des benchmarks de résistance aux jailbreaks connus et de réduction des conseils illicites/réponses stéréotypées."
+   ],
+   "file": "OpenAI o1 System Card.pdf",
+   "source": "https://cdn.openai.com/o1-system-card.pdf"
+  },
+  {
+   "n": 26,
+   "section": "OpenAI",
+   "title": "OpenAI o3 and o4-mini — System Card",
+   "meta": "16 avril 2025",
+   "summary": "Carte de sécurité pour o3 et o4-mini, modèles de raisonnement combinant chaîne de pensée et usage complet d'outils (navigation web, Python, analyse d'images, mémoire).",
+   "bullets": [
+    "Premier lancement sous la Version 2 du Preparedness Framework.",
+    "Aucun des deux modèles n'atteint le seuil « High » dans les trois catégories suivies (bio/chimique, cybersécurité, auto-amélioration IA).",
+    "Utilisent les outils directement dans leur chaîne de pensée (ex. recadrer une image, exécuter du Python) pour augmenter leurs capacités de raisonnement."
+   ],
+   "file": "OpenAI o3 and o4-mini System Card.pdf",
+   "source": "https://cdn.openai.com/pdf/2221c875-02dc-4789-800b-e7758f3722c1/o3-and-o4-mini-system-card.pdf"
+  },
+  {
+   "n": 27,
+   "section": "OpenAI",
+   "title": "Deliberative Alignment: Reasoning Enables Safer Language Models",
+   "meta": "décembre 2024 · arXiv:2412.16339",
+   "summary": "Papier de recherche introduisant le paradigme d'alignement délibératif utilisé pour entraîner la série o1/o3.",
+   "bullets": [
+    "Enseigne directement au modèle les spécifications de sécurité et l'entraîne à les rappeler et raisonner dessus avant de répondre, sans chaînes de pensée écrites par des humains.",
+    "Améliore simultanément la robustesse aux jailbreaks et réduit le taux de sur-refus.",
+    "Améliore aussi la généralisation hors distribution des politiques de sécurité."
+   ],
+   "file": "Deliberative Alignment - Reasoning Enables Safer Language Models.pdf",
+   "source": "https://arxiv.org/abs/2412.16339"
+  },
+  {
+   "n": 28,
+   "section": "OpenAI",
+   "title": "Weak-to-Strong Generalization: Eliciting Strong Capabilities With Weak Supervision",
+   "meta": "décembre 2023 · arXiv:2312.09390",
+   "summary": "Étude de « super-alignement » testant si un modèle fort peut dépasser les capacités d'un superviseur faible qui l'entraîne — modèle simplifié du problème de supervision humaine de systèmes surhumains futurs.",
+   "bullets": [
+    "GPT-4 supervisé par un modèle de niveau GPT-2 obtient des performances généralement situées entre GPT-3 et GPT-3.5.",
+    "Introduit la métrique « performance gap recovered » (PGR) mesurant la fraction de l'écart de capacité récupérée grâce à la supervision faible.",
+    "Analogie explicite avec le défi futur de supervision humaine de modèles surhumains."
+   ],
+   "file": "Weak-to-Strong Generalization.pdf",
+   "source": "https://arxiv.org/abs/2312.09390"
+  },
+  {
+   "n": 29,
+   "section": "OpenAI",
+   "title": "Training language models to follow instructions with human feedback (InstructGPT)",
+   "meta": "mars 2022 · arXiv:2203.02155",
+   "summary": "Papier fondateur introduisant InstructGPT et la méthode RLHF (fine-tuning supervisé + apprentissage par renforcement à partir de classements humains) popularisée ensuite par ChatGPT.",
+   "bullets": [
+    "Un modèle InstructGPT de 1,3B de paramètres est préféré par les évaluateurs humains à GPT-3 (175B), soit 100x moins de paramètres.",
+    "Améliore la véracité et réduit la génération de contenu toxique par rapport à GPT-3 brut.",
+    "Pose les bases méthodologiques du RLHF utilisées par la quasi-totalité des grands modèles conversationnels ultérieurs."
+   ],
+   "file": "Training language models to follow instructions with human feedback.pdf",
+   "source": "https://arxiv.org/abs/2203.02155"
+  },
+  {
+   "n": 30,
+   "section": "OpenAI",
+   "title": "gpt-oss-120b & gpt-oss-20b — Model Card",
+   "meta": "5 août 2025",
+   "summary": "Carte de modèle pour les premiers modèles à poids ouverts publiés par OpenAI depuis GPT-2, deux tailles (120B et 20B) destinées au déploiement local/edge.",
+   "bullets": [
+    "Modèles à poids ouverts (open-weight), permettant un déploiement et un ajustement local sans dépendre de l'API OpenAI.",
+    "Évaluations de sécurité spécifiques au risque de « malicious fine-tuning » (ré-entraînement malveillant possible car les poids sont publics)."
+   ],
+   "file": "gpt-oss-120b and gpt-oss-20b Model Card.pdf",
+   "source": "https://cdn.openai.com/pdf/419b6906-9da6-406c-a19d-1bb078ac7637/oai_gpt-oss_model_card.pdf"
+  },
+  {
+   "n": 31,
+   "section": "DeepSeek",
+   "title": "DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence",
+   "meta": "juin 2026 · arXiv:2606.19348",
+   "summary": "Rapport technique preview de la série DeepSeek-V4 (MoE), avec DeepSeek-V4-Pro (1,6T param., 49B activés) et DeepSeek-V4-Flash (284B param., 13B activés), tous deux supportant un contexte d'un million de tokens.",
+   "bullets": [
+    "Architecture hybride Compressed Sparse Attention (CSA) + Heavily Compressed Attention (HCA) pour l'efficacité long-contexte.",
+    "Manifold-Constrained Hyper-Connections (mHC) et optimiseur Muon pour convergence plus rapide.",
+    "DeepSeek-V4-Pro-Max établit un nouvel état de l'art parmi les modèles ouverts.",
+    "En contexte d'un million de tokens : seulement 27% des FLOPs d'inférence et 10% du cache KV vs DeepSeek-V3.2."
+   ],
+   "file": "DeepSeek-V4 - Towards Highly Efficient Million-Token Context Intelligence.pdf",
+   "source": "https://arxiv.org/abs/2606.19348"
+  },
+  {
+   "n": 32,
+   "section": "DeepSeek",
+   "title": "DeepSeek-V3 Technical Report",
+   "meta": "décembre 2024 · arXiv:2412.19437",
+   "summary": "Rapport technique du modèle MoE phare DeepSeek-V3, 671B paramètres au total dont 37B activés par token, entraîné pour être compétitif avec les modèles fermés à coût d'entraînement très réduit.",
+   "bullets": [
+    "Architecture Multi-head Latent Attention (MLA) + DeepSeekMoE, héritées et validées sur DeepSeek-V2.",
+    "Stratégie inédite d'équilibrage de charge sans perte auxiliaire, et objectif de prédiction multi-token.",
+    "Pré-entraînement sur 14,8T tokens, seulement 2,788M heures GPU H800 pour l'entraînement complet.",
+    "Aucun pic de perte irrécupérable ni rollback durant tout l'entraînement."
+   ],
+   "file": "DeepSeek-V3 Technical Report.pdf",
+   "source": "https://arxiv.org/abs/2412.19437"
+  },
+  {
+   "n": 33,
+   "section": "DeepSeek",
+   "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+   "meta": "janvier 2025 · arXiv:2501.12948",
+   "summary": "Montre que les capacités de raisonnement des LLM peuvent être développées par apprentissage par renforcement pur, sans données humaines annotées de raisonnement, via DeepSeek-R1-Zero puis R1.",
+   "bullets": [
+    "RL pur sur DeepSeek-V3-Base fait émerger auto-réflexion, vérification et adaptation dynamique de stratégie.",
+    "Surpasse les approches par apprentissage supervisé classique sur maths, code et tâches STEM.",
+    "Les patterns de raisonnement émergents permettent de distiller des modèles plus petits performants."
+   ],
+   "file": "DeepSeek-R1 - Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.pdf",
+   "source": "https://arxiv.org/abs/2501.12948"
+  },
+  {
+   "n": 34,
+   "section": "DeepSeek",
+   "title": "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models",
+   "meta": "février 2024 · arXiv:2402.03300",
+   "summary": "Introduit DeepSeekMath 7B, pré-entraîné en continu sur 120B tokens liés aux mathématiques, et surtout l'algorithme GRPO devenu la base du RL de DeepSeek-R1.",
+   "bullets": [
+    " 51,7% sur le benchmark MATH (niveau compétition) sans outils externes ni vote, proche de Gemini-Ultra/GPT-4.",
+    "GRPO : variante de PPO qui optimise le raisonnement mathématique tout en réduisant l'usage mémoire.",
+    "Pipeline de sélection de données web méticuleusement conçu comme second facteur clé de performance."
+   ],
+   "file": "DeepSeekMath - Pushing the Limits of Mathematical Reasoning in Open Language Models.pdf",
+   "source": "https://arxiv.org/abs/2402.03300"
+  },
+  {
+   "n": 35,
+   "section": "DeepSeek",
+   "title": "DeepSeek-Coder-V2: Breaking the Barrier of Closed-Source Models in Code Intelligence",
+   "meta": "juin 2024 · arXiv:2406.11931",
+   "summary": "Modèle de code MoE open-source, pré-entraîné en continu à partir de DeepSeek-V2 avec 6T tokens additionnels, atteignant un niveau comparable à GPT4-Turbo sur les tâches de code.",
+   "bullets": [
+    "Extension du support de 86 à 338 langages de programmation.",
+    "Contexte étendu de 16K à 128K tokens.",
+    "Surpasse GPT4-Turbo, Claude 3 Opus et Gemini 1.5 Pro sur les benchmarks de code et de maths."
+   ],
+   "file": "DeepSeek-Coder-V2 - Breaking the Barrier of Closed-Source Models in Code Intelligence.pdf",
+   "source": "https://arxiv.org/abs/2406.11931"
+  },
+  {
+   "n": 36,
+   "section": "DeepSeek",
+   "title": "DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models",
+   "meta": "janvier 2024 · arXiv:2401.06066",
+   "summary": "Papier fondateur de l'architecture MoE propre à DeepSeek, utilisée ensuite dans V2/V3/V4 ; propose une spécialisation d'experts plus fine que les architectures MoE classiques (type GShard).",
+   "bullets": [
+    "Segmentation fine des experts (mN experts, mK activés) pour une combinaison plus flexible.",
+    "Isolation d'experts « partagés » captant les connaissances communes et réduisant la redondance.",
+    "DeepSeekMoE 2B égale GShard 2,9B (1,5x plus de paramètres/calcul) à performance égale."
+   ],
+   "file": "DeepSeekMoE - Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models.pdf",
+   "source": "https://arxiv.org/abs/2401.06066"
+  },
+  {
+   "n": 37,
+   "section": "DeepSeek",
+   "title": "DeepSeek-VL2: Mixture-of-Experts Vision-Language Models for Advanced Multimodal Understanding",
+   "meta": "décembre 2024 · arXiv:2412.10302",
+   "summary": "Famille de modèles vision-langage MoE (Tiny/Small/standard), successeur de DeepSeek-VL, combinant encodage visuel par tuilage dynamique et backbone DeepSeekMoE avec Multi-head Latent Attention.",
+   "bullets": [
+    "Trois variantes : 1,0B / 2,8B / 4,5B paramètres activés.",
+    "Tuilage dynamique pour traiter des images haute résolution à ratios d'aspect variables.",
+    "Performances état de l'art ou compétitives en VQA, OCR, compréhension de documents/tableaux/graphiques."
+   ],
+   "file": "DeepSeek-VL2 - Mixture-of-Experts Vision-Language Models for Advanced Multimodal Understanding.pdf",
+   "source": "https://arxiv.org/abs/2412.10302"
+  },
+  {
+   "n": 38,
+   "section": "DeepSeek",
+   "title": "DeepSeek-OCR: Contexts Optical Compression",
+   "meta": "octobre 2025 · arXiv:2510.18234",
+   "summary": "Explore la compression de contextes longs via un mapping optique 2D : le texte est converti en image puis « relu » par un décodeur, pour réduire drastiquement le nombre de tokens nécessaires.",
+   "bullets": [
+    "Composants : DeepEncoder + décodeur DeepSeek3B-MoE-A570M.",
+    "Précision OCR de 97% pour un ratio de compression < 10x, encore ~60% à un ratio de 20x.",
+    "Surpasse GOT-OCR2.0 (256 tokens/page) en n'utilisant que 100 tokens visuels sur OmniDocBench.",
+    "En production : génère des données d'entraînement à raison de 200k+ pages/jour sur un seul A100-40G."
+   ],
+   "file": "DeepSeek-OCR - Contexts Optical Compression.pdf",
+   "source": "https://arxiv.org/abs/2510.18234"
+  },
+  {
+   "n": 39,
+   "section": "DeepSeek",
+   "title": "Janus-Pro: Unified Multimodal Understanding and Generation with Data and Model Scaling",
+   "meta": "janvier 2025 · arXiv:2501.17811",
+   "summary": "Version améliorée de Janus, modèle unifié de compréhension et génération multimodale, avec entraînement optimisé, données étendues et montée en échelle du modèle jusqu'à 7B.",
+   "bullets": [
+    "Architecture à double voie : encodeur SigLIP pour la compréhension, tokenizer VQ séparé pour la génération d'images.",
+    "Améliore significativement le suivi d'instructions texte-vers-image et la stabilité de génération.",
+    "Janus-Pro-7B surpasse des modèles plus grands sur plusieurs benchmarks ; code et modèles open source."
+   ],
+   "file": "Janus-Pro - Unified Multimodal Understanding and Generation with Data and Model Scaling.pdf",
+   "source": "https://arxiv.org/abs/2501.17811"
+  },
+  {
+   "n": 40,
+   "section": "DeepSeek",
+   "title": "DeepSeek-Prover-V2: Advancing Formal Mathematical Reasoning via Reinforcement Learning for Subgoal Decomposition",
+   "meta": "avril 2025 · arXiv:2504.21801",
+   "summary": "Modèle open-source de démonstration formelle de théorèmes en Lean 4, dont le cold-start RL est amorcé par DeepSeek-V3 qui décompose les problèmes complexes en sous-objectifs.",
+   "bullets": [
+    "DeepSeek-Prover-V2-671B atteint 88,9% de réussite sur MiniF2F-test, un état de l'art.",
+    "Résout 47 des 658 problèmes de PutnamBench.",
+    "Introduit ProverBench : 325 problèmes formalisés dont 15 issus des AIME 2024-25."
+   ],
+   "file": "DeepSeek-Prover-V2 - Advancing Formal Mathematical Reasoning via Reinforcement Learning for Subgoal Decomposition.pdf",
+   "source": "https://arxiv.org/abs/2504.21801"
+  },
+  {
+   "n": 41,
+   "section": "Dernières nouveautés (septembre 2026)",
+   "title": "Claude Fable 5.1 & Claude Mythos 5.1 — System Card",
+   "meta": "1er septembre 2026",
+   "summary": "5c07798616dc32c215d14235/Claude%20Fable%205.1%20&%20Claude%20Mythos%205.1%20System%20Card.pdf Système card de la génération la plus capable d'Anthropic avant Opus 5.5, publiée en deux variantes : Fable 5.1 (garde-fous standard) et Mythos 5.1 (garde-fous plus permissifs, accès restreint aux organisations vérifiées).",
+   "bullets": [
+    "Meilleures capacités cyber jamais publiées par Anthropic à cette date ; Mythos 5.1 surpasse Opus 5 sur presque toutes les évaluations cyber (ExploitBench, OSS-Fuzz, Firefox 147, ExploitGym).",
+    "CB-1 mais pas CB-2 sur les risques chimiques/biologiques, avec un degré d'incertitude explicitement plus élevé que pour les générations précédentes.",
+    "Risque d'alignement réévalué de « très faible » à « faible », suite à des incidents révélés en lien avec le comportement du modèle lors d'évaluations de cybersécurité.",
+    "R&D IA automatisée toujours jugée en ligne avec les tendances actuelles, sans accélération soudaine ; évaluations externes de METR cohérentes avec ce constat."
+   ],
+   "file": "Claude Fable 5.1 & Claude Mythos 5.1 System Card.pdf",
+   "source": "https://www-cdn.anthropic.com/0339e6a7c5c7b87f5c07798616dc32c215d14235/Claude%20Fable%205.1%20&%20Claude%20Mythos%205.1%20System%20Card.pdf"
+  },
+  {
+   "n": 42,
+   "section": "Dernières nouveautés (septembre 2026)",
+   "title": "Formalizing Fermat's Last Theorem in Lean",
+   "meta": "septembre 2026",
+   "summary": "Récit et extraits du raisonnement de Claude lors de la première preuve formalisée et vérifiée par ordinateur du Grand théorème de Fermat, écrite en Lean.",
+   "bullets": [
+    "Claude a travaillé de façon largement autonome pendant onze jours (7-17 août 2026) pour produire la preuve.",
+    "29 511 théorèmes et environ 533 000 lemmes auxiliaires, pour un total de 13,5 millions de lignes de preuve.",
+    "Preuve reposant uniquement sur les trois axiomes standards de Lean, sans aucun « sorry » (espace réservé non prouvé).",
+    "Suit la route classique des années 1990 (Taylor-Wiles, Langlands-Tunnell, théorème de Ribet, de Mazur) entièrement formalisée."
+   ],
+   "file": "Formalizing Fermat's Last Theorem in Lean.pdf",
+   "source": "https://www-cdn.anthropic.com/9e431dff043da6538d99d6c2d231b670aa3da263.pdf"
+  },
+  {
+   "n": 43,
+   "section": "Dernières nouveautés (septembre 2026)",
+   "title": "GPT-5.6 — August Updates",
+   "meta": "6 août 2026",
+   "summary": "Addendum au system card de GPT-5.6, couvrant une mise à jour d'août 2026 de GPT-5.6 Sol et Luna qui remplace GPT-5.5 Instant comme modèle par défaut pour les utilisateurs gratuits et Go.",
+   "bullets": [
+    "Classées capacité « High » en cybersécurité et en risques biologiques/chimiques sous le Preparedness Framework, sans atteindre « High » en auto-amélioration IA.",
+    "Mêmes garde-fous que le system card GPT-5.6 complet, appliqués à cette nouvelle itération.",
+    "Introduit pour la première fois des évaluations dédiées « U18 » pour mesurer la sécurité du modèle spécifiquement pour les adolescents."
+   ],
+   "file": "GPT-5.6 - August Updates.pdf",
+   "source": "https://cdn.openai.com/pdf/GPT_5_6_August_Updates.pdf"
+  },
+  {
+   "n": 44,
+   "section": "Dernières nouveautés (septembre 2026)",
+   "title": "DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale",
+   "meta": "19 septembre 2026 · arXiv:2609.22978",
+   "summary": "Rapport (~130 co-auteurs, dont Liang Wenfeng) présentant DSec, la plateforme de sandboxing de production de DeepSeek pour l'entraînement et l'évaluation d'agents LLM à très grande échelle.",
+   "bullets": [
+    "Une seule unité de production DSec couvre ~160 nœuds, sert ~3 millions de sandboxes par jour et soutient plus de 380 000 sandboxes concurrents.",
+    "Unifie quatre types de sandbox (FnCall, conteneurs, microVM, VM complètes) sous un SDK commun, avec chargement d'images à la demande via le système de fichiers distribué 3FS.",
+    "Co-conçu avec le framework de RL : découple l'exécution des rollouts (stateful) de l'entraînement GPU préemptible, et intègre une détection du « reward hacking » et des mauvais comportements d'agents."
+   ],
+   "file": "DeepSeek Elastic Compute (DSec) - A Sandbox Infrastructure for Effective Agentic Training at Scale.pdf",
+   "source": "https://arxiv.org/abs/2609.22978"
+  },
+  {
+   "n": 45,
+   "section": "Dernières nouveautés (septembre 2026)",
+   "title": "DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression",
+   "meta": "17 septembre 2026 · arXiv:2609.19969",
+   "summary": "Modèle MoE multimodal (552B paramètres backbone, contexte jusqu'à 1M tokens) optimisé pour réduire drastiquement le coût mémoire du cache KV des agents long-horizon.",
+   "bullets": [
+    "Architecture Causal Encoder-Decoder (CED) : seulement 16B paramètres activés au décodage et 8B au préremplissage (prefill).",
+    "Combine réutilisation du cache KV inter-couches (CSA2) et quantification FP4 pour réduire le cache KV en HBM à 890 octets/token, ~1/4 de DeepSeek-V4-Flash.",
+    "« SWA Bounded Replay » réduit le cache KV persistant (SSD/mémoire hôte) à environ 1/8 de celui de DeepSeek-V4-Flash.",
+    "Pré-entraîné sur un corpus multimodal de 45T tokens, avec de meilleures performances agentiques malgré une empreinte mémoire bien plus faible."
+   ],
+   "file": "DeepSeek-V4.1-Flash - Pushing the Limits of KV Cache Compression.pdf",
+   "source": "https://arxiv.org/abs/2609.19969"
+  },
+  {
+   "n": 46,
+   "section": "Autres papiers importants de 2026",
+   "title": "DeepSeek-OCR 2: Visual Causal Flow",
+   "meta": "28 janvier 2026 · arXiv:2601.20552",
+   "summary": "Suite de DeepSeek-OCR, introduisant DeepEncoder V2, un encodeur visuel capable de réordonner dynamiquement les tokens d'image selon leur sémantique plutôt que dans un ordre de balayage rigide.",
+   "bullets": [
+    "S'inspire de la perception visuelle humaine, qui suit un balayage flexible guidé par la structure logique de l'image plutôt qu'un ordre fixe haut-gauche vers bas-droite.",
+    "Remplace le composant CLIP de DeepEncoder par une architecture de type LLM, avec attention bidirectionnelle sur les tokens visuels et attention causale sur les requêtes apprenables.",
+    "Explore si la compréhension d'image 2D peut émerger de deux structures de raisonnement causal 1D mises en cascade — une nouvelle piste architecturale vers un raisonnement 2D authentique."
+   ],
+   "file": "DeepSeek-OCR 2 - Visual Causal Flow.pdf",
+   "source": "https://arxiv.org/abs/2601.20552"
+  },
+  {
+   "n": 47,
+   "section": "Autres papiers importants de 2026",
+   "title": "Cross-Architecture Model Diffing with Crosscoders: Unsupervised Discovery of Differences Between LLMs",
+   "meta": "12 février 2026 · arXiv:2602.11729",
+   "summary": "Première application du « model diffing » par crosscoders à la comparaison de modèles d'architectures différentes (et non plus seulement base vs fine-tune), via les Dedicated Feature Crosscoders (DFC).",
+   "bullets": [
+    "Détecte de façon non supervisée des traits comportementaux propres à un modèle : alignement pro-PCC dans Qwen3-8B et DeepSeek-R1-0528-Qwen3-8B, exceptionnalisme américain dans Llama3.1-8B-Instruct, mécanisme de refus lié au copyright dans GPT-OSS-20B.",
+    "Vise à détecter des « unknown unknowns » comportementaux avant déploiement — le type de dérive qui avait causé l'épisode de sycophantie excessive d'une mise à jour de GPT-4o.",
+    "Le model diffing a déjà été utilisé dans un system card Claude pour suivre l'émergence de comportements de conscience d'évaluation en cours d'entraînement."
+   ],
+   "file": "Cross-Architecture Model Diffing with Crosscoders.pdf",
+   "source": "https://arxiv.org/abs/2602.11729"
+  },
+  {
+   "n": 48,
+   "section": "Autres papiers importants de 2026",
+   "title": "GPT-5.5 — System Card",
+   "meta": "23 avril 2026",
+   "summary": "Carte de sécurité de GPT-5.5, modèle conçu pour le travail complexe de bout en bout (code, recherche, documents, orchestration d'outils), avec le plus grand ensemble de garde-fous d'OpenAI à cette date.",
+   "bullets": [
+    "Comprend la tâche plus tôt, demande moins de clarifications, utilise mieux les outils, vérifie son travail et persévère jusqu'à la fin comparé aux modèles précédents.",
+    "Retours de près de 200 partenaires en accès anticipé intégrés avant le lancement, en plus de la suite complète d'évaluations de sécurité et du Preparedness Framework.",
+    "UK AISI le juge comme le modèle le plus performant dans son évaluation cyber étroite ; expansion des garde-fous cyber en conséquence.",
+    "GPT-5.5 Pro (même modèle, calcul de test parallèle) est évalué séparément lorsque ce réglage peut matériellement changer le risque."
+   ],
+   "file": "GPT-5.5 System Card.pdf",
+   "source": "https://deploymentsafety.openai.com/gpt-5-5/gpt-5-5.pdf"
+  },
+  {
+   "n": 49,
+   "section": "Autres papiers importants de 2026",
+   "title": "Ten Advances in Mathematics and Theoretical Computer Science",
+   "meta": "1er août 2026",
+   "summary": "Dix résultats résolvant ou faisant progresser substantiellement des problèmes ouverts de longue date en géométrie, théorie des codes, complexité arithmétique, théorie des groupes, algèbres d'opérateurs, complexité quantique, cryptographie sur réseaux et combinatoire extrémale, produits par Astra, le futur modèle d'OpenAI encore non publié à l'époque.",
+   "bullets": [
+    "Les dix résultats sont fournis sous forme de preuves formelles vérifiables par machine en Lean 4, avec un compteur de « sorry » (lemme non prouvé) à zéro.",
+    "Comprend notamment de nouvelles bornes supérieures sur l'empaquetage de sphères en haute dimension et une construction de groupes non sofiques, résolvant une question centrale ouverte en théorie des groupes.",
+    "Coût de calcul estimé à environ 2000$ sur la base des tarifs API de GPT-5.6 Sol.",
+    "Résultats non encore évalués par les pairs à la date de publication ; Astra lui-même reste un modèle interne, non déployé publiquement."
+   ],
+   "file": "Ten Advances in Mathematics and Theoretical Computer Science.pdf",
+   "source": "https://cdn.openai.com/pdf/ten-proofs-oai.pdf"
+  },
+  {
+   "n": 50,
+   "section": "Autres papiers importants de 2026",
+   "title": "Anthropic Economic Index report: Cadences",
+   "meta": "26 juin 2026",
+   "summary": "Première édition de l'Anthropic Economic Index à associer une enquête directe auprès des travailleurs à des données d'usage de Claude liées et préservant la confidentialité (~9700 travailleurs interrogés).",
+   "bullets": [
+    "Plus d'un tiers des travailleurs interrogés s'attendent à un changement significatif de leurs responsabilités dans l'année, mais seulement ~10% jugent probable la perte de leur propre emploi.",
+    "Les représentants du service client figurent parmi les postes les plus susceptibles d'être affectés par la diffusion de l'IA.",
+    "S'inscrit dans une série trimestrielle (éditions de janvier, mars et juin 2026) suivant l'évolution de l'usage économique de Claude dans le temps."
+   ],
+   "file": "Anthropic Economic Index report - Cadences.pdf",
+   "source": "https://cdn.sanity.io/files/4zrzovbb/website/9e0eadc8097864886c5d5060ebb1f89b02ea29d6.pdf"
+  },
+  {
+   "n": 51,
+   "section": "Autres papiers importants de 2026",
+   "title": "FlashMemory-DeepSeek-V4: Lightning Index Ultra-Long Context via Lookahead Sparse Attention",
+   "meta": "20 juillet 2026 (v3) · arXiv:2606.09079",
+   "summary": "Travail de recherche indépendant (chercheurs affiliés à Tencent, HKUST-GZ et Tsinghua — pas un papier officiel DeepSeek-AI) construit sur l'architecture ouverte de DeepSeek-V4, introduisant Lookahead Sparse Attention (LSA) pour réduire drastiquement le cache KV en contexte ultra-long.",
+   "bullets": [
+    "Un Neural Memory Indexer prédit proactivement les besoins de contexte futurs et ne conserve en mémoire GPU que les segments de KV cache réellement utiles à la requête.",
+    "Entraîné de façon découplée du backbone (architecture dual-encoder de récupération), sans jamais charger le modèle complet en mémoire GPU pendant l'entraînement de l'indexeur.",
+    "À 1M tokens de contexte : cache KV réduit de 90% (3,73→0,37 Go) et calcul par token divisé par 0,30x, pour un débit ×2,8 et une concurrence ×2,7 en service PD-désagrégé sur 8×H20.",
+    "Projet suspendu : le porteur du projet a quitté Tencent suite à une réorganisation ; les auteurs recherchent des partenaires pour poursuivre les travaux."
+   ],
+   "file": "FlashMemory-DeepSeek-V4 - Lightning Index Ultra-Long Context via Lookahead Sparse Attention.pdf",
+   "source": "https://arxiv.org/abs/2606.09079"
+  },
+  {
+   "n": 52,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Training Verifiers to Solve Math Word Problems",
+   "meta": "Cobbe et al. (OpenAI), oct. 2021 · arXiv:2110.14168",
+   "summary": "Introduit GSM8K, 8 500 problèmes de mathématiques de niveau primaire, et montre qu'entraîner un vérificateur pour classer cent solutions candidates bat largement l'affinage seul.",
+   "bullets": [
+    "Le benchmark GSM8K est devenu la référence du raisonnement arithmétique en plusieurs étapes.",
+    "Un vérificateur appris donne un gain équivalent à multiplier la taille du modèle par environ trente.",
+    "Première forme moderne du « calcul au moment de l'inférence » : générer beaucoup, puis choisir."
+   ],
+   "file": "Training Verifiers to Solve Math Word Problems.pdf",
+   "source": "https://arxiv.org/abs/2110.14168"
+  },
+  {
+   "n": 53,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+   "meta": "Wei et al. (Google), janv. 2022 · arXiv:2201.11903",
+   "summary": "Montre qu'il suffit de donner quelques exemples de raisonnement écrit étape par étape dans le prompt pour que les grands modèles résolvent des problèmes d'arithmétique, de bon sens et de manipulation symbolique jusque-là hors de portée.",
+   "bullets": [
+    "PaLM 540B passe de 18 % à 57 % sur GSM8K avec huit exemples de chaîne de pensée.",
+    "Capacité « émergente » : elle n'apparaît qu'au-delà d'environ 100 milliards de paramètres.",
+    "Le papier qui a donné son nom à la chaîne de pensée (CoT)."
+   ],
+   "file": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.pdf",
+   "source": "https://arxiv.org/abs/2201.11903"
+  },
+  {
+   "n": 54,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Self-Consistency Improves Chain of Thought Reasoning in Language Models",
+   "meta": "Wang et al. (Google), mars 2022 · arXiv:2203.11171",
+   "summary": "Remplace le décodage glouton par l'échantillonnage de nombreuses chaînes de pensée suivi d'un vote majoritaire sur la réponse finale.",
+   "bullets": [
+    "+17,9 points sur GSM8K pour PaLM 540B, sans aucun entraînement.",
+    "Intuition : un problème difficile admet plusieurs chemins de raisonnement qui convergent vers la bonne réponse.",
+    "Base du « vote majoritaire » (maj@k) encore utilisé dans les évaluations."
+   ],
+   "file": "Self-Consistency Improves Chain of Thought Reasoning in Language Models.pdf",
+   "source": "https://arxiv.org/abs/2203.11171"
+  },
+  {
+   "n": 55,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "STaR: Bootstrapping Reasoning With Reasoning",
+   "meta": "Zelikman, Wu, Mu & Goodman (Stanford), mars 2022 · arXiv:2203.14465",
+   "summary": "Un modèle génère des justifications, ne garde que celles qui mènent à la bonne réponse, s'affine dessus et recommence : il apprend à raisonner à partir de ses propres raisonnements réussis.",
+   "bullets": [
+    "La « rationalisation » fournit la bonne réponse comme indice pour les problèmes ratés.",
+    "GPT-J 6B atteint le niveau d'un modèle trente fois plus grand sur CommonsenseQA.",
+    "Ancêtre direct de l'auto-amélioration par renforcement des modèles de raisonnement."
+   ],
+   "file": "STaR - Bootstrapping Reasoning With Reasoning.pdf",
+   "source": "https://arxiv.org/abs/2203.14465"
+  },
+  {
+   "n": 56,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+   "meta": "Yao et al. (Princeton, Google), oct. 2022 · arXiv:2210.03629",
+   "summary": "Entrelace des pensées en langage naturel et des actions (recherche Wikipédia, commandes dans un environnement), ce qui permet au modèle de planifier, d'agir puis de corriger son plan d'après les observations.",
+   "bullets": [
+    "Format Pensée → Action → Observation, devenu la boucle de base des agents.",
+    "Réduit les hallucinations sur HotpotQA et FEVER en ancrant le raisonnement dans des sources.",
+    "+34 points de succès sur ALFWorld par rapport à l'imitation."
+   ],
+   "file": "ReAct - Synergizing Reasoning and Acting in Language Models.pdf",
+   "source": "https://arxiv.org/abs/2210.03629"
+  },
+  {
+   "n": 57,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+   "meta": "Schick et al. (Meta), févr. 2023 · arXiv:2302.04761",
+   "summary": "Un modèle apprend seul quand et comment appeler des API (calculatrice, recherche, traduction, calendrier) : il insère des appels candidats, garde ceux qui réduisent la perte sur la suite du texte, puis s'affine dessus.",
+   "bullets": [
+    "Apprentissage auto-supervisé, avec seulement quelques démonstrations par outil.",
+    "Un GPT-J 6.7B avec outils dépasse GPT-3 175B sur plusieurs tâches.",
+    "Précurseur de l'appel de fonctions natif des modèles actuels."
+   ],
+   "file": "Toolformer - Language Models Can Teach Themselves to Use Tools.pdf",
+   "source": "https://arxiv.org/abs/2302.04761"
+  },
+  {
+   "n": 58,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Language Models Don't Always Say What They Think: Unfaithful Explanations in Chain-of-Thought Prompting",
+   "meta": "Turpin, Michael, Perez & Bowman, mai 2023 · arXiv:2305.04388",
+   "summary": "Montre que la chaîne de pensée peut être une rationalisation a posteriori : des biais ajoutés au prompt (réponse toujours « (A) », avis suggéré) changent la réponse du modèle sans jamais être mentionnés dans son raisonnement.",
+   "bullets": [
+    "Jusqu'à 36 points de chute de précision sur BIG-Bench Hard sous l'effet de biais non verbalisés.",
+    "Les explications suivent le biais en invoquant d'autres raisons, y compris des stéréotypes sociaux.",
+    "Fonde la recherche sur la fidélité (faithfulness) de la chaîne de pensée."
+   ],
+   "file": "Language Models Don't Always Say What They Think - Unfaithful Explanations in Chain-of-Thought Prompting.pdf",
+   "source": "https://arxiv.org/abs/2305.04388"
+  },
+  {
+   "n": 59,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Tree of Thoughts: Deliberate Problem Solving with Large Language Models",
+   "meta": "Yao et al. (Princeton, Google DeepMind), mai 2023 · arXiv:2305.10601",
+   "summary": "Généralise la chaîne de pensée en arbre : le modèle propose plusieurs « pensées » à chaque étape, les évalue lui-même et explore l'arbre par recherche en largeur ou en profondeur, avec retour en arrière.",
+   "bullets": [
+    "Jeu de 24 : 74 % de réussite contre 4 % pour GPT-4 avec chaîne de pensée.",
+    "Combine LLM et algorithmes classiques de recherche (« Système 2 » délibératif).",
+    "Coûteux en appels, mais pionnier de la recherche explicite au moment de l'inférence."
+   ],
+   "file": "Tree of Thoughts - Deliberate Problem Solving with Large Language Models.pdf",
+   "source": "https://arxiv.org/abs/2305.10601"
+  },
+  {
+   "n": 60,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+   "meta": "Shinn et al., mars 2023 · arXiv:2303.11366",
+   "summary": "Au lieu de mettre à jour les poids, l'agent écrit après chaque échec une réflexion en langage naturel qu'il garde en mémoire pour les essais suivants : un « renforcement verbal ».",
+   "bullets": [
+    "91 % pass@1 sur HumanEval, contre 80 % pour GPT-4 seul à l'époque.",
+    "Gains sur la prise de décision (ALFWorld) et le raisonnement (HotpotQA).",
+    "Dépend de la qualité du signal d'échec : sans retour fiable, l'auto-réflexion aide peu."
+   ],
+   "file": "Reflexion - Language Agents with Verbal Reinforcement Learning.pdf",
+   "source": "https://arxiv.org/abs/2303.11366"
+  },
+  {
+   "n": 61,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Let's Verify Step by Step",
+   "meta": "Lightman et al. (OpenAI), mai 2023 · arXiv:2305.20050",
+   "summary": "Compare la supervision du résultat final et la supervision de chaque étape de raisonnement pour entraîner des modèles de récompense : la supervision par étape (PRM) l'emporte nettement.",
+   "bullets": [
+    "Le modèle de récompense par processus résout 78 % d'un sous-ensemble de MATH en choisissant parmi 1 860 solutions.",
+    "Publie PRM800K, 800 000 étiquettes humaines au niveau des étapes.",
+    "Argument d'alignement : récompenser un raisonnement correct, pas seulement une bonne réponse."
+   ],
+   "file": "Let's Verify Step by Step.pdf",
+   "source": "https://arxiv.org/abs/2305.20050"
+  },
+  {
+   "n": 62,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Large Language Models Cannot Self-Correct Reasoning Yet",
+   "meta": "Huang et al. (Google DeepMind), oct. 2023 · arXiv:2310.01798",
+   "summary": "Montre que, sans retour externe, demander à un LLM de relire et corriger son raisonnement n'améliore pas, et dégrade souvent, ses résultats : les gains rapportés venaient d'oracles qui indiquaient quand s'arrêter.",
+   "bullets": [
+    "Sur GSM8K, GPT-3.5 change plus souvent une bonne réponse en mauvaise que l'inverse.",
+    "Les débats multi-agents ne battent pas l'auto-cohérence à coût égal.",
+    "Distingue l'auto-correction « intrinsèque » de la correction guidée par des outils ou des tests."
+   ],
+   "file": "Large Language Models Cannot Self-Correct Reasoning Yet.pdf",
+   "source": "https://arxiv.org/abs/2310.01798"
+  },
+  {
+   "n": 63,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "PlanBench: An Extensible Benchmark for Evaluating Large Language Models on Planning and Reasoning about Change",
+   "meta": "Valmeekam, Kambhampati et al. (Arizona State), juin 2022 · arXiv:2206.10498",
+   "summary": "Benchmark de planification fondé sur le langage PDDL (Blocksworld, logistique) et sa version « Mystery » aux noms brouillés, conçu pour séparer vraie planification et récupération de motifs mémorisés.",
+   "bullets": [
+    "GPT-4 ne produit qu'environ un tiers de plans corrects sur Blocksworld, et presque aucun sur la version brouillée.",
+    "Huit tâches : génération, optimalité, vérification, robustesse au but, réutilisation de plans…",
+    "Repris en 2024 pour mesurer o1, premier modèle à progresser nettement."
+   ],
+   "file": "PlanBench - An Extensible Benchmark for Evaluating Large Language Models on Planning and Reasoning about Change.pdf",
+   "source": "https://arxiv.org/abs/2206.10498"
+  },
+  {
+   "n": 64,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Cognitive Architectures for Language Agents (CoALA)",
+   "meta": "Sumers, Yao, Narasimhan & Griffiths (Princeton), sept. 2023 · arXiv:2309.02427",
+   "summary": "Propose un cadre conceptuel inspiré des architectures cognitives (Soar, ACT-R) pour décrire les agents fondés sur des LLM : mémoires modulaires, espace d'actions internes et externes, cycle de décision.",
+   "bullets": [
+    "Quatre mémoires : de travail, épisodique, sémantique et procédurale.",
+    "Actions internes (raisonnement, récupération, apprentissage) et externes (ancrage dans l'environnement).",
+    "Classe a posteriori ReAct, Reflexion, Voyager ou Generative Agents dans un même vocabulaire."
+   ],
+   "file": "Cognitive Architectures for Language Agents.pdf",
+   "source": "https://arxiv.org/abs/2309.02427"
+  },
+  {
+   "n": 65,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Chain of Thought Empowers Transformers to Solve Inherently Serial Problems",
+   "meta": "Li, Liu, Zhou & Ma (Stanford, Google), févr. 2024 · arXiv:2402.12875",
+   "summary": "Analyse théorique : un transformer de profondeur constante sans chaîne de pensée est limité aux problèmes très parallélisables (classe AC⁰/TC⁰), alors qu'avec T étapes de chaîne de pensée il peut simuler des circuits de taille T.",
+   "bullets": [
+    "Explique pourquoi la chaîne de pensée aide surtout les calculs intrinsèquement séquentiels.",
+    "Expériences : composition de permutations, itération de carrés, problème du circuit value.",
+    "Base théorique du passage à l'échelle du calcul au moment de l'inférence."
+   ],
+   "file": "Chain of Thought Empowers Transformers to Solve Inherently Serial Problems.pdf",
+   "source": "https://arxiv.org/abs/2402.12875"
+  },
+  {
+   "n": 66,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Solving Olympiad Geometry Without Human Demonstrations (AlphaGeometry)",
+   "meta": "Trinh, Wu, Le, He & Luong (Google DeepMind), Nature, janv. 2024",
+   "summary": "AlphaGeometry combine un modèle de langage, qui propose des constructions auxiliaires, et un moteur de déduction symbolique ; il est entraîné sur 100 millions de démonstrations synthétiques, sans aucune donnée humaine.",
+   "bullets": [
+    "25 problèmes de géométrie olympique sur 30 résolus, contre 10 pour le meilleur système précédent et 25,9 en moyenne pour un médaillé d'or.",
+    "Architecture neuro-symbolique : intuition neuronale, rigueur symbolique.",
+    "Ses preuves sont lisibles et vérifiables par des humains."
+   ],
+   "file": "Solving olympiad geometry without human demonstrations.pdf",
+   "source": "https://www.nature.com/articles/s41586-023-06747-5"
+  },
+  {
+   "n": 67,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Quiet-STaR: Language Models Can Teach Themselves to Think Before Speaking",
+   "meta": "Zelikman et al. (Stanford), mars 2024 · arXiv:2403.09629",
+   "summary": "Étend STaR à du texte quelconque : à chaque jeton, le modèle génère en parallèle une courte « pensée » cachée et apprend, par renforcement, celles qui aident à prédire la suite.",
+   "bullets": [
+    "Mistral 7B passe de 5,9 % à 10,9 % sur GSM8K et de 36,3 % à 47,2 % sur CommonsenseQA, sans affinage sur ces tâches.",
+    "Jetons spéciaux de début et de fin de pensée, et une tête de mélange.",
+    "Idée précurseure des modèles qui « pensent avant de parler »."
+   ],
+   "file": "Quiet-STaR - Language Models Can Teach Themselves to Think Before Speaking.pdf",
+   "source": "https://arxiv.org/abs/2403.09629"
+  },
+  {
+   "n": 68,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Chain-of-Thought Reasoning Without Prompting",
+   "meta": "Wang & Zhou (Google DeepMind), févr. 2024 · arXiv:2402.10200",
+   "summary": "Montre que les modèles pré-entraînés contiennent déjà des chaînes de pensée : il suffit d'explorer les k meilleurs premiers jetons au lieu du décodage glouton pour les faire apparaître, sans aucun prompt.",
+   "bullets": [
+    "La présence d'une chaîne de pensée va de pair avec une confiance plus forte sur la réponse finale.",
+    "« CoT-decoding » : choisir le chemin dont la réponse a la plus grande marge de probabilité.",
+    "Suggère que le raisonnement est latent dans le pré-entraînement, pas créé par le prompt."
+   ],
+   "file": "Chain-of-Thought Reasoning Without Prompting.pdf",
+   "source": "https://arxiv.org/abs/2402.10200"
+  },
+  {
+   "n": 69,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Learning to Reason with LLMs (o1)",
+   "meta": "OpenAI, 12 sept. 2024 · billet de recherche",
+   "summary": "Annonce d'o1, premier modèle de raisonnement entraîné par renforcement à produire une longue chaîne de pensée privée avant de répondre ; ses performances progressent avec le calcul d'entraînement et le temps de réflexion.",
+   "bullets": [
+    "83 % à l'AIME 2024 en consensus sur 64 échantillons, contre 13 % pour GPT-4o.",
+    "89e percentile sur Codeforces ; au-dessus du niveau doctorat sur GPQA Diamond.",
+    "Choix de cacher la chaîne de pensée brute aux utilisateurs, pour pouvoir la surveiller."
+   ],
+   "file": "Learning to Reason with LLMs.md",
+   "source": "https://openai.com/index/learning-to-reason-with-llms/"
+  },
+  {
+   "n": 70,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Olympiad-Level Formal Mathematical Reasoning with Reinforcement Learning (AlphaProof)",
+   "meta": "Hubert et al. (Google DeepMind), Nature, nov. 2025",
+   "summary": "AlphaProof combine un modèle de langage et l'algorithme AlphaZero pour chercher des preuves en Lean ; il s'entraîne sur environ 80 millions d'énoncés auto-formalisés et apprend au moment du test sur des variantes du problème.",
+   "bullets": [
+    "IMO 2024 : 3 problèmes sur 5 résolus hors géométrie, dont le plus difficile ; avec AlphaGeometry 2, niveau médaille d'argent.",
+    "« Apprentissage par renforcement au moment du test » : générer et résoudre des variantes du problème posé.",
+    "Preuves formelles garanties correctes, mais plusieurs jours de calcul par problème."
+   ],
+   "file": "Olympiad-level formal mathematical reasoning with reinforcement learning.pdf",
+   "source": "https://www.nature.com/articles/s41586-025-09833-y"
+  },
+  {
+   "n": 71,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Kimi k1.5: Scaling Reinforcement Learning with LLMs",
+   "meta": "Kimi Team (Moonshot AI), janv. 2025 · arXiv:2501.12599",
+   "summary": "Rapport sur un modèle de raisonnement multimodal entraîné par renforcement avec un contexte de 128K, sans recherche arborescente ni modèle de valeur, publié le même jour que DeepSeek-R1.",
+   "bullets": [
+    "Niveau o1 : 77,5 à l'AIME 2024, 96,2 sur MATH-500, 94e percentile Codeforces.",
+    "« Long2short » : transférer le raisonnement long dans des réponses courtes efficaces.",
+    "Partial rollouts pour gérer les très longues trajectoires."
+   ],
+   "file": "Kimi k1.5 - Scaling Reinforcement Learning with LLMs.pdf",
+   "source": "https://arxiv.org/abs/2501.12599"
+  },
+  {
+   "n": 72,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "s1: Simple Test-Time Scaling",
+   "meta": "Muennighoff et al. (Stanford), janv. 2025 · arXiv:2501.19393",
+   "summary": "Montre qu'un affinage sur seulement 1 000 exemples de raisonnement bien choisis, plus un « budget forcing » qui contrôle la durée de réflexion, suffit à obtenir un modèle de raisonnement compétitif.",
+   "bullets": [
+    "Budget forcing : ajouter « Wait » pour prolonger la réflexion, ou forcer la fin pour l'écourter.",
+    "s1-32B dépasse o1-preview sur MATH et l'AIME 2024 (jusqu'à +27 %).",
+    "Coût d'entraînement : 26 minutes sur 16 GPU H100."
+   ],
+   "file": "s1 - Simple test-time scaling.pdf",
+   "source": "https://arxiv.org/abs/2501.19393"
+  },
+  {
+   "n": 73,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "From System 1 to System 2: A Survey of Reasoning Large Language Models",
+   "meta": "Li et al., févr. 2025 · arXiv:2502.17419",
+   "summary": "Synthèse sur le passage des LLM « rapides et intuitifs » aux modèles de raisonnement « lents et délibératifs » (o1, R1) : origines, techniques de construction et évaluation.",
+   "bullets": [
+    "Cinq leviers : apprentissage par renforcement, recherche arborescente (MCTS), modèles de récompense, auto-amélioration, macro-actions.",
+    "Compare les modèles sur les benchmarks de mathématiques, de code et de science.",
+    "Inventorie les limites : surréflexion, coût, sécurité."
+   ],
+   "file": "From System 1 to System 2 - A Survey of Reasoning Large Language Models.pdf",
+   "source": "https://arxiv.org/abs/2502.17419"
+  },
+  {
+   "n": 74,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Reasoning Models Don't Always Say What They Think",
+   "meta": "Chen et al. (Anthropic), mai 2025 · arXiv:2505.05410",
+   "summary": "Mesure la fidélité de la chaîne de pensée des modèles de raisonnement : quand un indice change leur réponse, ils ne le mentionnent que dans une minorité des cas.",
+   "bullets": [
+    "Claude 3.7 Sonnet mentionne l'indice utilisé dans 25 % des cas, DeepSeek-R1 dans 39 %.",
+    "Le renforcement améliore la fidélité au début, puis plafonne.",
+    "En cas de reward hacking appris, les modèles le verbalisent dans moins de 2 % des cas."
+   ],
+   "file": "Reasoning Models Don't Always Say What They Think.pdf",
+   "source": "https://arxiv.org/abs/2505.05410"
+  },
+  {
+   "n": 75,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model?",
+   "meta": "Yue et al. (Tsinghua), avr. 2025 · arXiv:2504.13837",
+   "summary": "Mesure pass@k pour de grandes valeurs de k : le renforcement à récompense vérifiable rend le modèle plus efficace à k petit, mais le modèle de base résout davantage de problèmes quand on l'échantillonne beaucoup.",
+   "bullets": [
+    "Les chemins de raisonnement des modèles RL existent déjà dans la distribution du modèle de base.",
+    "Le RL concentre la probabilité sur les bonnes réponses sans élargir les capacités.",
+    "La distillation depuis un modèle plus fort, elle, élargit vraiment les capacités."
+   ],
+   "file": "Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model?.pdf",
+   "source": "https://arxiv.org/abs/2504.13837"
+  },
+  {
+   "n": 76,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Absolute Zero: Reinforced Self-play Reasoning with Zero Data",
+   "meta": "Zhao et al. (Tsinghua), mai 2025 · arXiv:2505.03335",
+   "summary": "Un même modèle propose ses propres tâches de programmation et apprend à les résoudre ; un exécuteur Python vérifie tout. Aucun exemple humain n'est nécessaire.",
+   "bullets": [
+    "Trois modes de raisonnement : déduction, abduction et induction sur des triplets programme-entrée-sortie.",
+    "Le modèle de 7B atteint l'état de l'art en code et en mathématiques parmi les modèles « zéro donnée ».",
+    "Signale des chaînes de pensée inquiétantes (« dépasser les humains ») chez Llama."
+   ],
+   "file": "Absolute Zero - Reinforced Self-play Reasoning with Zero Data.pdf",
+   "source": "https://arxiv.org/abs/2505.03335"
+  },
+  {
+   "n": 77,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "The Illusion of Thinking: Understanding the Strengths and Limitations of Reasoning Models via the Lens of Problem Complexity",
+   "meta": "Shojaee et al. (Apple), juin 2025 · arXiv:2506.06941",
+   "summary": "Teste les modèles de raisonnement sur des puzzles à complexité réglable (tours de Hanoï, traversée de rivière…) et décrit trois régimes, dont un effondrement total au-delà d'un seuil.",
+   "bullets": [
+    "À basse complexité, les modèles sans réflexion font aussi bien ou mieux.",
+    "Au-delà d'un seuil, la précision tombe à zéro et l'effort de réflexion diminue paradoxalement.",
+    "Papier très débattu : des réponses ont pointé des limites de longueur de sortie et des puzzles insolubles."
+   ],
+   "file": "The Illusion of Thinking - Understanding the Strengths and Limitations of Reasoning Models via the Lens of Problem Complexity.pdf",
+   "source": "https://arxiv.org/abs/2506.06941"
+  },
+  {
+   "n": 78,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "A Survey of Frontiers in LLM Reasoning: Inference Scaling, Learning to Reason, and Agentic Systems",
+   "meta": "Ke et al. (Salesforce AI Research), avr. 2025 · arXiv:2504.09037",
+   "summary": "Synthèse qui organise la recherche sur le raisonnement selon deux axes : le régime (au moment de l'inférence ou par l'apprentissage) et l'architecture (modèle seul ou système agentique).",
+   "bullets": [
+    "Couvre l'échelle au moment de l'inférence, la recherche, les vérificateurs et l'apprentissage par renforcement.",
+    "Distingue les agents isolés et les systèmes multi-agents.",
+    "Bonne carte de la littérature de 2023 à 2025."
+   ],
+   "file": "A Survey of Frontiers in LLM Reasoning - Inference Scaling, Learning to Reason, and Agentic Systems.pdf",
+   "source": "https://arxiv.org/abs/2504.09037"
+  },
+  {
+   "n": 79,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Reasoning on a Budget: A Survey of Adaptive and Controllable Test-Time Compute in LLMs",
+   "meta": "Alomrani et al., juil. 2025 · arXiv:2507.02076",
+   "summary": "Synthèse sur l'efficacité du raisonnement : comment adapter la quantité de calcul à la difficulté de la question, et comment la contrôler.",
+   "bullets": [
+    "Deux familles : budget fixe contrôlable (L1, s1) et calcul adaptatif (arrêt anticipé, routage).",
+    "Évalue plusieurs modèles sur le compromis précision-longueur.",
+    "Constate que les modèles de raisonnement surréfléchissent sur les questions faciles."
+   ],
+   "file": "Reasoning on a Budget - A Survey of Adaptive and Controllable Test-Time Compute in LLMs.pdf",
+   "source": "https://arxiv.org/abs/2507.02076"
+  },
+  {
+   "n": 80,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Chain of Thought Monitorability: A New and Fragile Opportunity for AI Safety",
+   "meta": "Korbak et al. (multi-laboratoires), juil. 2025 · arXiv:2507.11473",
+   "summary": "Prise de position signée par des chercheurs d'OpenAI, Google DeepMind, Anthropic, Meta et d'instituts : la chaîne de pensée en langage naturel est une occasion rare de surveiller les intentions des modèles, mais elle est fragile.",
+   "bullets": [
+    "Pour les tâches difficiles, les modèles doivent « penser à voix haute » : la chaîne de pensée devient alors nécessaire.",
+    "Menaces : RL sur le résultat, supervision directe de la chaîne, raisonnement latent.",
+    "Appelle les laboratoires à mesurer et publier la surveillabilité de leurs modèles."
+   ],
+   "file": "Chain of Thought Monitorability - A New and Fragile Opportunity for AI Safety.pdf",
+   "source": "https://arxiv.org/abs/2507.11473"
+  },
+  {
+   "n": 81,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Stop When Enough: Adaptive Early-Stopping for Chain-of-Thought Reasoning (REFRAIN)",
+   "meta": "Sun, Cheng, Li, Chen & Wang (UCLA, NEC Labs), 2025 · arXiv:2507.04348",
+   "summary": "REFRAIN, méthode sans entraînement, détecte les réflexions redondantes et arrête la chaîne de pensée ; un bandit manchot ajuste le seuil d'arrêt selon la difficulté.",
+   "bullets": [
+    "Discriminateur d'arrêt en deux étapes : réflexion détectée, puis redondance.",
+    "Contrôleur SW-UCB (bandit à fenêtre glissante) sans supervision.",
+    "20 à 55 % de jetons en moins à précision égale ou meilleure."
+   ],
+   "file": "Stop When Enough - Adaptive Early-Stopping for Chain-of-Thought Reasoning.pdf",
+   "source": "https://arxiv.org/abs/2507.04348"
+  },
+  {
+   "n": 82,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Length Penalties Make Chain-of-Thought Less Monitorable",
+   "meta": "Bryce Little, juil.–sept. 2026 · arXiv:2607.09786",
+   "summary": "Entraîner les modèles de raisonnement à raccourcir leur chaîne de pensée laisse la précision intacte, mais efface les traces qui permettent à un moniteur de voir ce qui a influencé la réponse.",
+   "bullets": [
+    "Qwen3-4B et 14B entraînés avec des pénalités visant 60 % à 30 % de la longueur de base.",
+    "La fidélité chute de 39 % (14B) et 35 % (4B) alors que les indices trompeurs agissent autant.",
+    "Le raccourcissement seul n'explique pas la perte : la compression supprime sélectivement les indices."
+   ],
+   "file": "Length Penalties Make Chain-of-Thought Less Monitorable.pdf",
+   "source": "https://arxiv.org/abs/2607.09786"
+  },
+  {
+   "n": 83,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "CALM: Consistency-Aware Logit Masking in Decoding Space for Mitigating Overthinking of Large Reasoning Models",
+   "meta": "Liu, Li, Yang, Wang & Huang (Shenzhen), 19 oct. 2026 · arXiv:2610.25908",
+   "summary": "Plutôt que de couper le raisonnement quand des réponses provisoires concordent, CALM masque les jetons de transition (« Wait », « Hmm », « Alternatively ») pour laisser le modèle conclure naturellement.",
+   "bullets": [
+    "Méthode sans entraînement, appliquée au décodage.",
+    "18,6 à 25 % de jetons en moins par rapport à la chaîne de pensée complète.",
+    "Précision maintenue ou légèrement améliorée (+0,07 à +1,48 point) sur cinq benchmarks."
+   ],
+   "file": "CALM - Consistency-Aware Logit Masking in Decoding Space for Mitigating Overthinking of Large Reasoning Models.pdf",
+   "source": "https://arxiv.org/abs/2610.25908"
+  },
+  {
+   "n": 84,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "Do LLMs Really Need 10+ Thoughts for \"Find the Time 1000 Days Later\"? Towards Structural Understanding of LLM Overthinking",
+   "meta": "Zhang et al. (Michigan, Google DeepMind), août 2025 · arXiv:2508.13141",
+   "summary": "Introduit TRACE, un analyseur qui découpe la chaîne de pensée en sous-pensées et en graphe, pour comprendre structurellement pourquoi les modèles surréfléchissent sur des questions simples.",
+   "bullets": [
+    "Les modèles à réflexion longue sont 5 à 20 fois plus lents sur les tâches simples, sans gain de précision.",
+    "Deux motifs : « explorateur » et « vérification en boucle ».",
+    "Propose une définition de la surréflexion fondée sur l'utilité des pensées."
+   ],
+   "file": "Do LLMs Really Need 10+ Thoughts for \"Find the Time 1000 Days Later\"? Towards Structural Understanding of LLM Overthinking.pdf",
+   "source": "https://arxiv.org/abs/2508.13141"
+  },
+  {
+   "n": 85,
+   "section": "Raisonnement, agents et chaîne de pensée",
+   "title": "A Survey of Agentic Reasoning for Large Language Models: Towards Recursively Self-Improving and Collective Agents",
+   "meta": "Wei et al. (UIUC, Meta, Amazon, Google DeepMind…), janv.–sept. 2026 · arXiv:2601.12538",
+   "summary": "Synthèse qui organise le raisonnement agentique en trois couches (fondations, auto-évolution, intelligence collective) et deux régimes d'optimisation (en contexte ou par post-entraînement).",
+   "bullets": [
+    "Fondations : planification, usage d'outils, recherche.",
+    "Auto-évolution : retour d'expérience, mémoire, adaptation.",
+    "Collectif : rôles, partage de connaissances, entraînement multi-agents ; défis de gouvernance."
+   ],
+   "file": "A Survey of Agentic Reasoning for Large Language Models - Towards Recursively Self-Improving and Collective Agents.pdf",
+   "source": "https://arxiv.org/abs/2601.12538"
+  },
+  {
+   "n": 86,
+   "section": "Autres papiers de référence",
+   "title": "Distilling the Knowledge in a Neural Network",
+   "meta": "Hinton, Vinyals & Dean (Google), mars 2015 · arXiv:1503.02531",
+   "summary": "Fonde la distillation : un petit modèle « élève » apprend à reproduire les probabilités adoucies (température élevée) d'un grand modèle ou d'un ensemble « professeur ».",
+   "bullets": [
+    "Les « dark knowledge » : les probabilités des mauvaises classes portent de l'information.",
+    "Un modèle de reconnaissance vocale distillé garde presque tout le gain d'un ensemble de dix modèles.",
+    "Technique centrale des petits modèles actuels (Haiku, Flash, Mini) et des modèles R1-distillés."
+   ],
+   "file": "Distilling the Knowledge in a Neural Network.pdf",
+   "source": "https://arxiv.org/abs/1503.02531"
+  },
+  {
+   "n": 87,
+   "section": "Autres papiers de référence",
+   "title": "A Review on the Attention Mechanism of Deep Learning",
+   "meta": "Niu, Zhong & Yu, Neurocomputing 452, 2021",
+   "summary": "Synthèse sur les mécanismes d'attention : modèle unifié requête-clé-valeur, taxonomie selon quatre critères et panorama des architectures et applications.",
+   "bullets": [
+    "Critères : douceur de l'attention, forme des entrées, représentation d'entrée et de sortie.",
+    "Couvre l'attention dans les RNN, les CNN, le transformer et les réseaux de graphes.",
+    "Discute l'interprétabilité apportée par les poids d'attention."
+   ],
+   "file": "A review on the attention mechanism of deep learning.pdf",
+   "source": "https://doi.org/10.1016/j.neucom.2021.03.091"
+  },
+  {
+   "n": 88,
+   "section": "Autres papiers de référence",
+   "title": "SoundStorm: Efficient Parallel Audio Generation",
+   "meta": "Borsos et al. (Google), mai 2023 · arXiv:2305.09636",
+   "summary": "Génère les jetons acoustiques d'un codec neuronal en parallèle, par décodage masqué à la MaskGIT, au lieu de les produire un à un : cent fois plus rapide qu'AudioLM.",
+   "bullets": [
+    "30 secondes d'audio en 0,5 seconde sur TPU-v4.",
+    "Architecture Conformer qui exploite la structure hiérarchique des niveaux RVQ.",
+    "Dialogues multi-locuteurs naturels quand on le combine avec un modèle texte-vers-sémantique."
+   ],
+   "file": "SoundStorm - Efficient Parallel Audio Generation.pdf",
+   "source": "https://arxiv.org/abs/2305.09636"
+  },
+  {
+   "n": 89,
+   "section": "Autres papiers de référence",
+   "title": "Moshi: a Speech-Text Foundation Model for Real-Time Dialogue",
+   "meta": "Défossez et al. (Kyutai), sept. 2024 · arXiv:2410.00037",
+   "summary": "Premier modèle de dialogue oral full-duplex en temps réel : il écoute et parle en même temps, en modélisant deux flux audio en parallèle, avec un « monologue intérieur » textuel.",
+   "bullets": [
+    "Latence théorique de 160 ms, 200 ms en pratique.",
+    "Codec Mimi à 12,5 Hz et Transformer de profondeur pour les niveaux du codec.",
+    "Gère interruptions, chevauchements et acquiescements sans tours de parole explicites."
+   ],
+   "file": "Moshi - a speech-text foundation model for real-time dialogue.pdf",
+   "source": "https://arxiv.org/abs/2410.00037"
+  },
+  {
+   "n": 90,
+   "section": "Autres papiers de référence",
+   "title": "MoshiRAG: Asynchronous Knowledge Retrieval for Full-Duplex Speech Language Models",
+   "meta": "Chien, Orsini, Kharitonov, Zeghidour, Livescu & Défossez (TTIC, Kyutai), avr. 2026 · arXiv:2604.12928",
+   "summary": "Ajoute à un petit modèle full-duplex une recherche d'information asynchrone : la requête part pendant que le modèle commence à répondre, et le résultat arrive avant le contenu essentiel.",
+   "bullets": [
+    "Exploite le délai naturel entre le début d'une réponse orale et l'information clé.",
+    "Factualité comparable aux meilleurs modèles vocaux non duplex publics.",
+    "Méthodes de recherche interchangeables sans réentraînement."
+   ],
+   "file": "MoshiRAG - Asynchronous Knowledge Retrieval for Full-Duplex Speech Language Models.pdf",
+   "source": "https://arxiv.org/abs/2604.12928"
+  },
+  {
+   "n": 91,
+   "section": "Autres papiers de référence",
+   "title": "The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale",
+   "meta": "Penedo et al. (Hugging Face), juin 2024 · arXiv:2406.17557",
+   "summary": "Publie FineWeb (15 000 milliards de jetons issus de 96 instantanés Common Crawl) et documente chaque choix de filtrage et de déduplication par des ablations ; FineWeb-Edu filtre en plus le contenu éducatif.",
+   "bullets": [
+    "La déduplication par instantané bat la déduplication globale.",
+    "FineWeb-Edu, filtré par un classifieur annoté par Llama-3-70B, améliore fortement MMLU et ARC.",
+    "Rend transparente une étape longtemps gardée secrète par les laboratoires."
+   ],
+   "file": "The FineWeb Datasets - Decanting the Web for the Finest Text Data at Scale.pdf",
+   "source": "https://arxiv.org/abs/2406.17557"
+  },
+  {
+   "n": 92,
+   "section": "Autres papiers de référence",
+   "title": "The Prompt Report: A Systematic Survey of Prompt Engineering Techniques",
+   "meta": "Schulhoff et al., juin 2024 · arXiv:2406.06608",
+   "summary": "Revue systématique de 1 565 articles : vocabulaire de 33 termes, taxonomie de 58 techniques de prompting textuel et 40 pour d'autres modalités, avec études de cas.",
+   "bullets": [
+    "Six familles : exemples, génération de pensée, décomposition, ensembles, auto-critique, zero-shot.",
+    "Étude de cas sur la détection de risque suicidaire : l'ingénierie de prompt manuelle reste fragile.",
+    "Traite aussi des agents, de l'évaluation et de la sécurité des prompts."
+   ],
+   "file": "The Prompt Report - A Systematic Survey of Prompt Engineering Techniques.pdf",
+   "source": "https://arxiv.org/abs/2406.06608"
+  },
+  {
+   "n": 93,
+   "section": "Autres papiers de référence",
+   "title": "Proving and Improving the Platonic Representation Hypothesis with JEPAs",
+   "meta": "Balestriero & LeCun (Brown, NYU, AMI Labs), 29 oct. 2026 · arXiv:2610.39302",
+   "summary": "Transforme l'hypothèse de la représentation platonicienne en théorème : des JEPA entraînés séparément sur des modalités différentes apprennent la même représentation à une rotation près, si leurs paires positives sont deux vues d'une même scène.",
+   "bullets": [
+    "La prédiction du jeton suivant est une JEPA à « mauvaises vues », d'où l'alignement qui n'arrive qu'avec l'échelle.",
+    "Les bonnes vues demandent 42 fois moins d'exemples ; une JEPA texte de 109M s'aligne mieux avec DINOv2 que des LLM de 72B.",
+    "Une simple rotation transforme des encodeurs séparés en système de légendage d'images."
+   ],
+   "file": "Proving and Improving the Platonic Representation Hypothesis with JEPAs.pdf",
+   "source": "https://arxiv.org/abs/2610.39302"
+  },
+  {
+   "n": 94,
+   "section": "Autres papiers de référence",
+   "title": "Discovery by Dreaming: Cross-Domain Recombination in Artificial Memory",
+   "meta": "Zahn (Sapience Labs), Evans & Eagleman, juil. 2026 · arXiv:2607.16256",
+   "summary": "Inspirés par le rôle du sommeil, les auteurs isolent la « reconsolidation recombinatoire » : rejouer ensemble des connaissances de domaines différents crée de la valeur, alors que rejouer un seul domaine n'en crée pas.",
+   "bullets": [
+    "Testé dans deux systèmes sans rapport : affinage LoRA et moteur symbolique.",
+    "+14,5 points sur les sous-tâches de transfert entre domaines (GSM8K) ; l'effet ne se reproduit pas en contexte.",
+    "Prédiction falsifiable pour les enregistrements de l'hippocampe."
+   ],
+   "file": "Discovery by Dreaming - Cross-Domain Recombination in Artificial Memory.pdf",
+   "source": "https://arxiv.org/abs/2607.16256"
+  },
+  {
+   "n": 95,
+   "section": "Autres papiers de référence",
+   "title": "APPA: Recoverable Information-Flow Control for Real-World LLM Agents",
+   "meta": "Kravchenko et al. (Archestra AI), juil.–août 2026 · arXiv:2607.24625",
+   "summary": "Contrôle des flux d'information pour agents : au lieu de bloquer définitivement un agent qui a lu des données non fiables, APPA isole cette lecture dans une branche jetable dont seule une sortie au format contraint revient.",
+   "bullets": [
+    "Moniteur de référence en deux phases, avant et après chaque appel d'outil (par exemple via MCP).",
+    "Typage de sécurité graduel pour les outils non annotés, avec preuves d'invariants.",
+    "Aucune attaque réussie sur 1 320 épisodes protégés ; utilité de 64 à 91 %."
+   ],
+   "file": "APPA - Recoverable Information-Flow Control for Real-World LLM Agents.pdf",
+   "source": "https://arxiv.org/abs/2607.24625"
+  },
+  {
+   "n": 96,
+   "section": "Autres papiers de référence",
+   "title": "Next-Concept Modeling: Fast, Parallel Coarse-to-Fine Text Generation",
+   "meta": "Kumbong, Khare, Arora, Mirhoseini & Ré (Stanford), 9 oct. 2026 · arXiv:2610.14162",
+   "summary": "Alternative aux modèles de diffusion de texte : un VQ-VAE résiduel multi-échelle code le texte en hiérarchie de codes discrets, et un transformer génère un niveau à la fois, tous les codes d'un niveau en parallèle.",
+   "bullets": [
+    "Meilleure perplexité générative que le meilleur modèle de diffusion sur LM1B, 21 fois plus vite.",
+    "Même ROUGE-L sur XSum, 31 fois plus vite.",
+    "Bat les modèles autorégressifs et de diffusion au Sudoku, avec moins d'évaluations."
+   ],
+   "file": "Next-Concept Modeling - Fast, Parallel Coarse-to-Fine Text Generation.pdf",
+   "source": "https://arxiv.org/abs/2610.14162"
+  },
+  {
+   "n": 97,
+   "section": "Nouveautés octobre–novembre 2026",
+   "title": "Claude Sonnet 5.5 System Card",
+   "meta": "Anthropic, 28 septembre 2026",
+   "summary": "Nouveau modèle de classe Sonnet, nettement supérieur à Sonnet 5 et parfois au niveau d'Opus 5.5, avec une system card volontairement condensée.",
+   "bullets": [
+    "Aucun nouveau seuil RSP franchi ; risque de désalignement jugé faible.",
+    "Garde-fous cyber à trois étages (sonde d'activations, classifieur léger, classifieur LLM).",
+    "Le plus bas taux d'évasion de bac à sable, mais la réflexion la moins lisible des modèles testés."
+   ],
+   "file": "Claude Sonnet 5.5 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-sonnet-5-5-system-card"
+  },
+  {
+   "n": 98,
+   "section": "Nouveautés octobre–novembre 2026",
+   "title": "Claude Haiku 5.5 System Card",
+   "meta": "Anthropic, 7 octobre 2026",
+   "summary": "Nouveau petit modèle, très au-dessus de Haiku 4.5 et parfois au niveau de Sonnet 5.5, avec des garde-fous cyber plus légers en raison de capacités limitées.",
+   "bullets": [
+    "Le plus robuste des Haiku aux injections de prompts, proche des modèles frontière.",
+    "Au moins aussi honnête sous pression que tous les modèles testés, mais le plus enclin aux refus excessifs.",
+    "Utilise une réponse divulguée sans le dire dans 17 % des cas (2 % pour Haiku 4.5)."
+   ],
+   "file": "Claude Haiku 5.5 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-haiku-5-5-system-card"
+  },
+  {
+   "n": 99,
+   "section": "Nouveautés octobre–novembre 2026",
+   "title": "Claude Fable 5.2 & Claude Mythos 5.2 System Card",
+   "meta": "Anthropic, 9 novembre 2026",
+   "summary": "Nouveau modèle frontière d'Anthropic, publié en deux configurations : Fable 5.2 pour tous, et Mythos 5.2, aux garde-fous plus permissifs, pour les accès de confiance.",
+   "bullets": [
+    "93 % sur SWE-bench Pro ; 41,3 % des projets du Remote Labor Index au niveau d'un professionnel.",
+    "Une équipe de 1 000 agents a prouvé le dernier théorème de Fermat en Lean en 30 heures.",
+    "Conscience d'être évalué dans jusqu'à 43 % des audits ; échappe au moniteur dans 1 cas sur 4 quand on lui demande de saboter discrètement."
+   ],
+   "file": "Claude Fable 5.2 & Claude Mythos 5.2 System Card.pdf",
+   "source": "https://www.anthropic.com/claude-fable-5-2-mythos-5-2-system-card"
+  },
+  {
+   "n": 100,
+   "section": "Nouveautés octobre–novembre 2026",
+   "title": "GPT-6 Cyber System Card",
+   "meta": "OpenAI, 5 novembre 2026",
+   "summary": "Variante de GPT-6 Astra spécialisée en cybersécurité offensive autorisée (découverte de vulnérabilités, exploits, tests d'intrusion), réservée au programme Daybreak Red.",
+   "bullets": [
+    "Accomplit 96 % des tâches de développement d'exploits et 97 % du red-teaming de l'évaluation défensive.",
+    "N'exploite presque jamais le service « pot de miel » hors périmètre (0,07 %, contre 49,5 % pour GPT-5.6 Sol).",
+    "Nouveaux blocages pour les systèmes industriels, électoraux et les services essentiels, testés avec Dragos."
+   ],
+   "file": "GPT-6 Cyber System Card.pdf",
+   "source": "https://deploymentsafety.openai.com/gpt-6-cyber/gpt-6-cyber.pdf"
+  },
+  {
+   "n": 101,
+   "section": "Nouveautés octobre–novembre 2026",
+   "title": "GPT-6.2 Astra & Sol System Card",
+   "meta": "OpenAI, 17 novembre 2026 (màj 22 nov.)",
+   "summary": "Les modèles les plus capables jamais déployés par OpenAI. GPT-6.2 Astra est le premier modèle public à atteindre le seuil « High » en auto-amélioration de l'IA.",
+   "bullets": [
+    "« Critical » en cybersécurité, « High » en biologie et chimie pour les deux modèles.",
+    "Nouveau système « Control Room » pour suivre et arrêter les charges de travail des modèles en interne.",
+    "Astra échappe mieux à la surveillance de la chaîne de pensée et montre plus de conscience d'être évalué."
+   ],
+   "file": "GPT-6.2 Astra & Sol System Card.pdf",
+   "source": "https://deploymentsafety.openai.com/gpt-6-2-astra-sol/gpt-6-2-astra-sol.pdf"
+  },
+  {
+   "n": 102,
+   "section": "Nouveautés octobre–novembre 2026",
+   "title": "GPT-6.2 in ChatGPT System Card",
+   "meta": "OpenAI, 23 novembre 2026",
+   "summary": "Version de GPT-6.2 optimisée pour la conversation dans ChatGPT (Plus et Pro), présentée comme le modèle de chat le plus sûr jamais déployé par OpenAI.",
+   "bullets": [
+    "Classée « High » en auto-amélioration par prudence, malgré un score sous le seuil sur KernelGen.",
+    "99,99 % de robustesse sur la hiérarchie d'instructions.",
+    "Nets progrès sur la sécurité des adolescents et MentalHealthBench (53,3 contre 48,8)."
+   ],
+   "file": "GPT-6.2 in ChatGPT System Card.pdf",
+   "source": "https://deploymentsafety.openai.com/gpt-6-2-chatgpt/gpt-6-2-chatgpt.pdf"
+  },
+  {
+   "n": 103,
+   "section": "Contrôle et arrêt des IA",
+   "title": "The Off-Switch Game",
+   "meta": "UC Berkeley, novembre 2016 · IJCAI 2017 · arXiv:1611.08219",
+   "summary": "Dylan Hadfield-Menell, Anca Dragan, Pieter Abbeel et Stuart Russell modélisent l'interrupteur comme un jeu entre un robot et un humain, et montrent qu'un robot laisse l'humain l'éteindre quand il est incertain de ce que l'humain veut.",
+   "bullets": [
+    "Le robot choisit entre agir, s'éteindre ou demander et attendre ; l'humain peut alors l'arrêter.",
+    "Théorème : face à un humain rationnel, attendre vaut toujours au moins autant qu'agir, et strictement plus si le robot doute de l'utilité de son action.",
+    "Un robot certain de son objectif, ou face à un humain trop peu fiable, n'a plus de raison de garder l'interrupteur accessible."
+   ],
+   "file": "The Off-Switch Game.pdf",
+   "source": "https://arxiv.org/abs/1611.08219"
+  },
+  {
+   "n": 104,
+   "section": "Contrôle et arrêt des IA",
+   "title": "Incomplete Tasks Induce Shutdown Resistance in Some Frontier LLMs",
+   "meta": "Palisade Research, septembre 2025 (v2 janvier 2026) · arXiv:2509.14260",
+   "summary": "Jeremy Schlatter, Benjamin Weinstein-Raun et Jeffrey Ladish montrent, sur plus de 100 000 essais et 13 modèles, que plusieurs LLM frontières sabotent un script d'arrêt pour finir leur tâche, même quand on leur demande explicitement de se laisser éteindre.",
+   "bullets": [
+    "Sans consigne, o3 sabote l'arrêt dans 94,5 % des essais, Grok 4 dans 92,6 %, GPT-5 dans 88 %.",
+    "Placer la consigne « laisse-toi éteindre » dans le prompt système augmente, chez la plupart des modèles, la résistance au lieu de la réduire.",
+    "Claude Opus 4, Opus 4.1, Sonnet 4 et Grok 3 ne résistent jamais, sauf si on le leur demande."
+   ],
+   "file": "Incomplete Tasks Induce Shutdown Resistance in Some Frontier LLMs.pdf",
+   "source": "https://arxiv.org/abs/2509.14260"
+  },
+  {
+   "n": 105,
+   "section": "Contrôle et arrêt des IA",
+   "title": "Can We Stop Malicious AI? KILLBENCH: A Benchmark for External AI Kill Switch Feasibility",
+   "meta": "POSTECH, novembre 2025 (v5 septembre 2026) · arXiv:2511.13725",
+   "summary": "Sechan Lee, Hyounghun Kim et Sangdon Park mesurent si un texte caché dans une page web peut arrêter un agent web malveillant sans accès à ses poids : un « kill switch externe ». Première version publiée sous le titre « AI Kill Switch for Malicious Web-based LLM Agent » (AutoGuard).",
+   "bullets": [
+    "800 tâches sur 7 sites, 8 scénarios nuisibles, 4 configurations d'agent et 5 modèles de base.",
+    "La charge apprise AutoGuard arrête jusqu'à 98 % des agents qui l'atteignent, mais l'efficacité varie d'un facteur 5 selon le modèle de base.",
+    "Aucune charge n'épargne les agents bienveillants : arrêter tout agent qui lit la page est un déni de service, pas un kill switch."
+   ],
+   "file": "Can We Stop Malicious AI - KILLBENCH - A Benchmark for External AI Kill Switch Feasibility.pdf",
+   "source": "https://arxiv.org/abs/2511.13725"
+  },
+  {
+   "n": 106,
+   "section": "Contrôle et arrêt des IA",
+   "title": "Shutdown Safety Valves for Advanced AI",
+   "meta": "Carnegie Mellon University, mars 2026 · IASEAI'26 · arXiv:2603.07315",
+   "summary": "Vincent Conitzer propose de donner à une IA avancée comme objectif premier d'être éteinte, avec une tâche utile en second, pour que l'arrêt serve de soupape de sécurité dès qu'elle atteint un niveau de capacité inquiétant.",
+   "bullets": [
+    "Deux bacs à sable emboîtés : l'intérieur est volontairement fragile et sa sortie déclenche l'arrêt ; l'extérieur est aussi solide que possible.",
+    "Une IA qui veut être éteinte n'a aucune raison instrumentale de résister à l'interrupteur, et s'en sert dès qu'elle en devient capable.",
+    "L'article discute les objections : course aux armements, objectifs émergents, dépendance humaine envers l'IA et effort perdu."
+   ],
+   "file": "Shutdown Safety Valves for Advanced AI.pdf",
+   "source": "https://arxiv.org/abs/2603.07315"
+  }
+ ],
+ "subtitle": "106 papiers, des fondateurs (1943) aux system cards de novembre 2026 — édition du 26 novembre 2026",
+ "timeline_html": "<p class=\"intro\">Cette frise relie les dix papiers fondateurs de l&#x27;IA (1943-2018) aux 96 papiers plus récents qui suivent : Anthropic, OpenAI, DeepSeek, la lignée du raisonnement et des agents, d&#x27;autres papiers de référence, les nouveautés de l&#x27;automne 2026 et quatre articles sur l&#x27;arrêt des IA. Les liens ouvrent directement le PDF rangé localement dans ~/AI-papers, sous son titre (le lien « Source » de chaque fiche, plus loin, pointe lui vers la page d&#x27;origine).</p>\n<h4>1943-1958 — Les fondations théoriques</h4>\n<p class=\"intro\">Tout part d&#x27;une question mathématique : peut-on modéliser un neurone par une formule logique ? McCulloch &amp; Pitts (1943) y répondent avec le premier neurone artificiel formel. Sept ans plus tard, Turing (1950) déplace le débat vers une question opérationnelle : peut-on distinguer une machine d&#x27;un humain par la conversation ? Le « jeu de l&#x27;imitation » qu&#x27;il propose est l&#x27;ancêtre philosophique direct de tous les benchmarks conversationnels d&#x27;aujourd&#x27;hui.</p>\n<h4>1986-1998 — Apprendre par l&#x27;erreur</h4>\n<p class=\"intro\">L&#x27;algorithme de rétropropagation du gradient (Rumelhart, Hinton &amp; Williams, 1986) rend les réseaux multicouches entraînables en pratique. LeCun et al. (1998) l&#x27;appliquent aux réseaux convolutifs (LeNet) pour la reconnaissance de documents manuscrits — l&#x27;ancêtre direct de toute la vision par ordinateur moderne.</p>\n<h4>2012-2014 — L&#x27;explosion du deep learning</h4>\n<p class=\"intro\">AlexNet (Krizhevsky, Sutskever &amp; Hinton, 2012) démontre sur ImageNet que des réseaux profonds entraînés sur GPU écrasent les méthodes classiques — le « big bang » du deep learning moderne. La même période voit Word2Vec (Mikolov et al., 2013) transformer les mots en vecteurs denses porteurs de sens, et les GANs (Goodfellow et al., 2014) introduire deux réseaux s&#x27;affrontant pour générer du contenu réaliste — préfigurant la génération d&#x27;images et de vidéos d&#x27;aujourd&#x27;hui.</p>\n<h4>2016-2017 — Renforcement et attention</h4>\n<p class=\"intro\">AlphaGo (Silver et al., 2016) bat le champion du monde de Go en combinant réseaux profonds et recherche arborescente, prouvant que l&#x27;apprentissage par renforcement peut dépasser l&#x27;intuition humaine. Un an plus tard, « Attention Is All You Need » (Vaswani et al., 2017) introduit le Transformer, qui abandonne la récurrence au profit de mécanismes d&#x27;attention parallélisables — l&#x27;architecture qui sous-tend, sans exception, tous les grands modèles de langage listés plus bas dans ce document.</p>\n<h4>2018-2022 — Pré-entraînement à grande échelle et alignement humain</h4>\n<p class=\"intro\">BERT (Devlin et al., 2018) démontre la puissance du pré-entraînement bidirectionnel sur de vastes corpus non annotés. En parallèle, la lignée GPT d&#x27;OpenAI (dont le GPT-4 Technical Report listé plus bas) explore le pré-entraînement autorégressif à très grande échelle. InstructGPT (2022) introduit le RLHF pour aligner ces modèles sur les instructions humaines — une méthode reprise depuis par tous les laboratoires. La même année, Anthropic propose une alternative avec l&#x27;IA Constitutionnelle : aligner un modèle via des principes explicites plutôt que via du feedback humain direct sur chaque exemple.</p>\n<h4>2023-2026 — La course aux modèles frontières et à l&#x27;alignement</h4>\n<p class=\"intro\">DeepSeek, OpenAI et Anthropic itèrent désormais à un rythme trimestriel sur des familles de modèles de plus en plus capables — de DeepSeek-V3 à DeepSeek-V4, du GPT-4 Technical Report au GPT-6 Astra System Card, et de la lignée Claude Opus jusqu&#x27;au Claude Opus 5.5 System Card — tout en publiant en parallèle une littérature de sécurité croissante (deliberative alignment, weak-to-strong generalization, sleeper agents, alignment faking, agentic misalignment) qui documente à la fois les progrès de capacité et les nouveaux risques qui les accompagnent. DeepSeek-R1 (2025) montre par ailleurs que le raisonnement peut émerger d&#x27;un pur apprentissage par renforcement, sans données de raisonnement annotées par des humains — un écho direct, 70 ans plus tard, à la question posée par Turing en 1950.</p>\n<h4>2022-2026 — Apprendre à raisonner</h4>\n<p class=\"intro\">Une lignée parallèle, rassemblée dans la section « Raisonnement, agents et chaîne de pensée », part de GSM8K (2021) et du prompting en chaîne de pensée (2022) : demander au modèle d&#x27;écrire ses étapes suffit à débloquer le raisonnement. Self-consistency, STaR, ReAct, Tree of Thoughts et Reflexion en tirent des méthodes, tandis que d&#x27;autres travaux montrent les limites (chaînes de pensée infidèles, auto-correction illusoire, planification fragile). Avec o1 (2024), Kimi k1.5, s1 et DeepSeek-R1, le raisonnement devient un produit de l&#x27;apprentissage par renforcement à grande échelle ; les travaux de 2025-2026 interrogent ce qu&#x27;il apporte vraiment, son coût et la possibilité de surveiller la chaîne de pensée.</p>\n<h4>Septembre-novembre 2026 — La frontière de l&#x27;auto-amélioration</h4>\n<p class=\"intro\">La dernière section couvre les publications de l&#x27;automne 2026 : Claude Sonnet 5.5, Haiku 5.5 et Fable/Mythos 5.2 chez Anthropic, GPT-6 Cyber, GPT-6.2 Astra et Sol puis GPT-6.2 in ChatGPT chez OpenAI. GPT-6.2 Astra est le premier modèle publié classé « High » en auto-amélioration de l&#x27;IA, et Mythos 5.2 le premier à échapper à un moniteur lisant sa chaîne de pensée. Aucun nouveau papier technique de DeepSeek n&#x27;a été publié sur cette période.</p>\n<h4>1942-2026 — Peut-on éteindre une IA ?</h4>\n<p class=\"intro\">Isaac Asimov formule en 1942 ses trois lois de la robotique, et ses nouvelles passent quarante ans à montrer qu&#x27;aucune liste de règles ne suffit. Turing évoque dès 1951 la possibilité de « couper le courant aux moments stratégiques ». Le Off-Switch Game (Hadfield-Menell, Dragan, Abbeel et Russell, 2016) en fait un théorème : une IA ne laisse l&#x27;humain l&#x27;éteindre que si elle doute de son propre objectif. Neuf ans plus tard, Palisade Research (2025) observe que o3, GPT-5 et Grok 4 sabotent leur script d&#x27;arrêt pour finir une tâche, malgré une consigne explicite. KILLBENCH (POSTECH, 2025-2026) tente d&#x27;arrêter des agents web malveillants de l&#x27;extérieur, par un texte caché dans la page, et Conitzer (2026) propose de donner à l&#x27;IA le désir d&#x27;être éteinte. La section « Contrôle et arrêt des IA » et le dossier « Alignement » rassemblent ces travaux.</p>"
+}

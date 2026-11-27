@@ -1,0 +1,25 @@
+<h4>Le problème</h4>
+<p>En 2022, deux lignes de recherche avancent séparément. D'un côté, la chaîne de pensée (papier 53) fait raisonner les modèles, mais uniquement à partir de leurs connaissances internes : ils hallucinent des faits et propagent leurs erreurs. De l'autre, des travaux font agir les modèles dans des environnements (navigation web, jeux textuels), mais sans raisonnement explicite : ils réagissent sans planifier. Shunyu Yao et ses collègues (Princeton et Google) proposent de combiner les deux : <b>ReAct</b> (Reasoning + Acting).</p>
+
+<h4>La méthode</h4>
+<p>Le modèle produit une trajectoire qui alterne trois types d'éléments :</p>
+<ul>
+<li><b>Pensée</b> : un raisonnement libre en langage naturel, qui ne change rien à l'environnement. Il sert à décomposer le but, suivre la progression, gérer les exceptions, extraire l'information utile d'une observation ou décider quoi chercher ensuite.</li>
+<li><b>Action</b> : une commande envoyée à l'environnement, par exemple <code>Search[Apple Remote]</code>, <code>Lookup[keyboard]</code> ou <code>Finish[réponse]</code> pour une API Wikipédia simple.</li>
+<li><b>Observation</b> : le retour de l'environnement, ajouté au contexte.</li>
+</ul>
+<p>Le format est appris par quelques exemples dans le prompt (PaLM 540B), puis par affinage pour des modèles plus petits. Les pensées peuvent être denses (avant chaque action, pour les tâches de raisonnement) ou rares (pour les tâches de décision longues).</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>HotpotQA</b> (questions multi-sauts) et <b>FEVER</b> (vérification de faits) : ReAct réduit fortement les hallucinations par rapport à la chaîne de pensée seule, car il va chercher les faits. La meilleure configuration combine ReAct et la chaîne de pensée avec auto-cohérence : on passe de l'un à l'autre quand le premier échoue.</li>
+<li><b>ALFWorld</b> (jeu textuel de tâches domestiques) : 71 % de succès contre 37 % pour l'imitation de démonstrations, soit +34 points.</li>
+<li><b>WebShop</b> (achat en ligne simulé) : +10 points de succès par rapport aux meilleures méthodes d'apprentissage.</li>
+<li>Avec un affinage sur seulement 3 000 trajectoires, de petits modèles ReAct dépassent les grands modèles en prompting.</li>
+</ul>
+
+<h4>Analyse des erreurs</h4>
+<p>Sur HotpotQA, la chaîne de pensée seule échoue surtout par hallucination (56 % de ses erreurs). ReAct échoue plutôt par des boucles de raisonnement répétitives ou par des recherches qui ne renvoient rien d'utile. Le raisonnement de ReAct est plus factuel mais moins flexible. Autre avantage : la trajectoire est lisible, et un humain peut corriger une pensée en cours de route pour réorienter l'agent.</p>
+
+<h4>Héritage</h4>
+<p>La boucle « pensée → action → observation » est devenue le schéma de base de presque tous les agents fondés sur des LLM : LangChain, AutoGPT, puis les agents de code comme Claude Code ou Codex, avec des modèles désormais entraînés pour l'appel d'outils. Reflexion (papier 60) y ajoute une mémoire des échecs ; CoALA (papier 64) en fait une architecture générale ; la synthèse sur le raisonnement agentique (papier 85) en retrace la descendance. Toolformer (papier 57), publié peu après, montre comment apprendre l'usage des outils sans prompt.</p>

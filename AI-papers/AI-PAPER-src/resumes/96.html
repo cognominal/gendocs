@@ -1,0 +1,24 @@
+<h4>Le problème</h4>
+<p>Les LLM génèrent le texte jeton par jeton, de gauche à droite : c'est lent, car chaque jeton exige un passage complet du modèle. Les <b>modèles de diffusion de texte</b> tentent de générer plusieurs jetons en parallèle en partant d'un texte bruité ou masqué, mais ils restent généralement moins bons que les modèles autorégressifs et demandent beaucoup d'étapes de débruitage. Hermann Kumbong, Ishan Khare et leurs collègues du groupe de Christopher Ré et Azalia Mirhoseini à Stanford proposent une troisième voie : le <b>Next-Concept Modeling</b> (NCM), qui génère le texte du grossier au fin, comme un peintre qui esquisse avant de détailler.</p>
+
+<h4>La méthode</h4>
+<p>NCM comporte deux composants :</p>
+<ol>
+<li><b>Un VQ-VAE résiduel multi-échelle</b> encode un texte en une <b>hiérarchie de codes discrets</b>. Le premier niveau contient peu de codes, qui capturent le sens global (les « concepts »). Chaque niveau suivant ajoute plus de codes, qui affinent progressivement le résidu, jusqu'au détail des jetons. C'est la même idée de quantification résiduelle que dans les codecs audio (papiers 88 et 89), mais avec une résolution croissante d'un niveau à l'autre.</li>
+<li><b>Un transformer</b> génère cette hiérarchie <b>un niveau à la fois</b> : chaque niveau est conditionné par tous les niveaux précédents, mais tous les codes d'un même niveau sont générés <b>en parallèle</b>. Le nombre de passes du modèle est donc égal au nombre de niveaux, pas au nombre de jetons.</li>
+</ol>
+<p>Le décodeur du VQ-VAE reconstruit ensuite le texte à partir des codes.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>LM1B</b> : meilleure perplexité générative que le meilleur modèle de diffusion de texte, avec une génération <b>21 fois plus rapide</b>.</li>
+<li><b>OpenWebText</b> : compétitif avec les modèles de diffusion et <b>10 fois plus rapide</b>.</li>
+<li><b>XSum</b> (résumé) : même ROUGE-L que les meilleures références, <b>31 fois plus vite</b>.</li>
+<li><b>Sudoku</b> : NCM dépasse à la fois les modèles autorégressifs et les modèles de diffusion, avec moins d'évaluations du modèle. Les tâches à contraintes globales profitent d'une génération qui décide d'abord de la structure d'ensemble.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>Les expériences portent sur des modèles et des jeux de données de taille modeste par rapport aux LLM frontière. La qualité dépend fortement de l'autoencodeur : un texte mal reconstruit limite la qualité finale. Les comparaisons principales sont faites avec les modèles de diffusion ; l'écart avec les modèles autorégressifs de même taille sur la qualité pure reste à préciser à grande échelle.</p>
+
+<h4>Portée</h4>
+<p>NCM s'inscrit dans la recherche d'alternatives à la génération jeton par jeton, aux côtés des modèles de diffusion et des prédictions de plusieurs jetons à la fois (comme la prédiction multi-jetons de DeepSeek-V3, papier 32). Il rejoint aussi l'idée de raisonner au niveau des concepts plutôt que des jetons, défendue par les travaux sur les JEPA (papier 93). Si l'approche tient à l'échelle, elle pourrait réduire fortement la latence et le coût de génération.</p>

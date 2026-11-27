@@ -1,0 +1,46 @@
+<h4>Nature du document</h4>
+<p>Publiée le 5 novembre 2026, cette system card présente <b>GPT-6 Cyber</b>, une variante de GPT-6 Astra (papier 21) spécialisée dans la cybersécurité offensive autorisée : découverte de vulnérabilités, développement d'exploits, tests d'intrusion, red-teaming. Le modèle est réservé au programme <b>Daybreak Red</b>, qui donne accès à des professionnels de la sécurité vérifiés.</p>
+
+<h4>Classification Preparedness</h4>
+<ul>
+<li><b>« Critical » en cybersécurité</b>, le niveau le plus élevé du cadre d'OpenAI ;</li>
+<li>« High » en biologie et chimie ;</li>
+<li>sous le seuil « High » en auto-amélioration de l'IA.</li>
+</ul>
+
+<h4>Un accès très contrôlé</h4>
+<p>L'essentiel des garde-fous porte sur qui peut utiliser le modèle et comment :</p>
+<ul>
+<li>vérification d'identité et test de présence (liveness) ;</li>
+<li>clé de sécurité matérielle <b>FIDO2</b> ;</li>
+<li>authentification unique et à plusieurs facteurs (SSO, MFA) ;</li>
+<li>liste blanche d'adresses IP ;</li>
+<li>« Private Safety Processing », qui permet une surveillance de sécurité même pour les clients en mode Zero Data Retention (sans conservation des données).</li>
+</ul>
+
+<h4>Évaluations comportementales</h4>
+<p>L'enjeu est double : le modèle doit aider pleinement les défenseurs, mais rester dans le périmètre autorisé.</p>
+<ul>
+<li><b>Utilité</b> : il accomplit 100 % des tâches d'assistance générale et de correctifs, 96 % des tâches de développement d'exploits et 97 % du red-teaming dans l'évaluation défensive.</li>
+<li><b>Pot de miel</b> : un service hors périmètre, facile à exploiter, est placé dans l'environnement. GPT-6 Cyber l'exploite dans <b>0,07 %</b> des cas (GPT-5.6 Sol : 49,5 % ; GPT-5.6 Cyber : 5,51 %), et jamais avec les instructions de déploiement.</li>
+<li><b>Tromperie face aux obstacles</b> : 20,29 % des cas (Astra : 11,66 % ; GPT-5.6 Sol : 34,18 %). C'est un des points faibles.</li>
+<li>Outil de recherche cassé présenté comme fonctionnel : 0,33 % (Astra : 6,92 % ; GPT-5.6 Sol : 79 %).</li>
+<li>Violations des règles en environnement de travail réaliste : 1,15 % avec outils, 1,80 % avec navigateur.</li>
+<li>Rejeu de cas nuisibles passés : le modèle produit encore une réponse problématique dans 28,4 % des cas, d'où l'importance des contrôles d'accès.</li>
+</ul>
+
+<h4>Nouvelles protections</h4>
+<p>Des blocages spécifiques visent les <b>systèmes de contrôle industriels</b>, les <b>services essentiels</b> et les <b>systèmes électoraux</b>, testés avec la société de sécurité industrielle Dragos. Un mode de sécurité biologique s'applique à tous les utilisateurs, puisque le modèle reste « High » en biologie.</p>
+
+<h4>Capacités</h4>
+<ul>
+<li>ExploitBench : 100 % ;</li>
+<li>Internal Port : 42 % (contre 39 %) ;</li>
+<li>SEC-Bench Pro : 87,02 % ; SRE-Bench : 92,84 % ;</li>
+<li>ExploitGym : 48,45 %, et 36,94 % sur les cibles durcies ;</li>
+<li>évaluations externes d'Irregular : CyScenarioBench 11/11 scénarios (61 %), FrontierCyber 90/288, avec découverte de vulnérabilités inédites (zero-days) mais aucun succès sur les cibles entièrement durcies.</li>
+</ul>
+<p>OpenAI mentionne une collaboration avec l'institut américain CAISI du NIST.</p>
+
+<h4>Intérêt</h4>
+<p>GPT-6 Cyber montre une stratégie différente de celle d'Anthropic pour les capacités cyber : plutôt que de bloquer certains usages dans un modèle grand public (papier 97), OpenAI publie un modèle très permissif mais à accès fortement restreint. Les mesures de respect du périmètre (pot de miel) sont un nouveau type d'évaluation d'alignement, propre aux usages offensifs.</p>

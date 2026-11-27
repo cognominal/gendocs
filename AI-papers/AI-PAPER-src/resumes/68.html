@@ -1,0 +1,22 @@
+<h4>La question</h4>
+<p>Pour qu'un modèle raisonne étape par étape, on utilise généralement un prompt : des exemples de chaîne de pensée (papier 53) ou la formule « Réfléchissons étape par étape ». Ou bien on affine le modèle sur des raisonnements. Xuezhi Wang et Denny Zhou (Google DeepMind) posent une question plus fondamentale : les modèles pré-entraînés savent-ils déjà raisonner, sans qu'on le leur demande ? Leur réponse : oui, mais le <b>décodage glouton</b> cache cette capacité.</p>
+
+<h4>L'observation</h4>
+<p>Avec le décodage glouton (choisir toujours le jeton le plus probable), un modèle à qui l'on pose une question de mathématiques répond souvent directement, et souvent faux. Mais si l'on regarde les <b>k meilleurs premiers jetons</b> plutôt que le seul meilleur, puis qu'on continue en glouton à partir de chacun, certains de ces chemins contiennent spontanément une chaîne de pensée qui mène à la bonne réponse. Par exemple, à la question « J'ai 3 pommes, mon père a 2 pommes de plus que moi. Combien avons-nous de pommes au total ? », le chemin glouton répond « 5 », tandis qu'un chemin qui commence par « J'ai » détaille le calcul et trouve 8.</p>
+
+<h4>Le CoT-decoding</h4>
+<p>Comment choisir le bon chemin sans connaître la réponse ? Les auteurs remarquent que les chemins qui contiennent une chaîne de pensée donnent une <b>confiance plus élevée</b> sur la réponse finale. Ils mesurent cette confiance par l'écart de probabilité entre le premier et le second jeton candidat, moyenné sur les jetons de la réponse. La méthode, appelée <b>CoT-decoding</b>, choisit parmi les k chemins celui dont la réponse a la plus grande marge.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur GSM8K, avec PaLM-2 Large, la précision passe de 34,8 % en glouton à 63,2 % avec CoT-decoding, sans aucun prompt.</li>
+<li>Des gains comparables sur Mistral et Gemma, et sur des modèles de tailles variées.</li>
+<li>La méthode s'applique aussi aux modèles déjà affinés sur des instructions, avec des gains plus faibles car ils raisonnent déjà plus souvent spontanément.</li>
+<li>Combiné avec un prompt de chaîne de pensée, le CoT-decoding apporte encore un gain.</li>
+</ul>
+
+<h4>Ce que cela révèle</h4>
+<p>La présence de chaînes de pensée dans les chemins alternatifs varie selon les tâches. Elle est fréquente pour les tâches courantes dans les données de pré-entraînement, comme l'arithmétique simple. Elle est rare pour les tâches synthétiques complexes ou très spécifiques, où le modèle tend à reproduire des heuristiques superficielles. Les prompts de chaîne de pensée « injectent » donc parfois un raisonnement que le modèle n'aurait pas produit, et parfois ne font que révéler une capacité latente.</p>
+
+<h4>Héritage</h4>
+<p>Ce travail soutient l'idée que le raisonnement est en partie déjà présent après le pré-entraînement, et que les méthodes ultérieures le révèlent et le renforcent plutôt que de le créer. C'est aussi la conclusion, plus nette, de « Does Reinforcement Learning Really Incentivize Reasoning Capacity? » (papier 75). Le lien entre chaîne de pensée et confiance du modèle est également exploité par les méthodes d'arrêt anticipé (papiers 81 et 83).</p>

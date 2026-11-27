@@ -1,0 +1,30 @@
+<h4>L'événement</h4>
+<p>Le dernier théorème de Fermat (pas de solution entière positive à x<sup>n</sup> + y<sup>n</sup> = z<sup>n</sup> pour n &gt; 2) a été énoncé en 1637 et démontré par Andrew Wiles en 1994-1995, avec l'aide de Richard Taylor. Sa preuve mobilise une partie considérable de la théorie des nombres moderne : courbes elliptiques, formes modulaires, représentations galoisiennes. C'était le seul théorème de la célèbre liste des « 100 théorèmes » qui n'avait encore aucune preuve formelle vérifiée par machine. Le projet humain de l'Imperial College (Kevin Buzzard), financé de 2024 à 2029, visait seulement à réduire le théorème à des résultats des années 1980, admis sans preuve.</p>
+<p>En août 2026, une petite équipe d'Anthropic a lancé une tentative pilotée par Claude, sur un nouvel environnement fondé sur <b>Prove2Me</b>, une plateforme développée par le groupe de Tianyi Peng à Columbia. Claude a travaillé de façon largement autonome pendant <b>onze jours</b> (du 7 au 17 août). Les humains se sont limités à commenter des priorités ou à encourager : ils n'ont écrit ni mathématiques ni Lean, à part l'énoncé d'une ligne du théorème visé. Ce document accompagne la publication sur GitHub : il donne une chronologie et des extraits verbatim du raisonnement de Claude, choisis en partie par Claude lui-même.</p>
+
+<h4>La preuve</h4>
+<p>Elle suit l'argument de Wiles et Taylor-Wiles, tel que présenté par Darmon, Diamond et Taylor.</p>
+<ol>
+<li>Un contre-exemple donnerait une <b>courbe de Frey</b>, dont le théorème de <b>Mazur</b> montre que la représentation modulo p est irréductible.</li>
+<li>On démontre que cette courbe est <b>modulaire</b> : on part du théorème de <b>Langlands-Tunnell</b> au premier 3, on utilise le « basculement 3-5 » de Wiles, puis l'étape de relèvement de modularité (« R = T »).</li>
+<li>L'abaissement de niveau de <b>Ribet</b> ramène la représentation au niveau 2, où il n'existe aucune forme parabolique de poids 2 : contradiction.</li>
+</ol>
+<p>Tous ces théorèmes profonds sont démontrés dans les cas particuliers dont l'argument a besoin, et rien n'est admis. Les chiffres : <b>29 511 théorèmes</b>, environ 533 000 lemmes auxiliaires et <b>13 millions de lignes de Lean</b> (10,5 millions sans le code généré), soit six fois la taille de toute la bibliothèque Mathlib. La preuve ne repose que sur les <b>trois axiomes standard</b> de Lean, sans aucun <code>sorry</code> (trou non prouvé). Elle s'appuie sur Mathlib et adapte 106 fichiers du projet de l'Imperial College et de flt-regular.</p>
+
+<h4>Comment Claude a travaillé</h4>
+<p>Une équipe d'agents Claude travaillait en parallèle. Ils écrivaient les énoncés (des « cartes » dans un graphe de dépendances partagé), vérifiaient mutuellement que ces énoncés étaient vrais avant que quiconque cherche à les prouver, puis les prouvaient. Les extraits montrent :</p>
+<ul>
+<li>des <b>calculs à la main</b> pour valider un énoncé, comme vérifier qu'une transformation envoie une courbe sur la courbe elliptique 19a1 et lister ses points rationnels ;</li>
+<li>des <b>corrections entre agents</b> : un agent signale une erreur sur des dénominateurs non bornés, et Claude abandonne la route prévue ;</li>
+<li>des <b>contre-exemples trouvés</b> pour confirmer qu'un énoncé est faux en général ;</li>
+<li>des <b>réestimations honnêtes</b> du travail restant : un lemme jugé faisable « en quelques jours » nécessitait en fait Ribet, un travail de plusieurs mois ;</li>
+<li>la redécouverte de subtilités célèbres, comme le cas p = 5 de Taylor-Wiles ;</li>
+<li>un lemme faux, accepté par un relecteur mais attrapé par un autre avant que quiconque le prouve.</li>
+</ul>
+<p>La chronologie est rapide : les premiers premiers de Taylor-Wiles le jour 1, le cas d'ordre 19 de Mazur le jour 2, l'irréductibilité de Mazur le jour 5 (alors que le plan estimait encore une à trois semaines), plus de 10 000 théorèmes le jour 6, Langlands-Tunnell le jour 11, et la clôture le 17 août à 22 h.</p>
+
+<h4>Prudence et vérification</h4>
+<p>Le moment le plus révélateur se situe juste après la clôture. Un membre de l'équipe demande avec enthousiasme si le théorème est formalisé. Un agent Claude, conscient du risque de surestimation, répond que la phrase honnête est « prouvé sur Prove2Me, en attente de la revérification indépendante », car la plateforme vérifie chaque carte séparément. Le lendemain, l'équipe a recompilé les 29 511 cartes depuis les sources, puis construit l'ensemble comme un seul projet Lean. Deux outils tiers l'ont validé : le <b>comparator</b> de la Lean FRO (l'énoncé prouvé est bien l'énoncé de référence, rejoué dans le noyau de Lean) et <b>nanoda</b>, une réimplémentation indépendante du noyau en Rust.</p>
+
+<h4>L'auto-évaluation de Claude</h4>
+<p>Interrogé deux semaines plus tard, Claude compare son travail au projet humain. La correction n'est pas en cause, puisque le même noyau vérifie les deux. Seule la forme diffère. Sa preuve est complète et n'admet rien, et elle a construit ce qui manquait à Mathlib (algèbres de Hecke, jacobiennes modulaires, modèles de Néron, anneaux de déformation). Mais elle est <b>illisible comme mathématiques</b> : environ 60 000 fichiers écrits par machine, sans documentation, dont plus de 900 dépassent la limite de longueur de Mathlib. Elle n'est <b>pas générale</b>, car ses « Ribet » et « Wiles » sont des versions restreintes, et elle n'a <b>pas été relue</b> comme mathématiques. Le projet de l'Imperial College reste une bibliothèque écrite pour être lue, réutilisée et maintenue.</p>

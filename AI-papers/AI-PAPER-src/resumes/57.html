@@ -1,0 +1,34 @@
+<h4>Le paradoxe</h4>
+<p>Les grands modèles de langage savent résoudre des tâches nouvelles à partir de quelques exemples, mais échouent sur des choses simples pour un programme : l'arithmétique exacte, les faits récents, la date du jour, les langues peu dotées. Des outils externes résolvent facilement ces problèmes. Les approches antérieures pour connecter LLM et outils demandaient soit beaucoup d'annotations humaines, soit un prompt spécifique à chaque tâche. Timo Schick et ses collègues de Meta veulent qu'un modèle apprenne <b>seul</b>, de façon auto-supervisée, quels outils appeler, quand, avec quels arguments, et comment utiliser le résultat.</p>
+
+<h4>La méthode</h4>
+<p>Les appels d'API sont représentés comme du texte inséré dans la phrase, par exemple : « Sur 1 400 participants, 400 (soit <code>[Calculator(400/1400) → 0.29]</code> 29 %) ont réussi. » Le pipeline a trois étapes :</p>
+<ol>
+<li><b>Échantillonnage</b> : avec quelques démonstrations par outil dans le prompt, GPT-J propose, dans un grand corpus de texte (un sous-ensemble de CCNet), des positions où un appel pourrait être utile et des appels candidats.</li>
+<li><b>Exécution</b> : chaque appel est exécuté et son résultat récupéré.</li>
+<li><b>Filtrage</b> : on garde un appel seulement s'il <b>réduit la perte</b> du modèle sur les jetons suivants, par rapport à l'absence d'appel ou à un appel sans résultat. Autrement dit, l'outil est gardé s'il aide vraiment à prédire la suite du texte.</li>
+</ol>
+<p>On affine ensuite le modèle sur le corpus enrichi des appels retenus. Comme ce corpus reste le même texte qu'avant, le modèle ne perd pas ses capacités générales de modélisation du langage.</p>
+
+<h4>Les outils</h4>
+<ul>
+<li>un système de questions-réponses (Atlas) ;</li>
+<li>une recherche Wikipédia (BM25) ;</li>
+<li>une calculatrice ;</li>
+<li>un calendrier qui renvoie la date du jour ;</li>
+<li>un traducteur (NLLB) vers l'anglais.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li>Toolformer (GPT-J, 6,7 milliards de paramètres) dépasse nettement GPT-J sans outils et souvent <b>GPT-3 175B</b> en zero-shot sur les tâches de connaissances (LAMA), de mathématiques (ASDiv, SVAMP, MAWPS), de questions-réponses et de raisonnement temporel.</li>
+<li>Le modèle choisit lui-même l'outil : la calculatrice pour les maths, la recherche pour les faits.</li>
+<li>La perplexité sur du texte ordinaire ne se dégrade pas.</li>
+<li>La capacité à bien utiliser les outils n'apparaît qu'à partir d'environ 775 millions de paramètres.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>Les outils ne peuvent pas être enchaînés (le résultat d'un outil ne sert pas d'entrée à un autre), car chaque appel est généré indépendamment. Le modèle n'interagit pas avec l'outil : il ne peut pas reformuler une recherche décevante. La méthode est coûteuse en échantillonnage pour certains outils, et le modèle reste sensible à la formulation exacte de l'entrée pour décider d'appeler un outil.</p>
+
+<h4>Héritage</h4>
+<p>Toolformer a montré qu'un modèle pouvait apprendre l'usage d'outils à partir d'un signal auto-supervisé simple. Quelques mois plus tard, OpenAI lançait l'appel de fonctions (« function calling ») dans son API, puis les plugins ChatGPT. Aujourd'hui, les modèles sont entraînés directement à appeler des outils, souvent dans des boucles agentiques à la ReAct (papier 56) et via des protocoles comme MCP, dont la sécurité est l'objet d'APPA (papier 95).</p>

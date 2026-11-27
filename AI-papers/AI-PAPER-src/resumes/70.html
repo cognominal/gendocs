@@ -1,0 +1,28 @@
+<h4>Le contexte</h4>
+<p>En juillet 2024, Google DeepMind annonçait qu'AlphaProof et AlphaGeometry 2 (voir papier 66) avaient obtenu ensemble l'équivalent d'une médaille d'argent aux Olympiades internationales de mathématiques (IMO). L'article de Nature publié en novembre 2025 (Thomas Hubert et al.) décrit en détail AlphaProof, la partie qui traite l'algèbre, l'arithmétique et la combinatoire.</p>
+
+<h4>Le principe : AlphaZero pour les preuves</h4>
+<p>AlphaProof travaille en <b>Lean</b>, un assistant de preuve où chaque démonstration est vérifiée mécaniquement. Prouver un théorème devient un jeu :</p>
+<ul>
+<li>l'état est le but courant de la preuve en Lean ;</li>
+<li>une action est une « tactique » Lean proposée par le modèle ;</li>
+<li>la partie est gagnée quand Lean accepte la preuve complète.</li>
+</ul>
+<p>Comme AlphaZero (successeur d'AlphaGo, papier 8), AlphaProof combine un réseau qui propose des actions et estime la valeur des états, et une <b>recherche arborescente</b> qui explore les preuves possibles. Une adaptation importante : un but peut se décomposer en plusieurs sous-buts indépendants, qu'il faut tous prouver (arbre ET-OU).</p>
+
+<h4>Les données</h4>
+<p>Le principal obstacle est le manque de problèmes formalisés. AlphaProof contourne ce manque par l'<b>auto-formalisation</b> : un modèle Gemini affiné traduit environ un million d'énoncés en langage naturel en environ <b>80 millions d'énoncés Lean</b>. Beaucoup de traductions sont imparfaites, voire fausses, mais ce n'est pas grave : tenter de prouver (ou de réfuter) un énoncé mal traduit reste un bon entraînement. Le système apprend ensuite par renforcement, en prouvant ou réfutant ces énoncés pendant des semaines, sur un curriculum de difficulté croissante.</p>
+
+<h4>L'apprentissage au moment du test</h4>
+<p>L'innovation la plus marquante est le <b>RL au moment du test</b> (test-time RL). Face à un problème difficile, AlphaProof génère des millions de <b>variantes</b> de l'énoncé : cas particuliers, généralisations, reformulations. Il s'entraîne sur ces variantes pendant que la recherche se poursuit sur l'énoncé original. C'est une forme d'apprentissage spécifique au problème, proche de ce que fait un mathématicien qui étudie des cas simples avant d'attaquer le cas général.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>À l'IMO 2024, AlphaProof a résolu <b>3 des 5</b> problèmes non géométriques, dont le P6, le plus difficile, résolu par seulement 5 des 609 participants humains. Avec la géométrie d'AlphaGeometry 2, le total de 28 points sur 42 correspond à une médaille d'argent, à un point de l'or.</li>
+<li>La traduction des énoncés de l'IMO en Lean a été faite à la main.</li>
+<li>Certains problèmes ont demandé jusqu'à <b>trois jours</b> de calcul, bien plus que les 9 heures accordées aux candidats.</li>
+<li>Sur des benchmarks historiques (miniF2F, PutnamBench), AlphaProof a amélioré nettement l'état de l'art de l'époque.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>En 2025, Gemini Deep Think et un modèle expérimental d'OpenAI ont obtenu la médaille d'or à l'IMO en langage naturel, dans le temps imparti. AlphaProof reste toutefois une démonstration de la valeur des preuves formelles, garanties correctes, et de l'apprentissage au moment du test. Cette ligne mène à DeepSeek-Prover-V2 (papier 40), aux dix résultats de recherche présentés par OpenAI (papier 49) et à la formalisation du dernier théorème de Fermat (papiers 42 et 99).</p>

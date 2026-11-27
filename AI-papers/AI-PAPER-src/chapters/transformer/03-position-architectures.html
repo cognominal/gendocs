@@ -1,0 +1,142 @@
+<h3 class="part" id="tf-5">V. Où est chaque mot ? Les encodages de position</h3>
+
+<h4>5.1 Le problème</h4>
+<p>On l'a vu en section 2.6 : sans information de position, l'attention est aveugle à l'ordre. Un réseau récurrent connaît l'ordre par construction, puisqu'il lit les mots l'un après l'autre ; un Transformer doit le recevoir explicitement. Il existe deux grandes manières de le faire : ajouter au plongement de chaque jeton un vecteur qui dépend de sa <b>position absolue</b>, ou modifier le score d'attention entre deux jetons selon leur <b>distance relative</b>. La seconde l'a emporté, sous la forme de RoPE. Le choix de l'<a href="#g-encodage-positionnel">encodage positionnel</a> détermine aussi en grande partie la capacité d'un modèle à traiter des séquences plus longues que celles vues à l'entraînement.</p>
+
+<h4>5.2 Sinusoïdes et positions apprises</h4>
+<p>Le papier de 2017 ajoute au plongement de la position <i>pos</i> un vecteur fixe dont les composantes sont des sinus et cosinus de fréquences décroissantes :</p>
+<p class="formula">PE(pos, 2i) = sin(pos / 10000<sup>2i/d</sup>), PE(pos, 2i+1) = cos(pos / 10000<sup>2i/d</sup>)</p>
+<p>Les premières composantes oscillent vite (une période de 2π positions), les dernières très lentement (une période de 10 000 × 2π positions). C'est l'équivalent continu d'un compteur binaire, où le bit de poids faible change à chaque pas et le bit de poids fort rarement. L'intérêt revendiqué est que, pour tout décalage <i>k</i>, PE(pos + <i>k</i>) est une fonction linéaire (une rotation) de PE(pos), ce qui devrait permettre au modèle d'apprendre à raisonner en positions relatives. Les auteurs testent aussi des plongements de position <b>appris</b>, une table de vecteurs indexée par la position comme celle des jetons, et obtiennent des résultats presque identiques. BERT et GPT-1 à GPT-3 utilisent ces positions apprises. Leur défaut est évident : une position jamais vue à l'entraînement (au-delà de 512 ou 2 048) n'a pas de vecteur.</p>
+
+<h4>5.3 Positions relatives</h4>
+<p>Pour la plupart des relations linguistiques, ce qui compte est la distance entre deux mots, pas leur position dans le document. Shaw, Uszkoreit et Vaswani (2018) ajoutent donc dans le calcul de l'attention un vecteur appris qui dépend de la distance <i>j</i> − <i>i</i>, écrêtée au-delà d'un maximum. T5 (Raffel et al., 2020) simplifie : un simple <b>biais scalaire</b> appris est ajouté au score d'attention, partagé entre couches, et indexé par des « seaux » de distance logarithmiques (les distances 1, 2, 3… ont chacune leur seau, puis 8-15, 16-31, etc.). Transformer-XL (Dai et al., 2019) combine positions relatives et récurrence au niveau des segments pour étendre le contexte.</p>
+<p><b>ALiBi</b> (<i>Attention with Linear Biases</i>, Press, Smith et Lewis, 2021) pousse la simplicité à l'extrême : aucun paramètre, on retranche au score un terme proportionnel à la distance, m · (<i>i</i> − <i>j</i>), avec une pente <i>m</i> différente par tête (1/2, 1/4, 1/8…). Les jetons lointains sont pénalisés, plus ou moins selon les têtes. Le titre du papier résume son intérêt, « Train Short, Test Long » : un modèle entraîné sur 1 024 jetons se comporte correctement sur des séquences plus longues, ce que ne permettent ni les positions apprises ni les sinusoïdes. BLOOM et MPT l'ont adopté.</p>
+
+<h4>5.4 RoPE : la position comme rotation</h4>
+<p>Le <b>Rotary Position Embedding</b> (<a href="#g-rope">RoPE</a>, Su et al., 2021, publié dans RoFormer) est devenu le standard : GPT-NeoX, PaLM, Llama, Mistral, Qwen, DeepSeek l'utilisent. L'idée est de ne pas ajouter la position au vecteur, mais de <b>faire tourner</b> la requête et la clé d'un angle proportionnel à leur position, juste avant leur produit scalaire.</p>
+<p>On regroupe les <i>d</i><sub>k</sub> composantes d'une requête en <i>d</i><sub>k</sub>/2 paires, chaque paire formant un vecteur du plan. La paire numéro <i>i</i> de la position <i>m</i> est tournée de l'angle <i>m</i>·θ<sub>i</sub>, avec des fréquences θ<sub>i</sub> = 10000<sup>−2i/d<sub>k</sub></sup> comme pour les sinusoïdes :</p>
+<p class="formula">(q₁, q₂) ↦ (q₁ cos mθ − q₂ sin mθ , q₁ sin mθ + q₂ cos mθ)</p>
+<p>Le produit scalaire de deux vecteurs du plan ne dépend que de leurs normes et de l'angle qui les sépare. Si la requête est tournée de <i>m</i>θ et la clé de <i>n</i>θ, leur produit scalaire ne dépend que de la différence (<i>m</i> − <i>n</i>)θ : la position absolue disparaît, seule reste la <b>position relative</b>, et ce sans aucun paramètre supplémentaire ni modification de la matrice d'attention. Les paires à haute fréquence distinguent les voisins immédiats, celles à basse fréquence les positions éloignées. RoPE agit seulement sur <i>Q</i> et <i>K</i>, pas sur <i>V</i> : la position influence <i>qui</i> on regarde, pas <i>ce qu'</i>on copie.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 190" width="100%" role="img" aria-label="Rotation RoPE">
+<g transform="translate(110,100)">
+<circle r="70" fill="none" stroke="#e7e5e4"/>
+<line x1="-80" y1="0" x2="80" y2="0" stroke="#d6d3d1"/><line x1="0" y1="-80" x2="0" y2="80" stroke="#d6d3d1"/>
+<path class="tf-e" d="M0,0 L60,-20" marker-end="url(#tf-ar)"/><text class="tf-s" x="66" y="-20">q (pos. 0)</text>
+<path class="tf-ea" d="M0,0 L34,-55" marker-end="url(#tf-ao)"/><text class="tf-s" x="36" y="-60">q tournée (pos. m)</text>
+<path d="M40,-13 A42,42 0 0 0 22,-36" fill="none" stroke="#b45309"/><text class="tf-m" x="45" y="-30">mθ</text>
+</g>
+<g transform="translate(330,100)">
+<circle r="70" fill="none" stroke="#e7e5e4"/>
+<line x1="-80" y1="0" x2="80" y2="0" stroke="#d6d3d1"/><line x1="0" y1="-80" x2="0" y2="80" stroke="#d6d3d1"/>
+<path class="tf-ea" d="M0,0 L20,-62" marker-end="url(#tf-ao)"/><text class="tf-s" x="22" y="-66">q à m</text>
+<path stroke="#1d4ed8" stroke-width="1.6" fill="none" d="M0,0 L-30,-55" marker-end="url(#tf-ar)"/><text class="tf-s" x="-80" y="-60">k à n</text>
+<path d="M6,-20 A21,21 0 0 0 -10,-18" fill="none" stroke="#444"/><text class="tf-m" x="-28" y="-28">(m−n)θ</text>
+<text class="tf-xs" x="0" y="88" text-anchor="middle">q·k ne dépend que de m − n</text>
+</g>
+<g transform="translate(470,30)">
+<text class="tf-t" x="70" y="0" text-anchor="middle">Fréquences par paire</text>
+<text class="tf-xs" x="0" y="25">paire 1 : θ = 1 (rapide)</text>
+<path d="M0,40 q7,-10 14,0 t14,0 t14,0 t14,0 t14,0 t14,0 t14,0 t14,0 t14,0 t14,0" fill="none" stroke="#b45309"/>
+<text class="tf-xs" x="0" y="70">paire d/4 : θ ≈ 0,01</text>
+<path d="M0,85 q35,-12 70,0 t70,0" fill="none" stroke="#1d4ed8"/>
+<text class="tf-xs" x="0" y="115">paire d/2 : θ ≈ 10⁻⁴ (lente)</text>
+<path d="M0,130 q70,-6 140,-8" fill="none" stroke="#15803d"/>
+</g>
+</svg>
+<figcaption>Figure 5. RoPE fait tourner chaque paire de composantes des requêtes et des clés d'un angle proportionnel à la position ; leur produit scalaire ne dépend alors que de l'écart entre positions.</figcaption>
+</figure>
+
+<h4>5.5 Allonger le contexte après coup</h4>
+<p>Entraîner directement sur des séquences de 128 000 jetons coûte cher. La pratique courante consiste à pré-entraîner sur 4 000 à 8 000 jetons, puis à <b>étendre</b> le contexte lors d'une phase plus courte. Avec RoPE, le problème vient des rotations : au-delà de la longueur d'entraînement, les paires de basse fréquence atteignent des angles jamais vus, et le modèle se dérègle. Plusieurs remèdes se sont succédé :</p>
+<ul>
+<li><b>Interpolation de position</b> (PI, Chen et al., Meta, 2023) : on comprime les positions, par exemple en divisant toutes les positions par 4 pour passer de 2 048 à 8 192 jetons, si bien que les angles restent dans la plage connue. Un millier de pas d'ajustement suffit ; mais les voisins proches deviennent moins distinguables.</li>
+<li><b>Mise à l'échelle « NTK-aware »</b> (proposée sur un forum en 2023) : on change la base 10 000 plutôt que les positions, ce qui étire surtout les basses fréquences et préserve les hautes.</li>
+<li><b>YaRN</b> (Peng et al., 2023) : traitement différencié selon la fréquence (pas de changement pour les hautes, interpolation pour les basses) et ajustement de la température de l'attention. DeepSeek-V3 l'utilise pour passer de 4 k à 128 k jetons ; Qwen et d'autres en dérivent leurs méthodes.</li>
+<li>Augmenter la base dès le pré-entraînement : Llama 3 utilise une base de 500 000 au lieu de 10 000.</li>
+</ul>
+<p>Disposer d'un contexte long ne garantit pas qu'il soit bien utilisé. Les tests de « l'aiguille dans la botte de foin », qui cachent une phrase dans un long document, sont devenus faciles, mais les modèles exploitent souvent moins bien le milieu d'un long contexte que son début et sa fin (« Lost in the Middle », Liu et al., 2023). Les architectures pour le million de jetons sont discutées dans le <a href="#attention">dossier attention</a>.</p>
+
+<h4>5.6 Et sans encodage du tout ?</h4>
+<p>Un résultat surprenant de Haviv et al. (2022) et Kazemnejad et al. (2023) est qu'un Transformer <b>causal</b> peut se passer complètement d'encodage de position (NoPE). Le masque causal brise la symétrie : la position <i>i</i> fait sa moyenne sur <i>i</i> éléments, et cette différence suffit au modèle pour reconstituer implicitement les positions. NoPE généralise même parfois mieux aux longueurs non vues. Plusieurs architectures récentes alternent d'ailleurs des couches avec RoPE (souvent à attention locale) et des couches sans encodage de position (à attention globale), comme Llama 4 ou Command A.</p>
+
+<h3 class="part" id="tf-6">VI. Trois familles d'architectures</h3>
+
+<h4>6.1 Encodeur, décodeur, ou les deux</h4>
+<p>Le Transformer de 2017 est un <b>encodeur-décodeur</b>, comme le seq2seq qu'il remplace : un encodeur bidirectionnel lit la phrase source, un décodeur causal produit la traduction en consultant l'encodeur par attention croisée. Dès 2018, deux équipes en extraient chacune une moitié pour le pré-entraînement sur du texte brut, ce qui donne naissance aux trois familles qui structurent le domaine.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 175" width="100%" role="img" aria-label="Masques des trois architectures">
+<g transform="translate(40,20)">
+<text class="tf-t" x="60" y="0" text-anchor="middle">Encodeur seul (BERT)</text>
+<rect x="15" y="12" width="90" height="90" fill="#fcd34d"/>
+<text class="tf-xs" x="60" y="122" text-anchor="middle">tout le monde voit tout</text>
+<text class="tf-xs" x="60" y="135" text-anchor="middle">→ comprendre, classer</text>
+</g>
+<g transform="translate(250,20)">
+<text class="tf-t" x="60" y="0" text-anchor="middle">Décodeur seul (GPT)</text>
+<path d="M15,12 L15,102 L105,102 Z" fill="#fcd34d"/><path d="M15,12 L105,12 L105,102 Z" fill="#e7e5e4"/>
+<text class="tf-xs" x="60" y="122" text-anchor="middle">chacun ne voit que le passé</text>
+<text class="tf-xs" x="60" y="135" text-anchor="middle">→ générer</text>
+</g>
+<g transform="translate(450,20)">
+<text class="tf-t" x="75" y="0" text-anchor="middle">Encodeur-décodeur (T5)</text>
+<rect x="30" y="12" width="45" height="45" fill="#fcd34d"/>
+<rect x="75" y="12" width="45" height="45" fill="#e7e5e4"/>
+<rect x="30" y="57" width="45" height="45" fill="#93c5fd"/>
+<path d="M75,57 L75,102 L120,102 Z" fill="#fcd34d"/><path d="M75,57 L120,57 L120,102 Z" fill="#e7e5e4"/>
+<text class="tf-xs" x="26" y="38" text-anchor="end">source</text><text class="tf-xs" x="26" y="83" text-anchor="end">cible</text>
+<text class="tf-xs" x="124" y="40">bleu : attention</text><text class="tf-xs" x="124" y="51">croisée</text>
+<text class="tf-xs" x="75" y="122" text-anchor="middle">source bidirectionnelle, cible causale</text>
+<text class="tf-xs" x="75" y="135" text-anchor="middle">→ transformer un texte en un autre</text>
+</g>
+</svg>
+<figcaption>Figure 6. Les trois familles se distinguent avant tout par leur masque d'attention.</figcaption>
+</figure>
+
+<h4>6.2 Encodeur seul : BERT et la compréhension</h4>
+<p>BERT (Devlin et al., Google, octobre 2018, <a href="#p10">fiche 10</a>) garde l'encodeur seul, sans masque causal : chaque jeton voit toute la phrase, à gauche comme à droite. Un tel modèle ne peut pas être entraîné à prédire le mot suivant (il le verrait), d'où l'objectif de <a href="#g-modelisation-de-langage-masquee">modélisation de langage masquée</a> : on choisit 15 % des jetons ; 80 % d'entre eux sont remplacés par un jeton spécial [MASK], 10 % par un jeton aléatoire, 10 % laissés intacts, et le modèle doit retrouver l'original. S'y ajoutait une tâche de prédiction de la phrase suivante (NSP), dont RoBERTa (Liu et al., 2019) montrera l'inutilité. BERT-base (12 couches, <i>d</i> = 768, 110 M de paramètres) et BERT-large (24 couches, <i>d</i> = 1 024, 340 M) sont entraînés sur Wikipédia et un corpus de livres, 3,3 milliards de mots.</p>
+<p>La recette est le <b>pré-entraînement puis l'ajustement</b> (<i>fine-tuning</i>) : on ajoute une petite couche de classification au-dessus du jeton spécial [CLS] et on ajuste tout le réseau sur la tâche visée pendant quelques époques. BERT bat l'état de l'art sur onze tâches à la fois et fait gagner 7 points au banc d'essai GLUE. En 2019, Google l'intègre à son moteur de recherche. Ses descendants (RoBERTa, ALBERT, ELECTRA, DeBERTa, ModernBERT en 2024) restent les modèles de choix pour la classification, l'extraction d'entités et surtout les <b>plongements de phrases</b> qui alimentent la recherche sémantique et le <a href="#g-rag">RAG</a>, parce qu'ils sont petits, rapides et bidirectionnels.</p>
+
+<h4>6.3 Décodeur seul : la lignée GPT</h4>
+<p>GPT (Radford et al., OpenAI, juin 2018) garde au contraire le décodeur seul, sans attention croisée, et l'entraîne à prédire le jeton suivant sur 7 000 livres. Le modèle (12 couches, 117 M de paramètres) est ensuite ajusté sur chaque tâche. L'intérêt de l'approche apparaît avec la taille :</p>
+<ul>
+<li><b>GPT-2</b> (février 2019) : 1,5 G de paramètres, 48 couches, entraîné sur WebText (40 Go de pages liées depuis Reddit). Son titre, « Language Models are Unsupervised Multitask Learners », annonce le changement : sans aucun ajustement, en formulant la tâche comme un texte à compléter (« TL;DR: » pour résumer), le modèle accomplit des tâches pour lesquelles il n'a pas été entraîné. OpenAI retarde la publication du grand modèle par crainte d'abus, une première.</li>
+<li><b>GPT-3</b> (mai 2020) : 175 G de paramètres, 96 couches, <i>d</i> = 12 288, 300 milliards de jetons. Il introduit l'<a href="#g-apprentissage-en-contexte">apprentissage en contexte</a> (<a href="#g-prompting-few-shot">few-shot prompting</a>) : quelques exemples placés dans la consigne suffisent à spécifier une tâche nouvelle, sans modifier aucun poids (section 9.1).</li>
+<li><b>InstructGPT</b> et <b>ChatGPT</b> (2022) : le même modèle de base, ajusté par instructions (<a href="#g-sft">SFT</a>) puis par <a href="#g-rlhf">RLHF</a> (<a href="#p29">fiche 29</a>), devient un assistant conversationnel. <b>GPT-4</b> (2023, <a href="#p24">fiche 24</a>) ajoute la vision et prédit ses performances finales à partir de modèles mille fois plus petits.</li>
+</ul>
+<p>Depuis, tous les grands modèles généralistes sont des décodeurs seuls : PaLM, Llama, Claude, Gemini, Mistral, Qwen, DeepSeek, gpt-oss (<a href="#p30">fiche 30</a>).</p>
+
+<h4>6.4 Encodeur-décodeur : T5 et ses héritiers</h4>
+<p>T5 (Raffel et al., Google, 2019-2020) défend l'architecture complète et formule toutes les tâches comme une transformation de texte en texte (« translate English to German: … », « summarize: … »). Son objectif de pré-entraînement, la <b>corruption de segments</b>, remplace des séquences de jetons par des sentinelles que le décodeur doit reconstituer. Le papier est aussi une étude systématique de dizaines de variantes (objectifs, architectures, données, avec le corpus C4) qui a beaucoup servi au domaine. La famille compte jusqu'à 11 G de paramètres ; mT5 est multilingue, Flan-T5 ajusté sur des instructions. L'architecture reste naturelle quand l'entrée et la sortie sont de nature différente : <b>Whisper</b> (OpenAI, 2022) encode le spectrogramme audio et décode la transcription, et beaucoup de systèmes de traduction en production restent des encodeurs-décodeurs.</p>
+
+<h4>6.5 Pourquoi le décodeur seul l'a emporté</h4>
+<p>Wang et al. (2022) comparent systématiquement les architectures et les objectifs. Un encodeur-décodeur entraîné par débruitage, puis ajusté en multitâche, l'emporte légèrement sur les tâches de compréhension ; mais un décodeur seul entraîné à prédire le jeton suivant est le meilleur en <b>généralisation sans exemple</b> (<i>zero-shot</i>) juste après le pré-entraînement, qui est le cas d'usage dominant des LLM. Plusieurs raisons pratiques s'ajoutent :</p>
+<ul>
+<li><b>Simplicité</b> : un seul empilement, un seul objectif, chaque jeton du corpus fournit un exemple d'entraînement (contre 15 % pour BERT).</li>
+<li><b>Universalité</b> : toute tâche, y compris la génération longue, le dialogue et l'utilisation d'outils, se ramène à « continuer le texte ».</li>
+<li><b>Efficacité à l'inférence</b> : le <a href="#g-cache-kv">cache KV</a> permet de réutiliser le calcul fait sur le préfixe, y compris d'un tour de conversation à l'autre ; dans un encodeur bidirectionnel, ajouter un jeton oblige à tout recalculer.</li>
+<li><b>Prévisibilité</b> : les lois d'échelle (section 7.6) ont été établies sur ces modèles, et les investissements ont suivi.</li>
+</ul>
+<table class="chap-table">
+<tr><th>Famille</th><th>Exemples</th><th>Objectif</th><th>Usage typique</th></tr>
+<tr><td>Encodeur</td><td>BERT, RoBERTa</td><td>MLM</td><td>classer, chercher</td></tr>
+<tr><td>Décodeur</td><td>GPT, Llama</td><td>jeton suivant</td><td>générer, dialoguer</td></tr>
+<tr><td>Enc.-déc.</td><td>T5, Whisper</td><td>débruitage</td><td>traduire, transcrire</td></tr>
+</table>
+<p>La frontière entre familles s'est d'ailleurs brouillée. Les décodeurs seuls servent aussi à produire des plongements (en lisant le vecteur du dernier jeton), et des modèles comme GLM ou UL2 mélangent objectifs causaux et de débruitage. Les modèles de diffusion de texte (section 10.5) reviennent même à une attention bidirectionnelle pour générer.</p>
+
+<h4>6.6 Anatomie de quelques modèles ouverts récents</h4>
+<p>Les modèles à poids ouverts publient leur architecture, ce qui permet de voir comment les briques des parties III à V sont assemblées en pratique. Tous sont des décodeurs pré-normalisés avec RMSNorm, SwiGLU et RoPE ; ils diffèrent surtout par la taille, la forme de l'attention et le recours aux experts.</p>
+<table class="chap-table">
+<tr><th>Modèle</th><th>Date</th><th>Couches</th><th>d</th><th>Experts (actifs)</th><th>Paramètres</th><th>Attention</th></tr>
+<tr><td>Mixtral 8x7B</td><td>12/2023</td><td>32</td><td>4 096</td><td>8 (2)</td><td>47 G / 13 G</td><td>GQA</td></tr>
+<tr><td>Llama 3.1 405B</td><td>07/2024</td><td>126</td><td>16 384</td><td>dense</td><td>405 G</td><td>GQA</td></tr>
+<tr><td>DeepSeek-V3</td><td>12/2024</td><td>61</td><td>7 168</td><td>256 + 1 (8 + 1)</td><td>671 G / 37 G</td><td>MLA</td></tr>
+<tr><td>Qwen3-235B</td><td>04/2025</td><td>94</td><td>4 096</td><td>128 (8)</td><td>235 G / 22 G</td><td>GQA</td></tr>
+<tr><td>Kimi K2</td><td>07/2025</td><td>61</td><td>7 168</td><td>384 + 1 (8 + 1)</td><td>1 040 G / 32 G</td><td>MLA</td></tr>
+<tr><td>gpt-oss-120b</td><td>08/2025</td><td>36</td><td>2 880</td><td>128 (4)</td><td>117 G / 5 G</td><td>GQA, fenêtres</td></tr>
+</table>
+<p>Quelques tendances ressortent. Les modèles <b>denses</b> géants comme Llama 3.1 405B ont cédé la place aux <b>MoE</b> : pour un coût de calcul par jeton comparable à celui d'un modèle dense de 20 à 40 milliards de paramètres, un MoE stocke dix à trente fois plus de connaissances. Le ratio entre paramètres totaux et actifs augmente (8 pour DeepSeek-V3, 32 pour Kimi K2, 23 pour gpt-oss), de même que le nombre d'experts, devenus plus petits et plus spécialisés, dans la lignée de DeepSeekMoE (<a href="#p36">fiche 36</a>). L'attention est partout allégée pour réduire le cache KV : GQA, attention latente (<a href="#g-mla">MLA</a>), ou alternance de couches à fenêtre glissante et de couches globales (gpt-oss, Gemma). La profondeur varie moins qu'on ne pourrait le croire : entre 36 et 126 couches pour des modèles qui diffèrent de deux ordres de grandeur. Enfin, ces modèles sont pré-entraînés sur 14 à 36 000 milliards de jetons, très au-delà de l'optimum de Chinchilla (section 7.6).</p>
+<p>DeepSeek-V4 (<a href="#p31">fiche 31</a>), publié en 2026, pousse plus loin chacune de ces tendances avec une attention hybride compressée et parcimonieuse pour atteindre le million de jetons de contexte, des hyper-connexions contraintes (section 4.2) et l'optimiseur Muon (section 7.2).</p>

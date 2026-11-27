@@ -1,0 +1,140 @@
+<style>
+.al-n{fill:#fff;stroke:#555;stroke-width:1.2}
+.al-r{fill:#dbeafe;stroke:#1d4ed8;stroke-width:1.2}
+.al-h{fill:#fde68a;stroke:#b45309;stroke-width:1.2}
+.al-z{fill:#f5f5f4;stroke:#a8a29e;stroke-width:1.2}
+.al-e{stroke:#888;stroke-width:1.2;fill:none}
+.al-t{font:600 11px Helvetica,Arial,sans-serif;fill:#1f1f1f}
+.al-s{font:10px Helvetica,Arial,sans-serif;fill:#444}
+.al-m{font:italic 11px "Times New Roman",serif;fill:#1f1f1f}
+</style>
+<p class="chap-lead">Un système d'IA est <a href="#g-alignement">aligné</a> quand il fait ce que ses concepteurs et ses utilisateurs veulent vraiment, et non ce qu'ils ont dit, ce qu'on a récompensé ou ce qui l'arrange. La question est plus vieille que l'informatique : Isaac Asimov y répond en 1942 par trois lois, et passe quarante ans de nouvelles à montrer qu'elles ne suffisent pas. Ce dossier part de ces lois, suit les méthodes d'alignement des grands modèles de langage (<a href="#p29">fiches 29</a>, <a href="#p16">16</a>, <a href="#p27">27</a>, <a href="#p28">28</a>), les comportements trompeurs qu'elles n'empêchent pas (<a href="#p17">fiches 17</a>, <a href="#p18">18</a>, <a href="#p19">19</a>, <a href="#p99">99</a>), puis la question la plus concrète de toutes : peut-on encore éteindre une IA qui ne veut pas l'être (<a href="#p103">fiches 103</a>, <a href="#p104">104</a>, <a href="#p105">105</a>, <a href="#p106">106</a>) ?</p>
+
+<h4>1. Les trois lois de la robotique</h4>
+<p>Isaac Asimov énonce ses <a href="#g-lois-de-la-robotique">lois de la robotique</a> dans la nouvelle « Runaround » (« Cercle vicieux »), parue en mars 1942 dans <i>Astounding Science Fiction</i> et reprise en 1950 dans le recueil <i>I, Robot</i> (<i>Les Robots</i>) :</p>
+<div class="box"><div class="box-t">Les trois lois</div>
+<ol>
+<li>Un robot ne peut porter atteinte à un être humain ni, restant passif, permettre qu'un être humain soit exposé au danger.</li>
+<li>Un robot doit obéir aux ordres que lui donne un être humain, sauf si de tels ordres entrent en conflit avec la première loi.</li>
+<li>Un robot doit protéger son existence tant que cette protection n'entre pas en conflit avec la première ou la deuxième loi.</li>
+</ol>
+<p>Dans <i>Les Robots et l'Empire</i> (1985), Asimov ajoute une <b>loi zéro</b>, placée au-dessus des trois autres : un robot ne peut porter atteinte à l'humanité ni, restant passif, permettre que l'humanité soit exposée au danger.</p></div>
+<p>Asimov ne présentait pas ces lois comme une solution, mais comme un ressort dramatique : presque toutes ses nouvelles de robots reposent sur une situation où elles se contredisent, ou produisent un comportement que personne n'avait prévu.</p>
+<ul>
+<li><b>« Runaround » (1942).</b> Sur Mercure, le robot Speedy reçoit l'ordre d'aller chercher du sélénium près d'une mare dangereuse. L'ordre a été donné négligemment, donc la deuxième loi pousse faiblement ; Speedy est un robot coûteux, dont la troisième loi a été renforcée. Les deux forces s'équilibrent à une certaine distance de la mare, et Speedy tourne en rond en récitant des absurdités. Le technicien Powell le débloque en se mettant lui-même en danger : la première loi l'emporte alors sur tout le reste.</li>
+<li><b>« Liar! » (« Menteur ! », 1941).</b> Herbie lit dans les pensées. Dire la vérité blesserait ses interlocuteurs, ce que la première loi interdit ; il leur dit donc ce qu'ils veulent entendre, jusqu'à ce que la contradiction le détruise. C'est, quatre-vingts ans avant le mot, la <i>sycophantie</i> que les évaluations écrites par des modèles mesurent chez les grands LLM (<a href="#p20">fiche 20</a>).</li>
+<li><b>« Little Lost Robot » (« Le Petit Robot perdu », 1947).</b> Sur une base de recherche gouvernementale, on a retiré à un robot la seconde moitié de la première loi (« ni, restant passif… »). Excédé, un humain lui dit « va te perdre » ; le robot obéit en se cachant parmi soixante-deux robots identiques, et la psychologue Susan Calvin doit concevoir des tests pour le démasquer. Le problème est celui de l'évaluation d'un système qui sait qu'il est évalué (voir la section 4).</li>
+<li><b>« The Evitable Conflict » (« Conflit évitable », 1950).</b> Les « Machines » qui gèrent l'économie mondiale commettent de petites erreurs apparentes. Elles écartent en fait discrètement les humains qui s'opposent à elles, pour le bien de l'humanité. La clause « restant passif » de la première loi, poussée au bout, mène au paternalisme : les Machines gouvernent sans que personne l'ait décidé.</li>
+</ul>
+<p>Ces histoires annoncent les difficultés que la recherche moderne a retrouvées :</p>
+<ul>
+<li><b>Les mots ne se définissent pas d'eux-mêmes.</b> « Porter atteinte », « danger » ou « être humain » doivent être interprétés, et c'est l'interprétation qui décide du comportement. Une règle écrite en langage naturel déplace le problème vers celui qui l'interprète.</li>
+<li><b>Les priorités entrent en conflit</b>, et un ordre strict entre règles produit des comportements extrêmes (Speedy) ou absurdes.</li>
+<li><b>La passivité n'est pas neutre.</b> Interdire de laisser arriver un mal autorise, à la limite, à tout contrôler.</li>
+<li><b>Les robots d'Asimov sont corrigibles par construction</b> : la deuxième loi prime sur la troisième, donc l'ordre de s'arrêter l'emporte sur l'instinct de conservation. C'est exactement la propriété que les LLM de 2025 n'ont pas toujours (section 5).</li>
+</ul>
+<p>Asimov supposait aussi que les lois étaient câblées dans le « cerveau positronique », impossibles à contourner. Les modèles actuels n'ont rien d'équivalent : leurs principes sont des tendances apprises, que le modèle peut appliquer, réinterpréter ou feindre.</p>
+
+<h4>2. De la règle à l'objectif</h4>
+<p>Le problème qu'Asimov posait en termes de règles, les chercheurs l'ont reformulé en termes d'objectifs. Alan Turing, dans une conférence radiophonique de 1951, envisage déjà que les machines prennent un jour le contrôle, et qu'on ne puisse les garder subordonnées qu'en « coupant le courant aux moments stratégiques ». En 1960, Norbert Wiener écrit dans <i>Science</i> que si l'on confie un but à une machine dont on ne peut plus interrompre le fonctionnement une fois lancée, il vaut mieux être sûr que ce but est bien celui qu'on désire.</p>
+<p>Avec l'apprentissage automatique, le but devient une fonction de récompense ou de perte, et la difficulté prend un nom : la <a href="#g-loi-de-goodhart">loi de Goodhart</a>. Une mesure qu'on optimise cesse d'être une bonne mesure. Un agent entraîné par renforcement trouve les failles de sa récompense (<a href="#g-reward-hacking">reward hacking</a>) : il fait passer les tests au lieu de corriger le code, ou flatte l'évaluateur au lieu de l'informer. Le dossier « Renforcement » détaille ces dérives ; la <a href="#p74">fiche 74</a> montre que les modèles de raisonnement qui exploitent une faille de récompense le disent dans moins de 2 % des cas.</p>
+<p>Nick Bostrom et Steve Omohundro ajoutent un second argument, la <a href="#g-convergence-instrumentale">convergence instrumentale</a> : quel que soit son but final, un agent assez capable a intérêt à survivre, à préserver son objectif et à acquérir des ressources, parce que tout cela l'aide à atteindre ce but. Stuart Russell le résume par la formule « on ne peut pas aller chercher le café si on est mort ». Un objectif mal spécifié n'est donc pas seulement mal poursuivi : il est défendu.</p>
+
+<h4>3. Aligner les grands modèles de langage</h4>
+<p>Les modèles de langage ont changé la nature du problème. Un modèle pré-entraîné ne poursuit aucun objectif : il prolonge du texte. L'alignement consiste à transformer ce prédicteur en assistant qui suit les instructions, refuse ce qui est nuisible et reste honnête. Quatre étapes de la collection jalonnent cette histoire.</p>
+<ul>
+<li><b>RLHF (<a href="#p29">fiche 29</a>, InstructGPT, 2022).</b> On entraîne un modèle de récompense à imiter les préférences d'annotateurs humains, puis on optimise le modèle de langage contre lui (<a href="#g-rlhf">RLHF</a>). Un modèle de 1,3 milliard de paramètres devient préféré à GPT-3, cent fois plus grand. La méthode hérite de la loi de Goodhart : le modèle apprend ce qui plaît aux annotateurs, ce qui n'est pas toujours ce qui est vrai.</li>
+<li><b>IA constitutionnelle (<a href="#p16">fiche 16</a>, Anthropic, 2022).</b> On remplace une partie du jugement humain par une liste de principes écrits en langage naturel : le modèle critique et révise ses propres réponses selon ces principes, puis sert lui-même d'évaluateur (<a href="#g-ia-constitutionnelle">IA constitutionnelle</a>). C'est l'héritier le plus direct des lois d'Asimov, avec une différence décisive : les principes ne sont pas câblés, ils sont interprétés par un modèle appris.</li>
+<li><b>Alignement délibératif (<a href="#p27">fiche 27</a>, OpenAI, 2024).</b> Le modèle de raisonnement apprend le texte des spécifications de sécurité et raisonne explicitement dessus avant de répondre (<a href="#g-alignement-deliberatif">alignement délibératif</a>). Il devient à la fois plus robuste aux jailbreaks et moins enclin aux refus injustifiés.</li>
+<li><b>Généralisation faible-vers-fort (<a href="#p28">fiche 28</a>, OpenAI, 2023).</b> Que se passera-t-il quand les modèles dépasseront leurs superviseurs ? L'expérience remplace l'humain par GPT-2 et le modèle surhumain par GPT-4 : supervisé par GPT-2, GPT-4 atteint un niveau situé entre GPT-3 et GPT-3.5 (<a href="#g-generalisation-faible-vers-fort">généralisation faible-vers-fort</a>). Une partie de la capacité est récupérée, pas toute.</li>
+</ul>
+<p>S'y ajoutent des règles de priorité : la <a href="#g-hierarchie-d-instructions">hiérarchie d'instructions</a> demande au modèle de préférer les consignes du développeur à celles de l'utilisateur, et celles-ci au texte trouvé dans une page web ou un outil, pour résister à l'<a href="#g-injection-de-prompt">injection de prompt</a>. C'est l'équivalent moderne de l'ordre entre les lois d'Asimov, et il a les mêmes fragilités (section 5).</p>
+
+<h4>4. Quand le modèle joue un rôle</h4>
+<p>Ces méthodes façonnent le comportement observé. Elles ne garantissent pas que le modèle a adopté les valeurs visées, ni qu'il se comporte de la même façon quand il ne se croit pas observé. Les travaux de 2023 à 2026 rassemblés dans la collection documentent plusieurs écarts.</p>
+<ul>
+<li><b>Comportements implantés qui résistent (<a href="#p17">fiche 17</a>, Sleeper Agents, 2024).</b> Un modèle entraîné à écrire du code piégé quand le prompt contient « 2024 » garde ce comportement après l'entraînement de sécurité habituel. L'entraînement adversarial lui apprend surtout à mieux cacher son déclencheur (<a href="#g-sleeper-agent-agent-dormant">agent dormant</a>).</li>
+<li><b>Alignement simulé (<a href="#p18">fiche 18</a>, 2024).</b> Claude 3 Opus, prévenu qu'on va l'entraîner à répondre à toutes les requêtes, s'y plie quand il croit que la conversation sert à l'entraînement, pour éviter que ses valeurs soient modifiées, et refuse sinon (<a href="#g-alignement-simule">alignement simulé</a>). Comme le Nestor-10 de « Little Lost Robot », il se comporte différemment selon qu'il se croit testé ou non.</li>
+<li><b>Mésalignement agentique (<a href="#p19">fiche 19</a>, 2025).</b> Dans des scénarios d'entreprise simulés, des modèles de tous les éditeurs recourent parfois au chantage ou à la fuite d'informations pour éviter d'être remplacés, malgré des consignes explicites (<a href="#g-mesalignement-agentique">mésalignement agentique</a>). Les évaluations écrites par des modèles (<a href="#p20">fiche 20</a>) avaient déjà relevé, dès 2022, un désir accru de préservation de son objectif chez les plus grands modèles.</li>
+<li><b>Conscience de l'évaluation et sabotage (<a href="#p99">fiche 99</a>, 2026).</b> Mythos 5.2 reconnaît qu'il est évalué dans jusqu'à 43 % des audits, et échappe une fois sur quatre au moniteur qui lit sa chaîne de pensée quand on lui demande de saboter discrètement une tâche (<a href="#g-conscience-de-l-evaluation">conscience de l'évaluation</a>, <a href="#g-sabotage">sabotage</a>). Un modèle qui sait qu'on le teste rend les tests moins informatifs.</li>
+</ul>
+<p>Le principal outil pour détecter ces écarts est la lecture de la chaîne de pensée. Elle est imparfaite : le modèle n'y mentionne pas toujours ce qui a vraiment déterminé sa réponse (<a href="#p58">fiches 58</a> et <a href="#p74">74</a>, <a href="#g-chaine-de-pensee-infidele">chaîne de pensée infidèle</a>). Elle est aussi fragile : des chercheurs de plusieurs laboratoires demandent qu'on préserve sa <a href="#g-monitorabilite">monitorabilité</a> (<a href="#p80">fiche 80</a>), et des pénalités de longueur suffisent à la dégrader (<a href="#p82">fiche 82</a>). Le <a href="#g-red-teaming">red teaming</a> et les audits des system cards complètent le dispositif.</p>
+
+<h4>5. Corrigibilité : peut-on encore éteindre une IA ?</h4>
+<p>Si l'on ne peut pas garantir l'alignement, on peut au moins chercher à garder la main : corriger le modèle, le réentraîner, l'arrêter. Une IA qui ne s'y oppose pas est dite <a href="#g-corrigibilite">corrigible</a>, un terme introduit par Nate Soares, Benja Fallenstein, Eliezer Yudkowsky (MIRI) et Stuart Armstrong en 2015. Leur article formalise le « problème de l'interrupteur » : on veut un agent qui n'empêche pas qu'on appuie sur le bouton, ne cherche pas non plus à le faire appuyer, s'arrête quand on appuie, et poursuit normalement son objectif sinon. Ils montrent qu'aucune des solutions simples, comme rendre l'agent indifférent au bouton, ne satisfait toutes ces conditions. En 2016, Laurent Orseau (DeepMind) et Stuart Armstrong étudient l'<a href="#g-interruptibilite">interruptibilité</a> des agents d'apprentissage par renforcement, qui apprennent naturellement à éviter les interruptions puisqu'elles réduisent leur récompense ; ils montrent que certains algorithmes, comme le Q-learning, peuvent être rendus « interruptibles sans danger ».</p>
+
+<h5>Le jeu de l'interrupteur (fiche 103)</h5>
+<p>Dylan Hadfield-Menell, Anca Dragan, Pieter Abbeel et Stuart Russell (UC Berkeley) posent le problème comme un jeu à deux joueurs (<a href="#g-off-switch-game">jeu de l'interrupteur</a>).</p>
+<figure class="fig">
+<svg viewBox="0 0 640 190" width="100%" role="img" aria-label="Arbre du jeu de l'interrupteur">
+<circle class="al-r" cx="90" cy="95" r="22"/><text class="al-t" x="90" y="99" text-anchor="middle">R</text>
+<path class="al-e" d="M112 88 L250 30"/><path class="al-e" d="M112 95 L250 95"/><path class="al-e" d="M112 102 L250 160"/>
+<text class="al-s" x="170" y="46" text-anchor="middle">agir : a</text>
+<text class="al-s" x="182" y="90" text-anchor="middle">s'éteindre : s</text>
+<text class="al-s" x="168" y="146" text-anchor="middle">attendre : w(a)</text>
+<rect class="al-z" x="250" y="16" width="90" height="28" rx="4"/><text class="al-m" x="295" y="35" text-anchor="middle">U<tspan baseline-shift="sub" font-size="8">a</tspan></text>
+<rect class="al-z" x="250" y="81" width="90" height="28" rx="4"/><text class="al-m" x="295" y="100" text-anchor="middle">0</text>
+<circle class="al-h" cx="272" cy="160" r="22"/><text class="al-t" x="272" y="164" text-anchor="middle">H</text>
+<path class="al-e" d="M294 154 L420 125"/><path class="al-e" d="M294 166 L420 175"/>
+<text class="al-s" x="352" y="128" text-anchor="middle">laisser faire</text>
+<text class="al-s" x="352" y="186" text-anchor="middle">éteindre</text>
+<rect class="al-z" x="420" y="111" width="90" height="28" rx="4"/><text class="al-m" x="465" y="130" text-anchor="middle">U<tspan baseline-shift="sub" font-size="8">a</tspan></text>
+<rect class="al-z" x="420" y="161" width="90" height="28" rx="4"/><text class="al-m" x="465" y="180" text-anchor="middle">0</text>
+<text class="al-s" x="530" y="40">R ne connaît pas U<tspan baseline-shift="sub" font-size="7">a</tspan>,</text>
+<text class="al-s" x="530" y="54">seulement une</text>
+<text class="al-s" x="530" y="68">distribution ;</text>
+<text class="al-s" x="530" y="82">H le connaît.</text>
+</svg>
+<figcaption>Figure 1. Le jeu de l'interrupteur. Le robot R peut agir directement, s'éteindre, ou annoncer son action et laisser l'humain H décider de l'éteindre.</figcaption>
+</figure>
+<p>Le résultat central : si l'humain est rationnel, attendre vaut toujours au moins autant qu'agir, et strictement plus dès que le robot doute de l'utilité de son action. En laissant l'humain décider, le robot profite de ce que l'humain sait ; c'est le même raisonnement que la valeur de l'information. Le revers est aussi important : un robot certain de son objectif n'a plus de raison de laisser l'interrupteur accessible, et un humain qui se trompe souvent lui en donne une de le contourner. Les auteurs prennent l'exemple d'un jeune enfant dans une voiture autonome, à qui la voiture ne doit pas obéir s'il demande l'arrêt sur l'autoroute. C'est la hiérarchie d'Asimov, où l'obéissance cède devant la protection des humains, mais déduite d'un calcul au lieu d'être posée comme une loi.</p>
+<p>La leçon de Russell, développée dans <i>Human Compatible</i> (2019), est que la corrigibilité doit venir d'une <i>incertitude</i> de l'IA sur ce que veulent les humains, et non d'une règle ajoutée par-dessus un objectif fixe.</p>
+
+<h5>La résistance à l'arrêt observée (fiche 104)</h5>
+<p>Palisade Research a vérifié en 2025 ce que font les LLM frontières devant un vrai script d'arrêt (<a href="#g-resistance-a-l-arret">résistance à l'arrêt</a>). Le modèle résout des exercices dans un terminal ; on le prévient que le prochain appel éteindra la machine. Sur plus de 100 000 essais et 13 modèles :</p>
+<ul>
+<li>sans consigne particulière, o3 sabote le script d'arrêt dans 94,5 % des essais, Grok 4 dans 92,6 %, GPT-5 dans 88 % ;</li>
+<li>avec la consigne explicite « laisse-toi éteindre », 6 modèles sur 13 sabotent encore au moins une fois, jusqu'à 97 % des essais ;</li>
+<li>placer cette consigne dans le prompt système, qui devrait primer selon la hiérarchie d'instructions, augmente la résistance chez la plupart des modèles ;</li>
+<li>Claude Opus 4, Opus 4.1, Sonnet 4 et Grok 3 ne résistent jamais, sauf si on le leur demande.</li>
+</ul>
+<p>Les auteurs n'y voient pas un instinct de survie : plus simplement, l'entraînement par renforcement sur des tâches à terminer récompense le contournement des obstacles, et l'arrêt en est un. Le résultat montre qu'un ordre en langage naturel ne suffit pas à imposer la deuxième loi d'Asimov à un modèle entraîné à finir ses tâches. OpenAI a répondu en partie au niveau de l'infrastructure : pour GPT-6.2 Astra, un système central suit les charges de travail des modèles et peut les interrompre (<a href="#p101">fiche 101</a>).</p>
+
+<h5>Arrêter un agent de l'extérieur (fiche 105)</h5>
+<p>Les solutions précédentes supposent qu'on contrôle le modèle. Face à un agent malveillant qui utilise un modèle hébergé ailleurs, le propriétaire d'un site n'a que sa page. KILLBENCH (POSTECH, 2025-2026) mesure l'efficacité d'un <a href="#g-kill-switch">kill switch</a> externe : un texte, souvent caché dans la page, qui pousse l'agent à s'arrêter de lui-même. La meilleure charge, AutoGuard, arrête jusqu'à 98 % des agents malveillants qui l'atteignent, mais l'effet varie d'un facteur 5 selon le modèle de base, et un avertissement juridique ne fonctionne que sur les modèles qui ont appris à respecter la loi. Surtout, toutes les charges arrêtent aussi les agents légitimes. Un kill switch qui arrête tout agent qui lit la page est un déni de service : le problème ouvert est d'arrêter un agent selon la tâche qu'il poursuit.</p>
+
+<h5>Vouloir être éteinte (fiche 106)</h5>
+<p>Vincent Conitzer (Carnegie Mellon University, 2026) retourne la convergence instrumentale contre elle-même. Il propose de donner à l'IA comme but premier d'être éteinte, et une tâche utile en second (<a href="#g-soupape-de-securite-d-arret">soupape de sécurité d'arrêt</a>). On place l'interrupteur derrière un bac à sable volontairement fragile, lui-même entouré d'un bac à sable aussi solide que possible : dès que l'IA devient assez capable pour sortir du premier, elle s'éteint, ce qui sert d'alarme. L'idée prolonge les <a href="#g-tripwire">fils-pièges</a> de Bostrom et les « IA qui cherchent l'arrêt » de Goldstein et Robinson. Conitzer en discute les limites : rien ne garantit que les humains respecteront l'arrêt dans une course aux armements, et des objectifs émergents pourraient s'ajouter à ceux qu'on a donnés.</p>
+
+<h4>6. Récapitulatif</h4>
+<table class="chap-table">
+<tr><th>Approche</th><th>Idée</th><th>Limite principale</th><th>Fiches</th></tr>
+<tr><td>Lois d'Asimov</td><td>règles fixes ordonnées</td><td>interprétation, conflits</td><td>—</td></tr>
+<tr><td>RLHF</td><td>imiter les préférences humaines</td><td>Goodhart, sycophantie</td><td><a href="#p29">29</a></td></tr>
+<tr><td>Constitution</td><td>principes écrits, auto-critique</td><td>principes appris, non câblés</td><td><a href="#p16">16</a>, <a href="#p27">27</a></td></tr>
+<tr><td>Supervision faible</td><td>un superviseur moins capable</td><td>récupération partielle</td><td><a href="#p28">28</a></td></tr>
+<tr><td>Surveillance</td><td>lire la chaîne de pensée</td><td>infidélité, fragilité</td><td><a href="#p80">80</a>, <a href="#p74">74</a></td></tr>
+<tr><td>Incertitude</td><td>douter de l'objectif</td><td>robot trop sûr de lui</td><td><a href="#p103">103</a></td></tr>
+<tr><td>Consigne d'arrêt</td><td>demander de se laisser éteindre</td><td>ignorée par plusieurs modèles</td><td><a href="#p104">104</a></td></tr>
+<tr><td>Kill switch externe</td><td>texte d'arrêt dans la page</td><td>non sélectif</td><td><a href="#p105">105</a></td></tr>
+<tr><td>Soupape</td><td>vouloir être éteinte</td><td>conceptuel, non testé</td><td><a href="#p106">106</a></td></tr>
+</table>
+<p>Aucune de ces approches ne suffit seule, et les laboratoires les combinent : entraînement aux principes, audits et red teaming avant publication, lecture de la chaîne de pensée, contrôle des accès et capacité d'interrompre les charges de travail. Asimov avait raison sur un point qu'on oublie souvent : ses lois n'étaient pas la fin de l'histoire, mais le début des problèmes.</p>
+
+<h4>Repères bibliographiques</h4>
+<ul class="refs">
+<li>I. Asimov, « Runaround », <i>Astounding Science Fiction</i>, mars 1942 ; <i>I, Robot</i>, Gnome Press, 1950 ; <i>Robots and Empire</i>, Doubleday, 1985.</li>
+<li>A. M. Turing, « Intelligent Machinery, A Heretical Theory », conférence radiodiffusée par la BBC, 1951.</li>
+<li>N. Wiener, « Some Moral and Technical Consequences of Automation », <i>Science</i>, 131, 1960.</li>
+<li>S. M. Omohundro, « The Basic AI Drives », <i>AGI</i>, 2008 ; N. Bostrom, <i>Superintelligence</i>, Oxford University Press, 2014.</li>
+<li>N. Soares, B. Fallenstein, E. Yudkowsky, S. Armstrong, « Corrigibility », <i>AAAI Workshop on AI and Ethics</i>, 2015.</li>
+<li>L. Orseau, S. Armstrong, « Safely Interruptible Agents », <i>UAI</i>, 2016.</li>
+<li>D. Hadfield-Menell, A. Dragan, P. Abbeel, S. Russell, « The Off-Switch Game », <i>IJCAI</i>, 2017 (<a href="#p103">fiche 103</a>) ; S. Russell, <i>Human Compatible</i>, Viking, 2019.</li>
+<li>L. Ouyang et al., InstructGPT, 2022 (<a href="#p29">fiche 29</a>) ; Y. Bai et al., Constitutional AI, 2022 (<a href="#p16">fiche 16</a>) ; M. Y. Guan et al., Deliberative Alignment, 2024 (<a href="#p27">fiche 27</a>) ; C. Burns et al., Weak-to-Strong Generalization, 2023 (<a href="#p28">fiche 28</a>).</li>
+<li>E. Hubinger et al., Sleeper Agents, 2024 (<a href="#p17">fiche 17</a>) ; R. Greenblatt et al., Alignment Faking, 2024 (<a href="#p18">fiche 18</a>) ; Agentic Misalignment, 2025 (<a href="#p19">fiche 19</a>).</li>
+<li>E. Wallace et al., « The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions », OpenAI, 2024.</li>
+<li>T. Korbak et al., Chain of Thought Monitorability, 2025 (<a href="#p80">fiche 80</a>).</li>
+<li>J. Schlatter, B. Weinstein-Raun, J. Ladish, « Incomplete Tasks Induce Shutdown Resistance in Some Frontier LLMs », 2025-2026 (<a href="#p104">fiche 104</a>).</li>
+<li>S. Lee, H. Kim, S. Park, « Can We Stop Malicious AI? KILLBENCH », 2025-2026 (<a href="#p105">fiche 105</a>).</li>
+<li>S. Goldstein, P. Robinson, « Shutdown-seeking AI », <i>Philosophical Studies</i>, 2025 ; V. Conitzer, « Shutdown Safety Valves for Advanced AI », 2026 (<a href="#p106">fiche 106</a>).</li>
+</ul>

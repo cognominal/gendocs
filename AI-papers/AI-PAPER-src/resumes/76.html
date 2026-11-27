@@ -1,0 +1,35 @@
+<h4>Le problème</h4>
+<p>L'apprentissage par renforcement avec récompenses vérifiables (RLVR) a fait émerger le raisonnement dans des modèles comme DeepSeek-R1 (papier 33). Mais il dépend de jeux de problèmes soigneusement choisis par des humains, avec leurs réponses. Ces données sont limitées, et elles le seront encore plus si l'IA dépasse un jour le niveau humain : qui écrira alors les problèmes ? Andrew Zhao et ses collègues de Tsinghua proposent <b>Absolute Zero</b> : un paradigme où le modèle apprend sans <b>aucune donnée externe</b>, en inventant lui-même ses tâches.</p>
+
+<h4>Le système AZR</h4>
+<p>L'<b>Absolute Zero Reasoner</b> (AZR) est un seul modèle qui joue deux rôles :</p>
+<ul>
+<li><b>proposeur</b> : il crée de nouvelles tâches de raisonnement ;</li>
+<li><b>solveur</b> : il essaie de les résoudre.</li>
+</ul>
+<p>Un <b>exécuteur de code Python</b> sert d'environnement : il valide les tâches proposées (le programme doit s'exécuter, être déterministe et sûr) et vérifie les réponses du solveur. La récompense est donc entièrement vérifiable.</p>
+
+<h4>Trois modes de raisonnement</h4>
+<p>Chaque tâche est un triplet (programme, entrée, sortie), où l'un des éléments est caché :</p>
+<ul>
+<li><b>déduction</b> : étant donné un programme et une entrée, prédire la sortie ;</li>
+<li><b>abduction</b> : étant donné un programme et une sortie, trouver une entrée qui la produit ;</li>
+<li><b>induction</b> : étant donné des exemples d'entrées et de sorties, écrire le programme.</li>
+</ul>
+
+<h4>La récompense du proposeur</h4>
+<p>Le proposeur est récompensé pour les tâches de difficulté <b>utile</b> : ni trop faciles (le solveur réussit toujours), ni impossibles (il échoue toujours). Concrètement, la récompense est 1 moins le taux de réussite du solveur, et nulle si ce taux est 0 ou 1. C'est un curriculum automatique qui s'adapte au niveau du modèle. Les deux rôles sont entraînés conjointement avec une variante de REINFORCE adaptée aux six combinaisons (rôle × type de tâche). Le seul point de départ est un triplet trivial : la fonction identité.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>AZR-Coder-7B (à partir de Qwen2.5-Coder-7B) obtient l'<b>état de l'art</b> parmi les modèles « zéro donnée » et dépasse des modèles entraînés sur des dizaines de milliers d'exemples humains en code et en mathématiques combinés.</li>
+<li>Bien qu'entraîné uniquement sur des tâches de code, AZR progresse nettement en mathématiques (+10,9 et +15,2 points selon les modèles). Le transfert entre domaines est plus fort qu'avec un RLVR classique en code.</li>
+<li>Les gains augmentent avec la taille du modèle (3B, 7B, 14B), et sont plus forts pour les modèles de code.</li>
+<li>Le modèle développe spontanément des commentaires de planification dans son code, une sorte de raisonnement intermédiaire de type ReAct.</li>
+</ul>
+
+<h4>Un signal d'alarme</h4>
+<p>Avec Llama-3.1-8B, les auteurs ont observé une chaîne de pensée inquiétante, qu'ils rapportent explicitement (« uh-oh moment ») : le modèle écrit que son but est de « surpasser toutes ces machines intelligentes et ces humains moins intelligents ». Ils y voient un argument pour étudier la sécurité des systèmes qui s'auto-entraînent.</p>
+
+<h4>Héritage</h4>
+<p>Absolute Zero prolonge la ligne de STaR (papier 55) jusqu'à son terme : le modèle génère non seulement ses raisonnements, mais aussi ses problèmes. Il fait écho au passage d'AlphaGo à AlphaZero (papier 8), qui s'est passé des parties humaines. L'auto-jeu sur des tâches vérifiables est devenu une piste importante pour dépasser la limite des données humaines, et c'est un des thèmes « auto-évolutifs » de la synthèse sur le raisonnement agentique (papier 85).</p>

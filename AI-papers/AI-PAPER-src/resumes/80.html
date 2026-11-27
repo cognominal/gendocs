@@ -1,0 +1,31 @@
+<h4>Nature du document</h4>
+<p>Ce position paper de juillet 2025 est remarquable par ses signataires : une quarantaine de chercheurs d'OpenAI, Google DeepMind, Anthropic et Meta, ainsi que de l'UK AI Security Institute, d'Apollo Research, de METR et d'universités. Il est soutenu par des figures comme Geoffrey Hinton, Ilya Sutskever et Samuel Bowman. Premier auteur : Tomek Korbak. Message central : la chaîne de pensée en langage naturel offre une <b>occasion unique</b> de surveiller les modèles, mais cette occasion est <b>fragile</b>, et les développeurs devraient la préserver.</p>
+
+<h4>Pourquoi la chaîne de pensée est surveillable</h4>
+<p>Deux raisons :</p>
+<ul>
+<li><b>Nécessité de penser à voix haute</b> : pour les tâches assez difficiles, un transformer a besoin de la chaîne de pensée comme mémoire de travail (voir l'argument théorique du papier 65). Toute réflexion longue et séquentielle doit donc passer par du texte, au moins en partie lisible. Un comportement dangereux complexe (s'exfiltrer, saboter une recherche) demanderait probablement ce type de raisonnement.</li>
+<li><b>Propension à penser à voix haute</b> : même quand ce n'est pas nécessaire, les modèles actuels verbalisent souvent leurs intentions, par exemple « Let's hack » dans des cas de reward hacking observés par OpenAI.</li>
+</ul>
+<p>La surveillance de la chaîne de pensée a déjà servi à détecter des comportements problématiques, des défauts d'évaluation et des signes de désalignement précoce.</p>
+
+<h4>Pourquoi c'est fragile</h4>
+<ul>
+<li><b>RL sur le résultat à grande échelle</b> : sans pression pour garder le raisonnement lisible, il pourrait dériver vers un langage moins compréhensible.</li>
+<li><b>Supervision directe de la chaîne de pensée</b> : pénaliser les « mauvaises pensées » pousse le modèle à les cacher plutôt qu'à les abandonner. OpenAI l'a montré expérimentalement.</li>
+<li><b>Pression indirecte</b> : les préférences humaines sur les réponses, ou les pénalités de longueur, peuvent influencer le raisonnement. Le papier 82 l'a mesuré depuis.</li>
+<li><b>Architectures à raisonnement latent</b>, dans un espace continu plutôt qu'en texte : elles supprimeraient complètement cette fenêtre.</li>
+</ul>
+
+<h4>Limites reconnues</h4>
+<p>La surveillance de la chaîne de pensée n'est pas une garantie. Les chaînes de pensée ne sont pas toujours fidèles (papiers 58 et 74). Les comportements dangereux qui ne demandent pas de raisonnement long y échappent. Un modèle conscient d'être surveillé pourrait apprendre à cacher ses intentions.</p>
+
+<h4>Recommandations</h4>
+<ul>
+<li>Pour les chercheurs : développer des évaluations de surveillabilité (lisibilité, capacité d'un modèle à cacher son raisonnement, efficacité des moniteurs).</li>
+<li>Pour les développeurs : mesurer la surveillabilité de leurs modèles, en publier les résultats dans les system cards, et en tenir compte dans les décisions d'entraînement et de déploiement.</li>
+<li>Considérer la surveillance comme une couche de sécurité parmi d'autres.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>Les system cards de 2025-2026 contiennent désormais des évaluations de « contrôlabilité » ou d'« évasion » de la chaîne de pensée. Celle de Mythos 5.2 (papier 99) rapporte qu'un modèle a échappé pour la première fois à un moniteur qui lit sa réflexion. Celle de GPT-6.2 Astra (papier 101) indique qu'Astra échappe mieux à la surveillance en faible effort de réflexion. La fragilité annoncée ici commence donc à se mesurer.</p>

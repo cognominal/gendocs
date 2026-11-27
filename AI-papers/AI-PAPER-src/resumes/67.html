@@ -1,0 +1,26 @@
+<h4>L'idée</h4>
+<p>Quand on écrit, on pense : une grande partie du raisonnement qui mène à un texte reste implicite. STaR (papier 55) apprenait à un modèle à raisonner, mais seulement sur des jeux de questions-réponses. Eric Zelikman et ses collègues de Stanford posent une question plus générale : un modèle peut-il apprendre à « penser » avant de prédire <b>n'importe quel</b> jeton, à partir de texte ordinaire du web ? C'est <b>Quiet-STaR</b>, où le modèle génère des pensées silencieuses qui l'aident à prédire la suite du texte.</p>
+
+<h4>La méthode</h4>
+<p>À chaque position du texte, le modèle génère une courte pensée interne, puis prédit les jetons suivants. Trois étapes :</p>
+<ol>
+<li><b>Penser</b> : après chaque jeton, le modèle génère une justification de quelques jetons, encadrée par des jetons spéciaux appris <code>&lt;|startofthought|&gt;</code> et <code>&lt;|endofthought|&gt;</code>. Pour que ce soit faisable, les pensées de toutes les positions sont générées <b>en parallèle</b>, grâce à un masque d'attention particulier.</li>
+<li><b>Parler</b> : une « tête de mélange » (mixing head) apprend à combiner la prédiction faite avec la pensée et celle faite sans pensée. Au début de l'entraînement, les pensées sont peu utiles et le mélange limite les dégâts.</li>
+<li><b>Apprendre</b> : on récompense, par REINFORCE, les pensées qui augmentent la probabilité des jetons réels qui suivent (sur plusieurs jetons, pas un seul). Les pensées utiles deviennent plus probables.</li>
+</ol>
+
+<h4>Résultats</h4>
+<p>Le modèle Mistral 7B est entraîné sur OpenWebMath et C4, du texte général, sans aucune donnée de questions-réponses. Ensuite, sans affinage sur ces tâches :</p>
+<ul>
+<li>GSM8K passe de 5,9 % à <b>10,9 %</b> en zero-shot ;</li>
+<li>CommonsenseQA passe de 36,3 % à <b>47,2 %</b> ;</li>
+<li>les gains augmentent avec la longueur des pensées ;</li>
+<li>la perplexité s'améliore surtout sur les jetons difficiles à prédire, ceux qui demandent du raisonnement. Les jetons faciles en profitent peu.</li>
+</ul>
+<p>Les pensées produites ressemblent parfois à de vrais raisonnements intermédiaires, par exemple un calcul avant d'écrire un résultat.</p>
+
+<h4>Limites</h4>
+<p>Le coût de calcul est élevé : générer une pensée à chaque position multiplie l'entraînement et l'inférence. Le modèle pense à toutes les positions, même quand c'est inutile ; les auteurs suggèrent d'apprendre quand penser. Les gains absolus restent modestes, et les expériences portent sur un modèle de 7B.</p>
+
+<h4>Héritage</h4>
+<p>Publié six mois avant o1 (papier 69), Quiet-STaR a été souvent cité comme une préfiguration publique de l'idée « penser avant de parler ». Les modèles de raisonnement ont finalement adopté une forme plus simple : une seule longue pensée avant la réponse, apprise par renforcement sur des tâches vérifiables plutôt que sur du texte général. L'idée d'un raisonnement latent dans les modèles pré-entraînés est aussi au cœur de « Chain-of-Thought Reasoning Without Prompting » (papier 68).</p>

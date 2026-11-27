@@ -1,0 +1,33 @@
+<h4>Le contexte</h4>
+<p>Le 20 janvier 2025, deux laboratoires chinois publient le même jour des modèles de raisonnement au niveau d'o1 (papier 69) : DeepSeek-R1 (papier 33) et <b>Kimi k1.5</b> de Moonshot AI. Les deux rapports décrivent un apprentissage par renforcement à grande échelle avec des récompenses vérifiables, sans recherche arborescente explicite. Celui de Kimi insiste sur l'échelle du contexte et sur la multimodalité.</p>
+
+<h4>Les choix clés</h4>
+<ul>
+<li><b>Contexte long pour le RL</b> : la fenêtre de génération pendant l'entraînement est étendue jusqu'à <b>128 000 jetons</b>. Le rapport présente la longueur du contexte comme un axe d'échelle à part entière : plus le modèle peut réfléchir longtemps, mieux il résout les problèmes difficiles.</li>
+<li><b>Partial rollouts</b> : générer des trajectoires de 128K jetons est très coûteux. Le système découpe les longues trajectoires en segments, met en réserve celles qui sont inachevées et les reprend à l'itération suivante, ce qui évite qu'une seule génération très longue ne bloque tout le lot.</li>
+<li><b>Une formulation simple</b> : pas de MCTS, pas de modèle de valeur, pas de modèle de récompense par étape (contrairement à « Let's Verify Step by Step », papier 61). Une variante de mirror descent en ligne optimise directement la politique. Les auteurs soutiennent qu'une longue chaîne de pensée peut contenir, de manière implicite, la planification, la réflexion et la correction qu'apporterait une recherche explicite.</li>
+<li><b>Pénalité de longueur</b> : pour éviter que les réponses ne s'allongent sans fin, une récompense supplémentaire favorise les réponses courtes parmi les correctes.</li>
+<li><b>Données</b> : un soin particulier à la sélection des problèmes (difficulté estimée par le taux de réussite, exclusion des questions faciles à deviner comme les QCM et les vrai/faux), avec texte et images.</li>
+</ul>
+
+<h4>Long2short</h4>
+<p>Le rapport consacre une partie importante au transfert du raisonnement long vers des modèles qui répondent court, pour un usage plus économique :</p>
+<ul>
+<li>fusion des poids d'un modèle long et d'un modèle court ;</li>
+<li>échantillonnage par rejet en gardant la réponse correcte la plus courte ;</li>
+<li>DPO avec la réponse courte comme préférée ;</li>
+<li>RL avec une forte pénalité de longueur.</li>
+</ul>
+<p>La version courte de k1.5 dépasse largement GPT-4o et Claude 3.5 Sonnet : <b>60,8</b> à l'AIME 2024 et 94,6 sur MATH-500, soit jusqu'à +550 % par rapport aux modèles comparables sur certains benchmarks.</p>
+
+<h4>Résultats en mode long</h4>
+<ul>
+<li>AIME 2024 : <b>77,5</b> ;</li>
+<li>MATH-500 : 96,2 ;</li>
+<li>Codeforces : 94e percentile ;</li>
+<li>MathVista : 74,9, une force en raisonnement visuel.</li>
+</ul>
+<p>Ces chiffres sont comparables à ceux d'o1 à la même époque.</p>
+
+<h4>Héritage</h4>
+<p>Le rapport a été éclipsé médiatiquement par DeepSeek-R1, qui publiait ses poids. Il reste instructif sur l'ingénierie du RL à long contexte et sur le problème d'efficacité, qui deviendra un champ de recherche à part entière (papiers 79, 81 à 84). Moonshot a ensuite publié Kimi K2 (juillet 2025), un modèle ouvert orienté agents.</p>

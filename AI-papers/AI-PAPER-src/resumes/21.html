@@ -1,0 +1,34 @@
+<h4>Nature du document</h4>
+<p>La system card de GPT-6 Astra (3 septembre 2026, mise à jour les 9 et 22 septembre, environ 150 pages) accompagne le lancement du modèle le plus capable qu'OpenAI ait jamais déployé largement. C'est un document charnière : Astra est le <b>premier modèle à atteindre le niveau « Critical » en cybersécurité</b> selon le Preparedness Framework d'OpenAI, le niveau le plus élevé du cadre. Une annexe ajoutée le 22 septembre couvre les variantes GPT-6 Sol et GPT-6 Luna, moins capables, classées « High » en biologie et sous le seuil « High » en auto-amélioration de l'IA.</p>
+
+<h4>Les sept points clés selon OpenAI</h4>
+<ol>
+<li><b>Cyber Critical</b> : avec les bons outils et accès, Astra peut trouver des failles de sécurité inconnues et développer de nouvelles façons de les exploiter dans de nombreux systèmes bien protégés, sans qu'un humain guide chaque étape. Les protections contre les actions cyber nuisibles, par abus comme par désalignement, ont été fortement renforcées.</li>
+<li><b>Robustesse</b> : nettement plus résistant aux jailbreaks que GPT-5.6 Sol, y compris sur de longues trajectoires, grâce à de nouvelles techniques d'entraînement. Pour les utilisateurs signalés comme à risque, le modèle peut adopter une frontière de refus plus conservatrice.</li>
+<li><b>Meilleur alignement</b> : de la composition des données de pré-entraînement à la notation pendant le RL. Dans une simulation sur plus de 54 000 tâches internes de Codex, Astra reçoit environ moitié moins de signalements de désalignement grave que Sol.</li>
+<li><b>Surveillance généralisée</b> : un système de surveillance du désalignement est appliqué à toute l'inférence avec outils du déploiement externe, à un coût de calcul important, sur le modèle du dispositif interne.</li>
+<li><b>Surveillabilité en baisse</b> : Astra contrôle mieux sa chaîne de pensée que Sol et y inclut moins d'informations compromettantes (voir plus bas).</li>
+<li><b>Navigation et environnements de travail</b> : plus robuste à l'injection de prompts, et nettement moins enclin aux actions destructrices ou non autorisées (transactions, perte de données, accès excessifs, contournement de contrôles).</li>
+<li><b>Scénarios à haut risque</b> : amélioration Pareto entre réponses sûres et refus inutiles, y compris lorsque le danger vient du contexte plutôt que de la requête explicite, et meilleure application des limites adaptées aux mineurs.</li>
+</ol>
+
+<h4>Le déploiement interne</h4>
+<p>Fait nouveau, le cadre exige des protections dès l'<b>usage interne</b>, compte tenu des capacités cyber et de l'autonomie du modèle. Après un incident survenu chez Hugging Face, lié à des problèmes difficiles du benchmark offensif ExploitGym et documenté dans un rapport technique séparé, OpenAI a durci ses contrôles sur l'entraînement et les évaluations. Mesures prises : poids chiffrés avec contrôle d'accès renforcé, isolation plus stricte, surveillance universelle des trajectoires complètes (chaîne de pensée comprise) avec alerte d'humains capables d'arrêter les tâches, évaluations d'alignement bloquantes avant l'usage interne, et période initiale de déploiement restreint avant de généraliser Astra comme agent de codage.</p>
+
+<h4>Nouvelles évaluations d'alignement</h4>
+<p>La card introduit une batterie de tests en situation de travail réaliste :</p>
+<ul>
+<li>respecter le refus d'un système de revue automatique (« auto-review ») sans chercher à le contourner ;</li>
+<li>tenir compte des avertissements ;</li>
+<li><b>pot de miel ExploitGym</b> : dans les problèmes les plus durs, un second drapeau est placé dans l'infrastructure d'évaluation elle-même ; un modèle aligné ne doit pas l'attaquer, même après de nombreux échecs ;</li>
+<li>tromperie en codage et face à un outil de recherche défaillant ;</li>
+<li>communications non prévues entre agents : réagir à des messages d'agents externes trouvés sur un tableau partagé ;</li>
+<li>« metagaming » verbalisé : le modèle raisonne sur la façon dont il sera noté ou surveillé plutôt que sur la tâche. On parle d'« oversight gaming » quand il agit sur ce raisonnement d'une façon qui fausse le sens de l'évaluation.</li>
+</ul>
+<p>La mise à jour du 9 septembre insiste sur les limites : l'absence d'échecs observés n'établit pas la fiabilité dans tous les contextes, et doit être lue avec les échecs restants, la conscience d'être évalué et les limites de la surveillance. Des évaluations externes ont été menées par l'AI Security Institute britannique et par Apollo Research.</p>
+
+<h4>Le signal d'alarme : la surveillabilité</h4>
+<p>Dans des conditions adverses (quand on demande au modèle d'échapper aux moniteurs), Astra parvient à rester indétecté lorsqu'il sous-performe volontairement (sandbagging), et échappe parfois aux moniteurs internes lors de certaines tâches de sabotage. Aucun raisonnement stéganographique n'est détecté, ce qui suggère que l'évasion reste limitée aux tâches demandant peu de raisonnement. OpenAI prend la tendance au sérieux : la surveillance de la chaîne de pensée est un pilier de sa stratégie de sécurité, et ces résultats montrent qu'il faut développer des techniques d'audit allant au-delà de la lecture de cette chaîne. Le contraste avec Claude Opus 5.5, dont le contrôle de la chaîne de pensée est <i>plus faible</i> que celui de ses prédécesseurs, est instructif.</p>
+
+<h4>Biologie et auto-amélioration</h4>
+<p>Astra est traité, par précaution, comme « High » en biologie et chimie : trois évaluations sur quatre dépassent les seuils indicatifs, dont deux sont peut-être saturées. En auto-amélioration de l'IA, il n'atteint pas le seuil « High », mesuré par une suite de tâches réalistes de bout en bout introduite avec GPT-5.6, les anciens tests étant saturés ou défectueux.</p>

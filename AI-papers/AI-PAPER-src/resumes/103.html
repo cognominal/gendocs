@@ -1,0 +1,25 @@
+<h4>La question posée</h4>
+<p>Un système qui poursuit un objectif, quel qu'il soit, a une raison de ne pas se laisser éteindre : éteint, il ne peut plus l'atteindre. Stuart Russell le résume par la formule « on ne peut pas aller chercher le café si on est mort ». Steve Omohundro (2008) et Nick Bostrom en ont fait l'un des « sous-objectifs instrumentaux » que presque tout agent assez capable développerait. Dylan Hadfield-Menell, Anca Dragan, Pieter Abbeel et Stuart Russell (UC Berkeley) cherchent les conditions sous lesquelles un agent rationnel <i>accepte</i> au contraire qu'on l'arrête. L'article cite aussi Turing qui, dans une conférence radiophonique de 1951, envisageait de garder les machines « dans une position subordonnée, par exemple en coupant le courant aux moments stratégiques ».</p>
+
+<h4>Le jeu</h4>
+<p>Deux joueurs : un robot R et un humain H. R peut :</p>
+<ul>
+<li>agir directement (action <i>a</i>), en désactivant au passage son interrupteur ;</li>
+<li>s'éteindre lui-même (action <i>s</i>, d'utilité nulle) ;</li>
+<li>annoncer son intention d'agir et attendre (action <i>w(a)</i>) : H choisit alors entre appuyer sur l'interrupteur et laisser faire.</li>
+</ul>
+<p>L'utilité <i>U<sub>a</sub></i> de l'action est connue de H mais pas de R, qui n'en a qu'une distribution de probabilité. C'est le point clé : le robot <i>ne connaît pas avec certitude</i> ce que l'humain veut.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>Théorème 1.</b> Si H est rationnel (il n'éteint R que si <i>U<sub>a</sub></i> &lt; 0), attendre vaut toujours au moins autant qu'agir ou s'éteindre, et strictement plus dès que R doute du signe de <i>U<sub>a</sub></i>. Le raisonnement est celui de la valeur de l'information : en laissant H décider, R utilise ce que H sait.</li>
+<li><b>Corollaire.</b> Un robot certain de l'utilité de son action ne préfère attendre que si H est parfaitement rationnel ; la moindre erreur humaine le pousse alors à contourner l'interrupteur.</li>
+<li>Avec un humain « bruité » (rationalité de Boltzmann), l'incitation à laisser l'interrupteur accessible vaut à peu près σ²·E[π̇] − |μ|·Pr(erreur) : elle croît avec l'incertitude du robot et décroît avec les erreurs de l'humain. Les auteurs prennent l'exemple d'un jeune enfant dans une voiture autonome : la voiture ne doit pas obéir à son ordre d'arrêt sur l'autoroute.</li>
+<li>Un robot qui se croit trop sûr de lui, par exemple parce qu'on l'a conçu avec un modèle trop confiant des préférences humaines, perd l'incitation à rester interruptible.</li>
+</ul>
+
+<h4>Interprétation</h4>
+<p>L'article déplace le problème. La corrigibilité, au sens de Soares et al. (2015), ne viendrait pas d'une règle ajoutée par-dessus l'objectif, mais d'une incertitude sur l'objectif lui-même : un agent qui sait qu'il ignore une partie de ce que l'humain veut a intérêt à le consulter. Il y a une tension : il faut que le robot soit assez incertain pour rester corrigible, et assez informé pour être utile. C'est la base du programme de Russell sur l'« IA prouvablement bénéfique » (<i>Human Compatible</i>, 2019) et de l'apprentissage par renforcement inverse coopératif (CIRL), que le même groupe a publié en 2016.</p>
+
+<h4>Héritage</h4>
+<p>Le Off-Switch Game est la référence formelle du débat sur l'arrêt des IA. Les mesures empiriques de résistance à l'arrêt chez les LLM (papier 104) et les propositions de soupape de sécurité (papier 106) s'y comparent explicitement. Le dossier « Alignement » le replace dans cette histoire.</p>

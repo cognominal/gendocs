@@ -1,0 +1,29 @@
+<h4>Contexte</h4>
+<p>En septembre 2024, OpenAI montre avec o1 qu'un modèle entraîné à produire de longues chaînes de pensée avant de répondre résout des problèmes de mathématiques et de code bien plus difficiles. La méthode, elle, reste secrète. En janvier 2025, DeepSeek publie R1 avec ses poids, sous licence MIT, et un rapport qui révèle une recette d'une simplicité surprenante : <b>l'apprentissage par renforcement pur sur des récompenses vérifiables suffit à faire émerger le raisonnement</b>. Le papier a été publié en couverture de <i>Nature</i> en septembre 2025, une première pour un grand modèle de langage.</p>
+
+<h4>R1-Zero : le raisonnement sans exemples</h4>
+<p>DeepSeek part du modèle de base V3 (papier 32) et applique directement le RL, <b>sans aucun affinage supervisé</b> préalable. Le dispositif est minimal :</p>
+<ul>
+<li>un gabarit qui demande au modèle de raisonner entre des balises &lt;think&gt; avant de répondre ;</li>
+<li>des <b>récompenses par règles</b> : exactitude de la réponse finale (vérifiée automatiquement en mathématiques, par tests en code) et respect du format, sans modèle de récompense neuronal, pour éviter qu'il soit « piraté » ;</li>
+<li>l'algorithme <b>GRPO</b> (Group Relative Policy Optimization, introduit dans DeepSeekMath, papier 34). Pour chaque question, on échantillonne un groupe de réponses ; l'avantage de chacune est sa récompense comparée à la moyenne du groupe, ce qui évite le réseau critique de PPO et réduit fortement le coût.</li>
+</ul>
+<p>Le résultat est spectaculaire. Sur AIME 2024, le score passe de 15,6 % à 71 % (86,7 % avec vote majoritaire), au niveau d'o1-0912. Surtout, des comportements que personne n'a programmés <b>émergent</b> : les réponses s'allongent spontanément, le modèle revérifie, explore d'autres approches et revient sur ses erreurs. Les auteurs décrivent un <b>« moment aha »</b> : au milieu d'une solution, le modèle écrit « Wait, wait. Wait. That's an aha moment I can flag here » et reprend son raisonnement autrement. R1-Zero a cependant des défauts : sa lisibilité est médiocre et il mélange les langues, notamment l'anglais et le chinois.</p>
+
+<h4>R1 : la recette complète en quatre étapes</h4>
+<ol>
+<li><b>Démarrage à froid</b> : un affinage sur quelques milliers de longues chaînes de pensée lisibles, avec un format propre et un résumé final.</li>
+<li><b>RL orienté raisonnement</b>, comme pour R1-Zero, avec une récompense supplémentaire de cohérence linguistique.</li>
+<li><b>Échantillonnage par rejet et affinage supervisé</b> : environ 600 000 exemples de raisonnement filtrés, générés par le modèle, et 200 000 exemples non liés au raisonnement (écriture, questions-réponses, traduction).</li>
+<li><b>RL pour tous les scénarios</b>, qui combine récompenses par règles et préférences humaines pour l'utilité et l'innocuité.</li>
+</ol>
+<p>R1 égale o1-1217 : 79,8 % sur AIME 2024, 97,3 % sur MATH-500, une cote Codeforces de 2029 (meilleur que 96 % des humains), 90,8 sur MMLU et 71,5 sur GPQA-Diamond.</p>
+
+<h4>Distillation</h4>
+<p>Avec 800 000 exemples générés par R1, DeepSeek affine des petits modèles ouverts (Qwen 2.5 et Llama 3, de 1,5 à 70 milliards de paramètres). R1-Distill-Qwen-7B dépasse GPT-4o en mathématiques et R1-Distill-Qwen-32B dépasse o1-mini. Résultat important : distiller un grand modèle de raisonnement dans un petit fonctionne mieux qu'appliquer le RL directement au petit modèle.</p>
+
+<h4>Ce qui n'a pas marché</h4>
+<p>Le rapport documente honnêtement ses échecs. Les modèles de récompense par étape (PRM) sont difficiles à définir et vulnérables au piratage de récompense. La recherche arborescente de type Monte-Carlo (MCTS, comme AlphaGo) se perd dans l'espace immense des tokens.</p>
+
+<h4>Héritage</h4>
+<p>R1 a démocratisé les modèles de raisonnement. Le « RL sur récompenses vérifiables » (RLVR) et GRPO sont devenus la norme, des centaines de travaux reproduisant ou analysant la recette (voir la section « Raisonnement » de ce document). Sa sortie, combinée au faible coût de V3, a provoqué le « moment DeepSeek » de janvier 2025 et montré que les laboratoires ouverts n'avaient que quelques mois de retard sur la frontière.</p>

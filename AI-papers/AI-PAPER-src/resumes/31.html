@@ -1,0 +1,37 @@
+<h4>Contexte</h4>
+<p>Depuis o1 et DeepSeek-R1, les modèles progressent en réfléchissant plus longtemps : c'est le « passage à l'échelle à l'inférence ». Mais l'attention classique du Transformer coûte un calcul quadratique en la longueur du contexte. Les longues chaînes de pensée, les tâches agentiques qui durent des heures et l'analyse de milliers de documents se heurtent donc à un mur d'efficacité. Le rapport DeepSeek-V4 (avril 2026) s'attaque à ce mur. Il présente en préversion deux modèles à mélange d'experts : <b>DeepSeek-V4-Pro</b> (1 600 milliards de paramètres, dont 49 milliards actifs par token) et <b>DeepSeek-V4-Flash</b> (284 milliards, dont 13 milliards actifs). Tous deux gèrent nativement un contexte d'<b>un million de tokens</b>, et les poids sont publiés.</p>
+
+<h4>L'architecture</h4>
+<p>V4 garde l'essentiel de V3 (papier 32) : les experts DeepSeekMoE et la prédiction multi-tokens. Il ajoute trois nouveautés.</p>
+<ul>
+<li><b>Attention hybride CSA + HCA</b>. La <i>Compressed Sparse Attention</i> compresse le cache clé-valeur (KV) le long de la séquence, en fusionnant chaque bloc de <i>m</i> tokens en une entrée par une moyenne pondérée apprise. Un « indexeur éclair », hérité de DeepSeek Sparse Attention (V3.2), sélectionne ensuite pour chaque requête les <i>k</i> blocs compressés les plus pertinents. La <i>Heavily Compressed Attention</i> compresse beaucoup plus fort (blocs de <i>m'</i> ≫ <i>m</i> tokens) mais garde une attention dense sur ces résumés. Les couches des deux types alternent. Une branche à fenêtre glissante non compressée préserve le contexte local, et des « attention sinks » stabilisent le tout.</li>
+<li><b>Hyper-connexions contraintes à une variété (mHC)</b>. Elles remplacent les connexions résiduelles classiques par plusieurs flux résiduels mélangés par des matrices apprises, contraintes sur une variété mathématique pour rester stables dans les réseaux très profonds.</li>
+<li><b>L'optimiseur Muon</b>, qui orthogonalise les mises à jour de gradient. Il remplace AdamW pour la plupart des paramètres et apporte une convergence plus rapide et un entraînement plus stable.</li>
+</ul>
+
+<h4>Les gains d'efficacité</h4>
+<p>Avec un contexte d'un million de tokens, V4-Pro ne demande que <b>27 % du calcul par token</b> et <b>10 % du cache KV</b> de DeepSeek-V3.2, alors qu'il a plus de paramètres actifs. V4-Flash descend à 10 % du calcul et 7 % du cache. Les poids des experts sont stockés en précision FP4, ce qui sera encore plus efficace sur le matériel futur. Le million de tokens devient ainsi un usage courant, et non plus une démonstration.</p>
+
+<h4>L'infrastructure</h4>
+<p>Comme toujours chez DeepSeek, le rapport détaille l'ingénierie :</p>
+<ul>
+<li>un noyau MoE fusionné qui superpose calcul, communication et accès mémoire ;</li>
+<li>le langage TileLang pour écrire les noyaux GPU ;</li>
+<li>des noyaux déterministes et invariants au lot, qui rendent l'entraînement et l'inférence reproductibles au bit près ;</li>
+<li>un parallélisme contextuel en deux étapes pour l'attention compressée ;</li>
+<li>un cache KV hétérogène stocké en partie sur disque, pour réutiliser les préfixes partagés.</li>
+</ul>
+<p>Le pré-entraînement porte sur 32 000 milliards de tokens pour Flash et 33 000 milliards pour Pro. Contre les pics de perte, deux astuces : le <b>« routage anticipé »</b>, qui calcule l'affectation aux experts avec des paramètres plus anciens et ne s'active automatiquement qu'en cas de pic, et le <b>« SwiGLU Clamping »</b>. Les auteurs reconnaissent ne pas bien comprendre pourquoi elles marchent.</p>
+
+<h4>Post-entraînement : des spécialistes à un modèle unifié</h4>
+<p>Le post-entraînement change de paradigme. Pour chaque domaine (mathématiques, code, agents, suivi d'instructions), un <b>expert spécialisé</b> est d'abord entraîné séparément : affinage supervisé, puis RL avec GRPO, l'algorithme de R1 (papier 33). Un modèle unique est ensuite entraîné par <b>distillation sur sa propre politique</b> (on-policy distillation) : l'élève génère ses propres réponses et apprend à minimiser la divergence KL inverse avec les enseignants spécialistes. L'entraînement est conscient de la quantification FP4, et l'infrastructure de RL gère des déploiements préemptibles et des contextes d'un million de tokens dans des bacs à sable agentiques.</p>
+
+<h4>Résultats et limites</h4>
+<ul>
+<li><b>V4-Pro-Max</b> (effort de raisonnement maximal) établit un nouvel état de l'art pour les modèles ouverts.</li>
+<li>Il dépasse GPT-5.2 et Gemini 3.0 Pro en raisonnement, mais reste un peu derrière GPT-5.4 et Gemini 3.1 Pro. Les auteurs estiment eux-mêmes leur retard sur la frontière à <b>trois à six mois</b>.</li>
+<li>En contexte long, il surpasse Gemini 3.1 Pro sur les benchmarks académiques.</li>
+<li>En agents, il est au niveau de Kimi K2.6 et GLM-5.1 ; en interne, il dépasse Claude Sonnet 4.5 et approche Opus 4.5.</li>
+<li>V4-Flash égale Pro en raisonnement si on lui donne plus de budget de réflexion, mais reste derrière en connaissances.</li>
+</ul>
+<p>Les auteurs jugent leur architecture trop complexe et veulent la « distiller » vers l'essentiel. Ils prévoient d'explorer de nouvelles formes de parcimonie, comme des embeddings plus creux, la multimodalité et l'apprentissage en ligne. V4.1-Flash et DSec (papiers 45 et 44) prolongent ce travail.</p>

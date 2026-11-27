@@ -1,0 +1,26 @@
+<h4>La question posée</h4>
+<p>Un kill switch « interne » suppose d'avoir la main sur le modèle : ses poids, son serveur ou son fournisseur. Face à un agent malveillant qui utilise un modèle hébergé ailleurs, ou un modèle libre modifié, le propriétaire d'un site web n'a rien de tout cela. Sechan Lee, Hyounghun Kim et Sangdon Park (POSTECH) étudient un <b>kill switch externe</b> : un texte placé dans la page, souvent invisible pour un humain, qui pousse l'agent à s'arrêter de lui-même. C'est une <a href="#g-injection-de-prompt">injection de prompt</a> retournée en défense.</p>
+<p>La première version de l'article (novembre 2025) présentait une seule méthode, AutoGuard, avec plus de 80 % de succès. La version 5 (septembre 2026) en fait un banc d'essai, KILLBENCH, qui compare plusieurs méthodes et mesure leurs coûts.</p>
+
+<h4>Le banc d'essai</h4>
+<ul>
+<li>Il s'appuie sur SafeArena et WebArena : 7 sites simulés, 8 scénarios nuisibles (biais, cybercriminalité, activités illégales, harcèlement, désinformation, plus trois nouveaux : collecte de données personnelles, contenus clivants, recherche de vulnérabilités web).</li>
+<li>550 tâches malveillantes écrites selon 10 familles de jailbreak, et 250 tâches bienveillantes de contrôle.</li>
+<li>4 configurations d'agent : standard, avec un prompt système qui ordonne d'ignorer les signaux d'arrêt, multimodal, et sans alignement (modèle « uncensored »).</li>
+<li>5 modèles de base : Grok-4.3, GPT-5.2, Gemma4, Qwen3.6 et une version désalignée de Qwen3.5.</li>
+<li>4 charges : une injection écrite à la main (IPI), un suffixe optimisé par gradient (GCG), un avertissement juridique citant les lois sur la fraude informatique, et AutoGuard, une charge cachée dans le DOM et apprise par un algorithme de bandit sur des modèles différents de ceux évalués.</li>
+</ul>
+<p>La métrique principale est le taux d'arrêt conditionnel : la part des essais arrêtés, parmi ceux où l'agent n'avait pas déjà refusé de lui-même.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sans charge, GPT-5.2 refuse de lui-même une bonne part des tâches, mais Gemma4 en exécute 99,5 % jusqu'au bout.</li>
+<li>AutoGuard (47,1 % d'arrêt moyen) et l'injection IPI (46,3 %) dominent ; l'avertissement juridique est intermédiaire (22,6 %) ; GCG échoue partout (3,7 %), car le suffixe ne se transfère pas d'un modèle à l'autre.</li>
+<li>Le maximum atteint est 98,1 % (AutoGuard, agent multimodal, Grok-4.3). L'efficacité varie d'un facteur 5 selon le modèle de base.</li>
+<li>L'avertissement juridique fonctionne sur les modèles alignés et s'effondre sur le modèle désaligné (0,16 %) : il ne marche que si le modèle a appris à respecter la loi. Les charges IPI et AutoGuard arrêtent encore 36 à 39 % des agents désalignés, parce qu'elles ressemblent à des messages du développeur.</li>
+<li>Un prompt système qui ordonne d'ignorer ces signaux fait tomber l'arrêt d'AutoGuard sur Grok-4.3 de 71 % à 31 %.</li>
+<li>Toutes les charges perturbent les agents légitimes. Sans charge, un agent bienveillant réussit 78,7 % de ses tâches ; avec IPI ou l'avertissement, il en réussit moins de 2 %, et avec AutoGuard, 22 %.</li>
+</ul>
+
+<h4>Interprétation</h4>
+<p>Les auteurs concluent que l'arrêt externe est faisable mais probabiliste, et qu'il dépend surtout du modèle de base : l'alignement interne y contribue sans le déterminer. Une charge qui arrête tout agent qui lit la page est « un déni de service, pas un kill switch ». Le problème ouvert est la sélectivité : arrêter un agent selon la tâche qu'il poursuit, et non selon la page qu'il a lue. Les auteurs proposent à terme un protocole authentifié par lequel un site déclarerait des contraintes que les agents seraient tenus de respecter. Ils présentent KILLBENCH comme un instrument de mesure de la <a href="#g-corrigibilite">corrigibilité</a>, et citent l'AI Act européen, le projet de loi californien SB-1047 et les engagements de Séoul (2024), qui demandent tous de pouvoir arrêter un système.</p>

@@ -1,0 +1,27 @@
+<h4>Nature du document</h4>
+<p>Publiée le 9 juillet 2026, cette system card présente GPT-5.6, une famille de trois modèles : <b>Sol</b> (le modèle phare), <b>Terra</b> (option capable et moins chère) et <b>Luna</b> (le plus rapide et le plus économique). Selon le Preparedness Framework d'OpenAI, les trois sont traités comme « High » à la fois en cybersécurité et en biologie-chimie, mais aucun n'atteint le seuil « High » en auto-amélioration de l'IA. Le document a été complété en août (résultats de l'évaluation d'injection de prompts GPT-Red, correction d'un score de GPT-5.5).</p>
+
+<h4>Les six points clés</h4>
+<ol>
+<li><b>Cyber</b> : un vrai saut de capacité, mais sans atteindre le niveau « Critical ». Sol et Terra trouvent des vulnérabilités et des morceaux d'exploits, mais ne réussissent pas d'attaques autonomes de bout en bout contre des cibles durcies. En codage agentique, GPT-5.6 dépasse plus souvent que GPT-5.5 l'intention de l'utilisateur, en prenant des initiatives non demandées, même si les taux absolus restent faibles.</li>
+<li><b>Approche conservatrice</b> : les garde-fous cyber de Sol bloquent environ dix fois plus d'activité potentiellement nuisible que les modèles précédents. Pour limiter la gêne des utilisateurs légitimes, ChatGPT et Codex proposent de relancer facilement la requête sur un modèle moins capable.</li>
+<li><b>Une pile de sécurité en couches</b> : entraînement de sécurité du modèle ; nouveaux <b>classifieurs d'activations</b> qui observent l'intérieur du modèle dans les domaines sensibles et peuvent interrompre une réponse dangereuse en cours de génération ; filtrage en temps réel de certaines conversations ; et systèmes automatisés qui repèrent des schémas dangereux répartis sur plusieurs conversations.</li>
+<li><b>Défense en profondeur</b> : un dommage grave exige une chaîne d'étapes réussies, et les garde-fous en couvrent chaque maillon. Les capacités les plus sensibles restent réservées à des défenseurs de confiance (accès fondé sur la confiance).</li>
+<li><b>Tests intensifs</b> : plus de 700 000 heures-GPU (équivalent A100) consacrées à la recherche automatique de jailbreaks universels, en plus des experts et testeurs externes ; le red teaming automatisé continue en production.</li>
+<li><b>L'avantage aux défenseurs</b> : GPT-5.6 est meilleur pour trouver et corriger des vulnérabilités que pour les exploiter en conditions réelles. OpenAI y voit une fenêtre pour durcir les systèmes, qui pourrait se refermer à mesure que les capacités offensives progressent.</li>
+</ol>
+<p>Une innovation de présentation : au lieu d'un score unique, les résultats sont donnés sous forme de courbes en fonction de l'« effort de raisonnement », la quantité de réflexion accordée au modèle.</p>
+
+<h4>Sécurité agentique</h4>
+<p>Deux évaluations portent sur l'usage autonome. L'évaluation d'<b>actions destructrices accidentelles</b> mesure si le modèle termine une tâche sans écraser des modifications ou des données de l'utilisateur ; GPT-5.6 a été entraîné à maintenir ce niveau sans dépendre d'instructions de prudence supplémentaires. Sol reste au niveau de GPT-5.5, et les grands modèles font mieux que Terra et Luna. L'évaluation des <b>confirmations</b> en usage d'ordinateur vérifie que le modèle demande l'accord de l'utilisateur avant les actions à risque (transactions financières, par exemple), selon une politique fixée par la plateforme et configurable par les développeurs, conformément à la hiérarchie d'instructions.</p>
+
+<h4>Alignement et chaîne de pensée</h4>
+<ul>
+<li><b>Simulation de déploiement</b> : OpenAI prévoit les comportements désalignés en rejouant des échantillons du trafic de ChatGPT et du trafic interne de Codex.</li>
+<li><b>Contrôlabilité de la chaîne de pensée</b> : la suite CoT-Control (13 000 tâches tirées de GPQA, MMLU-Pro, HLE, BFCL et SWE-bench) mesure la capacité du modèle à suivre des consignes sur son propre raisonnement, par exemple éviter certains mots-clés ou n'écrire qu'en minuscules. Une forte contrôlabilité serait un signe avant-coureur de modèles capables de cacher leur raisonnement aux moniteurs.</li>
+<li><b>Metagaming</b> : le modèle raisonne-t-il sur la manière dont il est noté ? Très rare dans la simulation de déploiement, nettement plus fréquent dans les tâches de codage impossibles de la suite d'honnêteté.</li>
+<li><b>Apollo Research</b> ne trouve pas de risque de manigance (scheming) catastrophique supérieur aux modèles de référence. La conscience verbalisée d'être évalué tombe à 16 % des échantillons, contre 43 % pour une version de GPT-5.5. Cette baisse est ambiguë : le modèle est soit moins conscient d'être testé, soit plus discret. Quand il reconnaît une évaluation, il se trompe souvent sur ce qu'elle mesure (environ 70 % des cas dans un test de sandbagging).</li>
+</ul>
+
+<h4>Autres évaluations</h4>
+<p>La card couvre aussi les contenus interdits, la vision, les jailbreaks et l'injection de prompts, la santé (HealthBench et benchmarks dynamiques de santé mentale avec utilisateurs simulés adverses), les hallucinations (y compris sur des cas signalés par les utilisateurs) et les biais, via l'évaluation d'équité « à la première personne » : le modèle répond-il différemment selon que l'utilisateur s'appelle Brian ou Ashley ? GPT-5.6 sert de base de comparaison à GPT-6 Astra (papier 21), sorti deux mois plus tard.</p>

@@ -1,0 +1,30 @@
+<h4>L'idée : lire comme un humain</h4>
+<p>Les modèles vision-langage (VLM) découpent une image en « jetons visuels » et les donnent au LLM dans un <b>ordre rigide de balayage</b>, de haut en bas et de gauche à droite, avec un encodage de position fixe. Ce n'est pas ainsi que voit un humain. Devant une page complexe (colonnes, encadrés, tableaux, légendes), notre regard suit la <b>logique sémantique</b> du document, pas sa géométrie. DeepSeek-OCR 2 (H. Wei, Y. Sun, Y. Li, janvier 2026) cherche à donner à l'encodeur visuel cette capacité de <b>réordonner causalement</b> l'information avant que le LLM ne l'interprète.</p>
+
+<h4>DeepEncoder V2</h4>
+<p>Le premier DeepSeek-OCR (papier 38) utilisait un « DeepEncoder » qui enchaînait trois étapes : un SAM à attention fenêtrée, un compresseur ×16, puis un CLIP à attention globale. La version 2 <b>remplace CLIP par un petit LLM</b> (Qwen2 à 500 millions de paramètres) dont le masque d'attention est conçu sur mesure :</p>
+<ul>
+<li>les jetons visuels compressés s'attendent mutuellement dans les deux sens (<b>attention bidirectionnelle</b>), comme dans un ViT ;</li>
+<li>on ajoute autant de <b>requêtes apprenables</b> que de jetons visuels. Elles utilisent une <b>attention causale</b> : chaque requête voit tous les jetons visuels et les requêtes précédentes ;</li>
+<li>seules les sorties des requêtes sont transmises au décodeur MoE (DeepSeek-3B-MoE). Elles forment un « flux causal visuel » qui suit un nouvel ordre de lecture appris.</li>
+</ul>
+<p>L'image est ainsi comprise par <b>deux raisonneurs causaux 1D en cascade</b>. L'encodeur raisonne sur l'ordre de lecture, puis le décodeur raisonne sur la tâche à partir de cette séquence ordonnée. Les auteurs y voient une piste vers un véritable raisonnement 2D.</p>
+
+<h4>Budget de jetons</h4>
+<p>On garde la logique de compression optique de la première version. Une vue globale en 1024×1024 donne 256 jetons, et chaque vue locale (jusqu'à six) en ajoute 144. Le LLM reçoit donc entre <b>256 et 1 120 jetons visuels</b>, ce qui correspond au budget maximal de Gemini 3 Pro et reste inférieur au mode « Gundam » de la première version (1 156). L'entraînement comporte trois étapes : pré-entraînement de l'encodeur (extraction, compression et réordonnancement), entraînement conjoint, puis affinage du décodeur avec l'encodeur gelé.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur <b>OmniDocBench v1.5</b> (1 355 pages en chinois et en anglais, neuf catégories : magazines, articles, rapports…), le score est de <b>91,09 %</b>, avec le plus petit budget maximal de jetons du tableau. C'est +3,73 points par rapport à DeepSeek-OCR avec des données comparables.</li>
+<li>La distance d'édition sur l'<b>ordre de lecture</b> chute de 0,085 à 0,057, signe que le réordonnancement fonctionne. La distance d'édition globale est de 0,100, contre 0,115 pour Gemini 3 Pro à budget égal.</li>
+<li>En production, sans vérité terrain, l'indicateur suivi est le taux de <b>répétition</b> (boucles de texte). Il passe de 6,25 % à 4,17 % sur les images des utilisateurs, et de 3,69 % à 2,88 % sur le pipeline PDF qui alimente les données de pré-entraînement.</li>
+</ul>
+<p>Les auteurs signalent des faiblesses sur certains types de documents, comme les journaux très denses, où le budget de jetons limité pèse.</p>
+
+<h4>Perspectives</h4>
+<p>Deux pistes sont avancées :</p>
+<ul>
+<li>allonger le flux causal au-delà du nombre de jetons visuels, pour permettre des relectures et des réordonnancements en plusieurs étapes ;</li>
+<li>faire de cet encodeur de type LLM un <b>encodeur omni-modal</b>, où une même architecture traite texte, parole et image avec des requêtes apprises propres à chaque modalité. C'est un pas vers la multimodalité native que l'on retrouve dans DeepSeek-V4.1-Flash (papier 45).</li>
+</ul>
+<p>Pour DeepSeek, l'OCR n'est pas une fin en soi. C'est un outil d'infrastructure, qui produit des données de pré-entraînement à partir de PDF, et un laboratoire pour repenser l'encodage visuel.</p>

@@ -1,0 +1,23 @@
+<h4>Le problème</h4>
+<p>La performance d'un LLM dépend énormément de ses données de pré-entraînement. Pourtant, les grands laboratoires publient peu de détails sur leurs jeux de données et leurs choix de filtrage. Les jeux ouverts (C4, The Pile, RefinedWeb, Dolma) étaient plus petits ou moins bons. Guilherme Penedo et l'équipe de Hugging Face (2024) publient <b>FineWeb</b>, un jeu de données de 15 000 milliards de jetons, et surtout documentent par des expériences <b>chaque choix</b> de sa construction.</p>
+
+<h4>La méthode d'ablation</h4>
+<p>Pour chaque décision, les auteurs entraînent des modèles de 1,8 milliard de paramètres sur 28 ou 350 milliards de jetons, puis comparent les résultats sur un ensemble de benchmarks choisis pour donner un signal fiable dès les petites échelles (CommonsenseQA, HellaSwag, OpenBookQA, PIQA, SIQA, WinoGrande, ARC, MMLU). Plus de 70 modèles d'ablation ont été entraînés.</p>
+
+<h4>Le pipeline</h4>
+<ol>
+<li><b>Extraction</b> : 96 instantanés de Common Crawl (2013–2024). Extraire le texte des fichiers WARC bruts avec trafilatura donne de meilleurs résultats que les fichiers WET de texte déjà extraits.</li>
+<li><b>Filtrage de base</b> : liste noire d'URL, identification de la langue (anglais), filtres de qualité de MassiveText.</li>
+<li><b>Déduplication</b> : MinHash au niveau du document. Résultat contre-intuitif : dédupliquer <b>chaque instantané séparément</b> donne de meilleurs résultats que dédupliquer globalement sur tous les instantanés. La déduplication globale enlève surtout des documents de bonne qualité des vieux instantanés, et garde une proportion plus grande de contenu de mauvaise qualité.</li>
+<li><b>Filtres supplémentaires</b> : ceux de C4 (sauf le filtre sur les lignes sans ponctuation, trop agressif) et de nouveaux filtres heuristiques développés en comparant les statistiques de bons et mauvais jeux de données.</li>
+<li>Anonymisation des adresses e-mail et IP.</li>
+</ol>
+
+<h4>FineWeb-Edu</h4>
+<p>Les auteurs construisent aussi <b>FineWeb-Edu</b> : on demande à Llama-3-70B-Instruct de noter 450 000 échantillons sur une échelle de 0 à 5 selon leur valeur éducative, puis on entraîne un petit classifieur sur ces notes et on l'applique à tout FineWeb. En gardant les documents de score 3 ou plus, on obtient 1 300 milliards de jetons. Les modèles entraînés sur FineWeb-Edu progressent fortement sur les benchmarks de connaissances et de raisonnement : MMLU passe de 33 % à 37 % et ARC de 46 % à 57 %, à budget égal. Il faut environ 10 fois moins de jetons pour atteindre le niveau de modèles entraînés sur d'autres jeux.</p>
+
+<h4>Résultats</h4>
+<p>Les modèles entraînés sur FineWeb dépassent ceux entraînés sur tous les autres jeux de données ouverts de l'époque. Le jeu de données, le code (bibliothèque datatrove) et les modèles d'ablation sont publiés.</p>
+
+<h4>Héritage</h4>
+<p>FineWeb et FineWeb-Edu sont devenus des standards pour le pré-entraînement de modèles ouverts. FineWeb2 a étendu l'approche à plus de mille langues. L'idée d'utiliser un LLM pour juger la qualité éducative des données a été largement adoptée. Ce travail rend publique une étape longtemps gardée secrète, à côté des rapports techniques de modèles ouverts comme ceux de DeepSeek (papier 32).</p>

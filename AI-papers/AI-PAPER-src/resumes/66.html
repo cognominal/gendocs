@@ -1,0 +1,33 @@
+<h4>Le problème</h4>
+<p>La géométrie euclidienne de compétition est un défi particulier pour l'IA. Les preuves humaines sont rarement écrites dans un langage formel, si bien que les données d'entraînement manquent : traduire des preuves de géométrie en langage machine est très difficile. Les méthodes symboliques classiques (méthode de Wu, bases de Gröbner, moteurs de déduction) savent démontrer beaucoup de choses, mais butent sur l'étape créative : ajouter le bon point, la bonne droite ou le bon cercle, c'est-à-dire une <b>construction auxiliaire</b>. Trieu Trinh et ses collègues de Google DeepMind présentent AlphaGeometry dans Nature (janvier 2024).</p>
+
+<h4>L'architecture neuro-symbolique</h4>
+<p>AlphaGeometry associe deux composants qui se relaient :</p>
+<ul>
+<li>un <b>moteur de déduction symbolique</b> (DD + AR : déduction de base de données et raisonnement algébrique sur les angles, rapports et distances) qui dérive toutes les conséquences possibles des prémisses ;</li>
+<li>un <b>modèle de langage</b> (un transformer de 151 millions de paramètres) qui, quand le moteur est bloqué, propose une construction auxiliaire.</li>
+</ul>
+<p>La boucle alterne : le moteur déduit tout ce qu'il peut ; si le but n'est pas atteint, le modèle ajoute un objet ; le moteur reprend. Une recherche en faisceau explore plusieurs propositions. Les auteurs y voient une version des « deux systèmes » de Kahneman : l'intuition rapide du modèle, la déduction lente et rigoureuse du moteur.</p>
+
+<h4>Des données entièrement synthétiques</h4>
+<p>L'innovation clé est l'entraînement <b>sans aucune démonstration humaine</b> :</p>
+<ol>
+<li>on tire au hasard environ un milliard de figures géométriques (points, droites, cercles, constructions) ;</li>
+<li>le moteur symbolique déduit toutes leurs conséquences ;</li>
+<li>pour chaque conséquence, une analyse de dépendance remonte aux prémisses vraiment nécessaires ;</li>
+<li>les objets de la figure qui servent à la preuve mais n'apparaissent pas dans l'énoncé minimal sont, par définition, des constructions auxiliaires.</li>
+</ol>
+<p>On obtient 100 millions d'exemples, dont 9 millions avec constructions auxiliaires. Le modèle apprend ainsi à proposer des constructions sans jamais avoir vu de preuve humaine.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur IMO-AG-30, 30 problèmes de géométrie des Olympiades internationales de 2000 à 2022 traduits dans son langage, AlphaGeometry en résout <b>25</b>. La méthode de Wu en résout 10, et le moteur symbolique seul 14. Un médaillé d'or humain en résout en moyenne 25,9.</li>
+<li>Les preuves sont lisibles. Un ancien entraîneur de l'équipe américaine les a notées : elles obtiendraient la note maximale.</li>
+<li>Sur un problème de 2004, AlphaGeometry a trouvé un énoncé plus général que l'original.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>Le système ne couvre que la géométrie plane exprimable dans son langage (pas d'inégalités, pas de géométrie combinatoire), et la traduction des énoncés reste manuelle. Ses preuves sont souvent longues et peu élégantes.</p>
+
+<h4>Héritage</h4>
+<p>AlphaGeometry 2 (2024), avec un modèle Gemini et un moteur plus rapide, a résolu le problème de géométrie de l'IMO 2024 en 19 secondes, contribuant avec AlphaProof (papier 70) à une performance de médaille d'argent. La recette « données synthétiques + vérification symbolique » a inspiré tous les travaux de mathématiques formelles qui ont suivi, jusqu'à DeepSeek-Prover-V2 (papier 40) et la formalisation du dernier théorème de Fermat (papier 42).</p>

@@ -1,0 +1,35 @@
+<h4>Objet</h4>
+<p>Cette synthèse (février 2025, une vingtaine d'auteurs d'universités et de laboratoires chinois et internationaux) reprend la distinction de Daniel Kahneman entre <b>Système 1</b> (pensée rapide, intuitive, automatique) et <b>Système 2</b> (pensée lente, délibérée, analytique). Les LLM classiques fonctionnent comme un Système 1 : ils génèrent la réponse d'un trait. Les modèles de raisonnement comme o1 (papier 69) et DeepSeek-R1 (papier 33) approchent un Système 2. La synthèse retrace cette transition et organise les techniques qui la rendent possible.</p>
+
+<h4>Les fondations</h4>
+<p>Les auteurs montrent que les modèles de raisonnement réunissent plusieurs traditions :</p>
+<ul>
+<li>les <b>LLM de base</b>, qui apportent connaissances et langage ;</li>
+<li>les <b>systèmes symboliques</b>, comme les systèmes experts et la logique, qui apportent la rigueur ;</li>
+<li>l'<b>apprentissage par renforcement</b> et la recherche, d'AlphaGo (papier 8) à AlphaZero, qui apportent la capacité d'explorer et de s'améliorer ;</li>
+<li>la <b>chaîne de pensée</b> (papier 53) et ses variantes.</li>
+</ul>
+
+<h4>Cinq leviers de construction</h4>
+<ol>
+<li><b>Structure-search</b> : la recherche explicite, en particulier MCTS, guidée par le modèle, dans la lignée de Tree of Thoughts (papier 59).</li>
+<li><b>Modèles de récompense</b> : récompense du résultat ou du processus (papier 61), récompenses vérifiables par règles, juges LLM.</li>
+<li><b>Auto-amélioration</b> : le modèle génère ses propres données d'entraînement (STaR, papier 55 ; Absolute Zero, papier 76).</li>
+<li><b>Macro-actions</b> : structurer le raisonnement par des actions de haut niveau comme « réfléchir », « vérifier », « décomposer ».</li>
+<li><b>Affinage par renforcement</b> : la recette de R1 (GRPO, papier 34), de Kimi k1.5 (papier 71) et des modèles ouverts qui ont suivi.</li>
+</ol>
+
+<h4>Évaluation</h4>
+<p>La synthèse compare les modèles de raisonnement sur les benchmarks de mathématiques (AIME, MATH-500), de code (Codeforces, LiveCodeBench), de science (GPQA), d'agents et de multimodalité. Elle constate que les modèles de raisonnement dominent nettement en mathématiques et en code, mais que l'avance est moins nette sur les tâches de connaissance ou de rédaction.</p>
+
+<h4>Défis ouverts</h4>
+<ul>
+<li><b>Efficacité</b> : les modèles réfléchissent trop sur les questions simples, la « surréflexion » (papiers 79, 81, 83 et 84).</li>
+<li><b>Systèmes 1 et 2 combinés</b> : savoir quand réfléchir lentement et quand répondre vite.</li>
+<li><b>Sécurité</b> : un raisonnement long ouvre de nouvelles surfaces d'attaque et de nouveaux risques de comportement trompeur.</li>
+<li><b>Multimodalité</b> : étendre le raisonnement lent aux images et à la vidéo.</li>
+<li><b>Raisonnement hors des mathématiques et du code</b>, où les récompenses sont moins vérifiables.</li>
+</ul>
+
+<h4>Intérêt</h4>
+<p>Cette synthèse est une bonne porte d'entrée pour comprendre comment les nombreuses lignes de recherche de cette section se sont rejointes en 2024-2025. La question de la combinaison des deux systèmes a trouvé une réponse pratique dans les modèles hybrides de 2025-2026, qui décident eux-mêmes de leur effort de réflexion (par exemple le curseur d'effort de GPT-5.6, papier 43).</p>

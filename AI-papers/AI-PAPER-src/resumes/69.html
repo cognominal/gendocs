@@ -1,0 +1,24 @@
+<h4>Nature du document</h4>
+<p>Ce billet de recherche d'OpenAI (12 septembre 2024) accompagne la sortie d'<b>o1-preview</b> et d'o1-mini. Ce n'est pas un article scientifique : il ne décrit pas l'algorithme en détail. Mais il marque un tournant : le premier modèle largement déployé qui « réfléchit » longuement avant de répondre, entraîné pour cela par <b>apprentissage par renforcement</b>. La system card associée est le papier 25.</p>
+
+<h4>La méthode, telle que décrite</h4>
+<ul>
+<li>Un algorithme d'apprentissage par renforcement à grande échelle, efficace en données, apprend au modèle à utiliser sa chaîne de pensée de façon productive.</li>
+<li>Le modèle apprend à <b>affiner sa stratégie</b>, à reconnaître et corriger ses erreurs, à décomposer les étapes difficiles et à essayer une autre approche quand la première échoue.</li>
+<li>Deux lois d'échelle : les performances progressent régulièrement avec le <b>calcul d'entraînement</b> (plus de RL) et avec le <b>calcul au moment du test</b> (plus de temps de réflexion). Les courbes sont présentées sur une échelle logarithmique.</li>
+</ul>
+<p>Le billet montre des exemples complets de chaînes de pensée (déchiffrement d'un code, programmation, mots croisés, chimie). On y voit des hésitations, des « Hmm », des vérifications, des retours en arrière : le style que la communauté reproduira avec les modèles ouverts.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>AIME 2024</b> (examen de qualification de l'olympiade américaine) : GPT-4o résout 13 % des problèmes ; o1 en résout 74 % avec un seul échantillon, 83 % avec un consensus sur 64 échantillons, 93 % en reclassant 1 000 échantillons avec une fonction de score apprise. Ce niveau le placerait parmi les 500 meilleurs étudiants américains.</li>
+<li><b>GPQA Diamond</b> (questions de sciences de niveau doctorat) : o1 dépasse des experts humains titulaires d'un doctorat, une première.</li>
+<li><b>Codeforces</b> : 89e percentile. Une version spécialisée a participé à l'IOI 2024 dans les conditions du concours.</li>
+<li>Gains importants sur MMMU, MMLU et la plupart des sujets d'examens ; en revanche, les évaluateurs humains ne préfèrent pas o1 à GPT-4o pour l'écriture personnelle.</li>
+</ul>
+
+<h4>Sécurité et chaîne de pensée cachée</h4>
+<p>OpenAI explique que raisonner sur les règles de sécurité en contexte améliore la robustesse aux jailbreaks, une idée développée dans « Deliberative Alignment » (papier 27). Le choix le plus discuté est de <b>ne pas montrer la chaîne de pensée brute</b> aux utilisateurs, seulement un résumé. Justification : pour pouvoir la surveiller, il faut qu'elle soit libre, sans entraînement qui la rende conforme aux règles ou agréable ; mais alors elle ne peut pas être montrée telle quelle. Raison commerciale aussi, reconnue à demi-mot : éviter que des concurrents ne la copient.</p>
+
+<h4>Héritage</h4>
+<p>o1 a ouvert l'ère des « modèles de raisonnement ». Il a provoqué une course pour reproduire la recette : DeepSeek-R1 (papier 33) et Kimi k1.5 (papier 71) en janvier 2025, s1 (papier 72), puis o3 (papier 26). Il a aussi relancé le débat sur la surveillabilité de la chaîne de pensée (papier 80), sur sa fidélité (papier 74) et sur la surréflexion (papiers 81 à 84).</p>

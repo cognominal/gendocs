@@ -1,0 +1,31 @@
+<h4>L'idée</h4>
+<p>La chaîne de pensée (papier 53) utilisait le décodage glouton : à chaque pas, le modèle choisit le jeton le plus probable et produit un seul raisonnement. Or un problème complexe admet souvent plusieurs chemins de raisonnement corrects, qui aboutissent tous à la même réponse, alors que les raisonnements erronés tendent à diverger vers des réponses différentes. Xuezhi Wang et ses collègues de Google proposent donc l'<b>auto-cohérence</b> (self-consistency) :</p>
+<ol>
+<li>on donne au modèle le même prompt de chaîne de pensée ;</li>
+<li>on échantillonne de nombreux raisonnements différents (par exemple 40) avec une température positive ;</li>
+<li>on extrait la réponse finale de chacun et on garde la plus fréquente : un <b>vote majoritaire</b>.</li>
+</ol>
+<p>La méthode ne demande ni entraînement, ni vérificateur, ni annotation supplémentaire. Elle « marginalise » les chemins de raisonnement : ce qui compte est la réponse, pas le chemin particulier.</p>
+
+<h4>Résultats</h4>
+<p>Sur quatre modèles (UL2 20B, LaMDA 137B, GPT-3 175B, PaLM 540B), les gains sont importants et systématiques :</p>
+<ul>
+<li>GSM8K : <b>+17,9 points</b> pour PaLM (de 56,5 % à 74,4 %) ;</li>
+<li>SVAMP +11 ; AQuA +12,2 ; StrategyQA +6,4 ; ARC-challenge +3,9 ;</li>
+<li>les gains augmentent avec le nombre de chemins échantillonnés, et commencent à plafonner vers 20 à 40 ;</li>
+<li>la fréquence de la réponse majoritaire est un bon indicateur de confiance : quand le vote est serré, le modèle se trompe plus souvent.</li>
+</ul>
+
+<h4>Comparaisons</h4>
+<ul>
+<li>Une moyenne pondérée par la probabilité de chaque chemin donne à peu près le même résultat que le vote simple ; la probabilité seule d'un chemin est mal calibrée.</li>
+<li>L'auto-cohérence bat la recherche en faisceau (beam search), qui produit des chemins trop similaires.</li>
+<li>Elle bat aussi des ensembles de prompts différents ou de permutations des exemples.</li>
+<li>Elle reste utile même quand la chaîne de pensée gloutonne nuit, par exemple pour certaines tâches où les petits modèles écrivent des raisonnements incohérents.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>Le coût est proportionnel au nombre d'échantillons. La méthode exige une réponse finale qu'on peut comparer (un nombre, une option) : elle ne s'applique pas directement à la génération libre. Des extensions ultérieures, comme « Universal Self-Consistency », utilisent un LLM pour choisir la réponse la plus cohérente dans un texte libre.</p>
+
+<h4>Héritage</h4>
+<p>L'auto-cohérence est l'une des premières démonstrations nettes du <b>passage à l'échelle au moment de l'inférence</b> : on améliore les résultats en dépensant plus de calcul par question plutôt qu'en entraînant un modèle plus grand. Le vote majoritaire (noté maj@k ou cons@k) est encore utilisé dans les évaluations des modèles de raisonnement, par exemple le « consensus sur 64 échantillons » d'o1 (papier 69). Il sert aussi de base de comparaison pour tous les travaux qui cherchent à faire mieux à budget égal : vérificateurs (papiers 52 et 61), arbre de pensées (papier 59), apprentissage par renforcement (papier 75). La critique de l'auto-correction (papier 62) montre qu'à coût égal, l'auto-cohérence bat aussi les débats entre modèles.</p>

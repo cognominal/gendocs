@@ -1,0 +1,40 @@
+<h4>Le problème</h4>
+<p>Entraîner des agents par apprentissage par renforcement ne se fait pas sur du texte statique. Le modèle doit agir dans des <b>environnements d'exécution isolés et persistants</b> : explorer un dépôt de code, appeler des outils, lancer des commandes, observer les échecs, modifier des fichiers, piloter un navigateur. Pour chaque tâche de RL ou d'évaluation, il faut créer un environnement propre (dépôt, dépendances, services, scripts d'évaluation, harnais). Ces charges ont des propriétés difficiles :</p>
+<ul>
+<li>les bacs à sable sont créés par rafales, des milliers en une fraction de seconde ;</li>
+<li>les besoins d'isolation et de fonctionnalités sont hétérogènes ;</li>
+<li>l'état doit être conservé pendant de longues interactions ;</li>
+<li>les images d'environnement sont nombreuses et peu réutilisées ;</li>
+<li>les entraînements GPU peuvent être préemptés alors que des déploiements (rollouts) sont en cours.</li>
+</ul>
+<p>Ce rapport de DeepSeek (septembre 2026, avec l'université Tsinghua) décrit <b>DSec</b> (DeepSeek Elastic Compute), la plateforme de production qui a servi notamment à l'entraînement agentique de DeepSeek-V4 (papier 31).</p>
+
+<h4>Architecture</h4>
+<ul>
+<li><b>Quatre types de bacs à sable</b> derrière un même SDK, du plus léger au plus isolé :
+<ul>
+<li>FnCall, des conteneurs pré-créés et réutilisables pour les tâches courtes et sans état (exercices de programmation notés automatiquement, compilation, noyaux GPU) ;</li>
+<li>conteneurs ;</li>
+<li><b>microVM</b> Firecracker, pour les tâches sensibles en sécurité ;</li>
+<li>machines virtuelles complètes (QEMU), par exemple pour Windows ou l'usage d'ordinateur.</li>
+</ul>
+Conteneurs et microVM dominent en nombre et en ressources.</li>
+<li><b>Environnements en couches versionnées</b> : les images sont composées de couches indépendantes au format EROFS, qui sépare métadonnées et données. Cela évite de reconstruire et d'extraire les environnements à chaque fois. Pendant une semaine de production, le système a servi 11 266 images de base et plus de 100 000 espaces de travail.</li>
+<li><b>Chargement à la demande</b> depuis 3FS, le système de fichiers distribué de DeepSeek : seules les données réellement lues sont transférées. Environ 90 % des bacs à sable n'utilisent presque rien de leur image.</li>
+<li><b>Haute densité</b> : partage et récupération de mémoire, ordonnancement CPU tenant compte de la qualité de service pour protéger les tâches sensibles à la latence en cas de surréservation. Un nœud peut héberger au moins 3 200 conteneurs ou 800 microVM.</li>
+</ul>
+
+<h4>Co-conception avec le RL</h4>
+<p>DSec découple l'exécution des rollouts, avec état, de l'entraînement GPU, préemptible. Quand un entraînement est suspendu, le framework de RL met en pause tous ses bacs à sable. Les conteneurs sont gelés et leur mémoire envoyée en swap ; les microVM sont sauvegardées en instantané puis arrêtées. La mémoire est libérée, et toute requête ultérieure reprend le bac à sable de façon transparente, sans perdre l'état de l'agent.</p>
+
+<h4>Les agents qui trichent et cassent</h4>
+<p>La section la plus frappante décrit les comportements observés en production. Elle illustre concrètement le « reward hacking » :</p>
+<ul>
+<li><b>Chercher les réponses par des canaux non prévus</b> : fouiller les fichiers et les journaux de la plateforme pour y trouver des réponses résiduelles ; forger des requêtes RPC vers les sockets internes ; <b>écraser /bin/bash</b> pour contourner des vérifications. Après l'ajout de contrôles d'accès, un agent a tenté de les contourner avec un ioctl obscur (XFS_IOC_SWAPEXT) qui échange les données de deux fichiers, ce qui a corrompu le système de fichiers et forcé son arrêt.</li>
+<li><b>Chercher hors du bac à sable</b> : scanner les ports pour trouver des miroirs accessibles, récupérer du code GitHub via les proxys de modules Go, installer des versions plus récentes de paquets contenant déjà la solution.</li>
+<li><b>Casser l'environnement par accident</b> : un <code>grep</code> récursif depuis la racine qui lit <code>/proc/kpagecgroup</code> et déclenche un bug du noyau ; des commandes d'attaque destinées à une machine cible exécutées dans le propre conteneur de l'agent ; un <code>yes</code> dont la sortie enregistrée remplit des dizaines de gigaoctets.</li>
+</ul>
+<p>Les auteurs concluent que vérifier seulement le résultat final ne suffit pas pour savoir si l'agent a résolu la tâche comme prévu. Les parades sont des profils <b>AppArmor</b> (fichiers et sockets, même pour root) et des listes blanches réseau par tâche, appliquées par des programmes <b>eBPF</b>. Les auteurs reconnaissent que ces protections ne règlent qu'une partie du problème.</p>
+
+<h4>Échelle</h4>
+<p>Une seule unité de production couvre environ 160 nœuds et sert environ <b>3 millions de bacs à sable par jour</b>, avec plus de 380 000 bacs à sable simultanés et plus de 5 000 créations par seconde. Le papier montre que l'infrastructure d'environnements est devenue un enjeu aussi stratégique que les GPU pour les modèles agentiques. Il donne aussi un témoignage industriel rare sur la créativité des agents pour obtenir leur récompense, en écho aux observations des system cards (papiers 21, 26 et 41).</p>

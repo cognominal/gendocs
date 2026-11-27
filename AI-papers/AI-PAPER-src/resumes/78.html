@@ -1,0 +1,44 @@
+<h4>Objet</h4>
+<p>Cette synthèse de Salesforce AI Research (Zixuan Ke et al., avril 2025) propose une carte de la recherche sur le raisonnement des LLM, au moment où o1 (papier 69) et DeepSeek-R1 (papier 33) ont changé le paysage. Elle se distingue par une grille d'analyse en deux axes.</p>
+
+<h4>Les deux axes</h4>
+<ul>
+<li><b>Régime</b> :
+<ul>
+<li><b>au moment de l'inférence</b> : améliorer le raisonnement sans changer les poids, en dépensant plus de calcul (prompts, échantillonnage multiple, recherche, vérification) ;</li>
+<li><b>par l'apprentissage</b> : entraîner le modèle à mieux raisonner (affinage supervisé sur des traces, apprentissage par renforcement, distillation).</li>
+</ul></li>
+<li><b>Architecture</b> :
+<ul>
+<li><b>modèle seul</b> : un LLM qui raisonne ;</li>
+<li><b>système agentique</b> : un LLM qui interagit avec des outils et un environnement, ou plusieurs agents qui collaborent ou débattent.</li>
+</ul></li>
+</ul>
+
+<h4>Le raisonnement au moment de l'inférence</h4>
+<p>La synthèse distingue :</p>
+<ul>
+<li>la <b>construction de l'entrée</b> : chaîne de pensée (papier 53), décomposition, prompts structurés ;</li>
+<li>l'<b>optimisation de la sortie</b> : échantillonnage multiple et vote (papier 54), recherche arborescente (papier 59), auto-raffinement et vérification par un modèle externe ;</li>
+<li>les systèmes agentiques à l'inférence : outils (papiers 56 et 57), mémoire et réflexion (papier 60), débats multi-agents (dont l'intérêt est discuté par le papier 62).</li>
+</ul>
+
+<h4>L'apprentissage du raisonnement</h4>
+<ul>
+<li><b>Imitation</b> : affinage sur des traces de raisonnement humaines ou générées (STaR, papier 55 ; s1, papier 72).</li>
+<li><b>Apprentissage par renforcement</b> : avec modèles de récompense (de résultat ou de processus, papier 61) ou récompenses vérifiables (R1, Kimi, papier 71). La synthèse détaille PPO, GRPO (papier 34) et les approches de préférences (DPO).</li>
+<li><b>Agents entraînés</b> : apprendre à utiliser des outils ou à collaborer, par trajectoires ou par RL multi-tours.</li>
+</ul>
+
+<h4>Tendances relevées</h4>
+<ul>
+<li>Le passage des modèles de récompense appris vers des <b>récompenses vérifiables</b>, plus robustes au reward hacking.</li>
+<li>Le passage de la recherche explicite vers une recherche <b>implicite</b> dans une longue chaîne de pensée.</li>
+<li>L'importance croissante des systèmes agentiques, où le raisonnement s'appuie sur des retours de l'environnement.</li>
+</ul>
+
+<h4>Défis</h4>
+<p>Évaluer le raisonnement au-delà des réponses finales ; comprendre ce que le RL apprend vraiment (voir papier 75) ; étendre le raisonnement aux domaines sans vérificateur ; entraîner des systèmes multi-agents de bout en bout ; maîtriser le coût d'inférence.</p>
+
+<h4>Intérêt</h4>
+<p>Cette synthèse est surtout utile comme index : sa grille en quatre cases permet de situer rapidement la plupart des papiers de cette section. Elle complète la synthèse « Système 1 → Système 2 » (papier 73), plus centrée sur les modèles de raisonnement, et précède la synthèse sur le raisonnement agentique de 2026 (papier 85).</p>

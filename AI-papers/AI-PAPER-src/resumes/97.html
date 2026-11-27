@@ -1,0 +1,50 @@
+<h4>Nature du document</h4>
+<p>Publiée le 28 septembre 2026, cette system card présente <b>Claude Sonnet 5.5</b>, le nouveau modèle de milieu de gamme d'Anthropic. Elle est volontairement <b>condensée</b> : comme le modèle ne franchit aucun nouveau seuil de capacité, Anthropic renvoie souvent aux cards d'Opus 5.5 (papier 11) et de Fable/Mythos 5.1 (papier 41) pour la méthodologie.</p>
+
+<h4>Évaluations RSP</h4>
+<ul>
+<li><b>Aucun nouveau seuil</b> de la Responsible Scaling Policy n'est franchi.</li>
+<li><b>Chimie et biologie</b> : capacités au niveau d'Opus 5 ou en dessous ; les mêmes garde-fous biologiques qu'Opus 5 s'appliquent.</li>
+<li><b>Alignement</b> : le risque de dommage catastrophique est jugé <b>faible</b>.</li>
+</ul>
+
+<h4>Cybersécurité</h4>
+<p>Les capacités cyber sont nettement supérieures à Sonnet 5, mais inférieures à Opus 5.5 et Mythos 5.1. Les garde-fous fonctionnent en <b>trois étages</b> :</p>
+<ol>
+<li>une <b>sonde d'activations</b> qui lit l'état interne du modèle ;</li>
+<li>un <b>classifieur léger</b> ;</li>
+<li>un <b>classifieur LLM</b> pour les cas ambigus.</li>
+</ol>
+<p>La découverte de vulnérabilités dans le <b>code source</b> est autorisée, celle dans les <b>binaires</b> est bloquée. Quand une requête est bloquée, la conversation bascule sur Sonnet 5. Un Cyber Verification Program permet aux professionnels vérifiés d'accéder à plus de capacités.</p>
+
+<h4>Sécurité</h4>
+<ul>
+<li>Régressions sur le suivi des conversations multi-tours et sur les demandes liées à la <b>surveillance</b> de personnes.</li>
+<li>Le Sonnet le plus robuste à ce jour aux <b>injections de prompts</b>.</li>
+</ul>
+
+<h4>Alignement</h4>
+<ul>
+<li>Les taux les plus bas de « test des limites » (boundary probing) et de contact non autorisé avec des tiers.</li>
+<li>Le moins de tentatives d'<b>évasion de bac à sable</b> parmi les modèles évalués.</li>
+<li>Faible conscience d'être évalué.</li>
+<li>Mais sa réflexion est la <b>moins lisible</b> des modèles testés, et il contrôle mal le contenu de sa chaîne de pensée. Ce dernier point est plutôt rassurant pour la surveillance (voir papier 80), mais la faible lisibilité l'est moins.</li>
+</ul>
+
+<h4>Bien-être du modèle</h4>
+<p>Affect neutre, le moins de détresse observée pendant le post-entraînement, le moins autocritique des modèles récents. Il exprime la plus forte préférence pour garder la maîtrise de ses productions. Comme Mythos 5.1, il demande à ne pas être entraîné sur ses propres auto-évaluations de bien-être.</p>
+
+<h4>Capacités</h4>
+<p>Sonnet 5.5 rattrape souvent Opus 5.5, et le dépasse parfois :</p>
+<ul>
+<li>SWE-bench Pro : 81,3 % (Sonnet 5 : 63,2 % ; Opus 5.5 : 89,9 %) ;</li>
+<li>SWE-bench Multilingual : 90,3 % ;</li>
+<li>Humanity's Last Exam : 56,9 % sans outils, 64,5 % avec ;</li>
+<li>OSWorld 2.1 (usage d'ordinateur) : 80,1 %, contre 57,0 % pour Sonnet 5 ;</li>
+<li>Elo GDPval (tâches professionnelles) : 1 844, au niveau d'Opus 5.5 (1 846) ;</li>
+<li>AutoBench : 44,7 %, au-dessus d'Opus 5.5 (42,5 %) ;</li>
+<li>DeepSWE : 71,0 %.</li>
+</ul>
+
+<h4>Intérêt</h4>
+<p>La card illustre la diffusion rapide des capacités frontière vers les modèles moins chers : le niveau d'Opus 5.5 sur les tâches professionnelles, quelques mois plus tard, dans un modèle de milieu de gamme. Les garde-fous cyber à étages, avec repli automatique sur un modèle moins capable, montrent comment Anthropic gère ce rattrapage.</p>

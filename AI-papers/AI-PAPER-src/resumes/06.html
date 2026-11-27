@@ -1,0 +1,18 @@
+<h4>Contexte</h4>
+<p>En traitement automatique des langues, les mots étaient traditionnellement représentés comme des symboles atomiques (vecteurs « one-hot ») : « chat » et « chien » n'ont pas plus en commun que « chat » et « algèbre ». Les modèles de langage neuronaux de Bengio (2003) apprenaient déjà des vecteurs denses, mais leur entraînement était très coûteux à cause des couches cachées non linéaires et de la grande couche softmax de sortie. Tomas Mikolov, Kai Chen, Greg Corrado et Jeffrey Dean (Google) cherchent ici des architectures simples, capables d'apprendre de bons vecteurs sur des milliards de mots en quelques heures.</p>
+
+<h4>Les deux architectures</h4>
+<ul>
+<li><b>CBOW (Continuous Bag-of-Words)</b> : on prédit un mot à partir de la moyenne des vecteurs des mots qui l'entourent (par exemple quatre avant, quatre après). L'ordre des mots du contexte est ignoré, d'où le nom de « sac de mots ».</li>
+<li><b>Skip-gram</b> : l'inverse ; à partir d'un mot, on prédit les mots de son voisinage, en échantillonnant plus souvent les mots proches que les mots éloignés.</li>
+</ul>
+<p>Les deux modèles suppriment la couche cachée non linéaire : il ne reste qu'une projection linéaire et un classifieur. Pour éviter le coût d'un softmax sur tout le vocabulaire, ils utilisent un softmax hiérarchique fondé sur un arbre de Huffman, qui ramène le coût de chaque prédiction au logarithme de la taille du vocabulaire. Le papier compagnon publié peu après (Mikolov et al., NeurIPS 2013) ajoute l'échantillonnage négatif et le sous-échantillonnage des mots fréquents.</p>
+
+<h4>Évaluation par analogies</h4>
+<p>Les auteurs introduisent un jeu de test d'environ 20 000 questions d'analogie, sémantiques (capitale-pays, monnaie, homme-femme) et syntaxiques (pluriel, comparatif, temps verbal). On résout une question par arithmétique vectorielle : pour « roi est à homme ce que ? est à femme », on calcule vec(« roi ») − vec(« homme ») + vec(« femme ») et on cherche le mot dont le vecteur est le plus proche en distance cosinus. Le résultat est, de manière frappante, « reine ». De même, vec(« Paris ») − vec(« France ») + vec(« Italie ») ≈ vec(« Rome »).</p>
+
+<h4>Résultats</h4>
+<p>Skip-gram obtient les meilleurs résultats sur les analogies sémantiques, CBOW est légèrement meilleur en syntaxe et plus rapide. Les deux surpassent nettement les modèles neuronaux antérieurs, pour un coût d'entraînement bien inférieur : des vecteurs de qualité sont obtenus sur 6 milliards de mots en moins d'une journée, avec une implémentation distribuée. Les auteurs montrent que la qualité augmente avec à la fois la dimension des vecteurs et la quantité de données, à condition de faire croître les deux ensemble — une première intuition des lois d'échelle.</p>
+
+<h4>Héritage</h4>
+<p>Le code publié en open source (<i>word2vec</i>) devient en quelques mois un outil standard. L'idée que le sens se capte par la distribution des contextes (l'hypothèse distributionnelle de Harris et Firth) acquiert une forme calculable. Word2vec ouvre la voie à GloVe (2014), à fastText (2016), puis aux plongements contextuels (ELMo, BERT) où chaque occurrence d'un mot a son propre vecteur. Tous les LLM actuels commencent par une couche d'embedding qui en descend directement. Les travaux ultérieurs ont aussi montré que ces vecteurs héritent des biais des corpus (par exemple « homme est à programmeur ce que femme est à ménagère »), ouvrant la recherche sur l'équité des modèles. Le papier a reçu le prix « Test of Time » de NeurIPS en 2023.</p>

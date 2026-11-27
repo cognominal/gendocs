@@ -1,0 +1,23 @@
+<h4>Contexte</h4>
+<p>Publié dans les <i>Proceedings of the IEEE</i> en 1998 par Yann LeCun, Léon Bottou, Yoshua Bengio et Patrick Haffner (AT&amp;T / Bell Labs), cet article de 46 pages est une somme : il réunit une décennie de travaux sur la reconnaissance de caractères manuscrits. Sa thèse est méthodologique : plutôt que de concevoir à la main des extracteurs de caractéristiques puis un classifieur, il faut entraîner l'ensemble du système de bout en bout par descente de gradient, en laissant l'apprentissage découvrir les bonnes représentations.</p>
+
+<h4>Les réseaux convolutifs et LeNet-5</h4>
+<p>Un réseau entièrement connecté appliqué à une image ignore sa structure spatiale, a trop de paramètres et n'est pas invariant aux petites translations ou déformations. Les réseaux convolutifs répondent à ces trois problèmes par trois idées :</p>
+<ul>
+<li><b>Champs récepteurs locaux</b> : chaque unité ne regarde qu'un petit voisinage de l'image (par exemple 5×5 pixels), pour détecter des motifs élémentaires comme des bords ou des coins.</li>
+<li><b>Partage de poids</b> : le même filtre est appliqué à toutes les positions de l'image, ce qui produit une « carte de caractéristiques ». Le nombre de paramètres chute de plusieurs ordres de grandeur, et un motif est détecté où qu'il se trouve.</li>
+<li><b>Sous-échantillonnage</b> (l'ancêtre du pooling) : réduire la résolution des cartes rend la représentation moins sensible à la position exacte des traits.</li>
+</ul>
+<p>LeNet-5 alterne ces couches : convolution (6 cartes), sous-échantillonnage, convolution (16 cartes), sous-échantillonnage, puis couches entièrement connectées et une couche de sortie à fonctions de base radiales. L'ensemble compte environ 60 000 paramètres, entraînés par rétropropagation.</p>
+
+<h4>Résultats sur MNIST</h4>
+<p>L'article introduit et popularise la base MNIST : 60 000 images d'entraînement et 10 000 de test, chiffres manuscrits normalisés en 28×28 pixels. Les auteurs comparent de nombreuses méthodes (classifieurs linéaires, k plus proches voisins, SVM, réseaux entièrement connectés). LeNet-5 atteint environ 0,95 % d'erreur, et 0,8 % avec des données augmentées par distorsions artificielles. Un ensemble de LeNet-4 « boostés » descend à 0,7 %. MNIST restera le banc d'essai standard de l'apprentissage automatique pendant deux décennies.</p>
+
+<h4>Au-delà du caractère isolé : les Graph Transformer Networks</h4>
+<p>La seconde moitié de l'article, souvent oubliée, est peut-être la plus visionnaire. Reconnaître un mot ou un montant sur un chèque suppose de segmenter le texte en caractères, ce qui est difficile à faire avant de les reconnaître. Les auteurs proposent les <i>Graph Transformer Networks</i> : des modules qui manipulent des graphes d'hypothèses (segmentations possibles, interprétations possibles), composés en un pipeline dont tous les paramètres sont entraînés globalement par gradient, avec un critère discriminant au niveau de la séquence entière. C'est un précurseur des approches de bout en bout sur séquences, comme CTC et les modèles de séquence actuels.</p>
+
+<h4>Déploiement industriel</h4>
+<p>Le système de lecture de chèques construit sur ces principes a été déployé commercialement par NCR à partir de 1996 ; à la fin des années 1990, il lisait plus de 10 % des chèques émis aux États-Unis. C'est l'un des premiers grands succès industriels d'un réseau de neurones.</p>
+
+<h4>Héritage</h4>
+<p>Après ce succès, les réseaux de neurones retombent en désuétude face aux SVM et aux méthodes à noyaux, jugées plus rigoureuses. Il faut attendre AlexNet (2012) pour que les CNN reviennent au premier plan, avec la même architecture de base mise à l'échelle sur GPU. Le principe de l'apprentissage de bout en bout, défendu ici, est devenu le dogme de l'apprentissage profond. LeCun, Bengio et Hinton ont partagé le prix Turing 2018.</p>

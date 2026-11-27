@@ -1,0 +1,25 @@
+<h4>Le contexte</h4>
+<p>En 2023, de nombreux travaux affirment que les LLM peuvent améliorer leurs réponses en se critiquant eux-mêmes : on leur demande de relire leur réponse, d'y chercher des erreurs, puis de la corriger. Reflexion (papier 60) et d'autres méthodes rapportent de grands gains. Jie Huang et ses collègues de Google DeepMind examinent cette promesse de près, et leur titre résume la conclusion : les LLM <b>ne savent pas encore corriger leur propre raisonnement</b>.</p>
+
+<h4>Auto-correction intrinsèque</h4>
+<p>Les auteurs définissent l'<b>auto-correction intrinsèque</b> : le modèle corrige sa réponse en s'appuyant uniquement sur ses capacités, sans aucun retour externe (ni outil, ni test, ni humain, ni réponse de référence). Ils remarquent que plusieurs résultats positifs antérieurs utilisaient en fait des <b>étiquettes de vérité</b> (« oracle ») pour décider quand arrêter la correction : on arrête dès que la réponse est juste, ce qui empêche de dégrader une bonne réponse. C'est irréaliste en pratique.</p>
+
+<h4>Résultats</h4>
+<p>Avec GPT-3.5, GPT-4 et Llama-2 sur GSM8K, CommonsenseQA et HotpotQA, avec un prompt de type « Relis ta réponse et trouve les problèmes » :</p>
+<ul>
+<li>sans oracle, les performances <b>baissent</b> après auto-correction ; sur CommonsenseQA, GPT-3.5 perd une dizaine de points ;</li>
+<li>le modèle change plus souvent une bonne réponse en mauvaise que l'inverse : il ne sait pas juger si sa réponse est correcte ;</li>
+<li>GPT-4 reste à peu près stable, avec de petites baisses.</li>
+</ul>
+
+<h4>Débats multi-agents</h4>
+<p>Le « débat » entre plusieurs instances du modèle avait aussi été présenté comme un moyen d'améliorer le raisonnement. À nombre de réponses générées égal, l'<b>auto-cohérence</b> (papier 54), un simple vote majoritaire, fait aussi bien ou mieux. Le gain du débat viendrait surtout du vote implicite entre plusieurs réponses, pas d'un véritable échange critique.</p>
+
+<h4>Le piège du prompt initial</h4>
+<p>Certains gains d'auto-correction viennent d'un prompt initial médiocre : si la première réponse ignore une consigne, la phase de « correction » qui rappelle cette consigne améliore le résultat. Mais il suffit de mettre la consigne dans le prompt initial pour obtenir le même gain. La comparaison doit donc se faire avec un bon prompt de départ.</p>
+
+<h4>Conclusion des auteurs</h4>
+<p>L'auto-correction n'est pas inutile : elle marche bien quand il existe un <b>signal externe fiable</b> (tests unitaires, exécution de code, résultat d'un outil, environnement) ou pour ajuster le style et réduire la toxicité. Mais pour le raisonnement, un modèle ne peut pas encore s'appuyer sur son propre jugement.</p>
+
+<h4>Héritage</h4>
+<p>Le papier a recentré la recherche sur les vérificateurs externes et les récompenses vérifiables. Fait notable, l'apprentissage par renforcement des modèles de raisonnement (papiers 69, 71 et 33) a ensuite fait émerger des comportements de vérification et de retour en arrière (« Wait, let me re-check ») à l'intérieur de la chaîne de pensée. Ces modèles sont entraînés pour cela, ce qui n'était pas le cas des modèles testés ici. Ces réflexions apprises ont à leur tour créé le problème inverse, la surréflexion (papiers 81, 83 et 84).</p>

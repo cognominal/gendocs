@@ -1,0 +1,20 @@
+<h4>Contexte</h4>
+<p>En 2014, l'apprentissage profond réussit surtout en mode discriminatif : classer, reconnaître. Les modèles génératifs profonds (machines de Boltzmann, auto-encodeurs variationnels naissants) se heurtent à des probabilités intractables qu'il faut approcher par des chaînes de Markov ou des bornes variationnelles. Ian Goodfellow et ses collègues de l'Université de Montréal (dont Yoshua Bengio) proposent un cadre qui contourne complètement ce problème.</p>
+
+<h4>Le jeu adversarial</h4>
+<p>Deux réseaux sont entraînés simultanément :</p>
+<ul>
+<li>un <b>générateur G</b>, qui transforme un bruit aléatoire <i>z</i> en un échantillon G(<i>z</i>) ;</li>
+<li>un <b>discriminateur D</b>, qui reçoit un échantillon et estime la probabilité qu'il vienne des vraies données plutôt que du générateur.</li>
+</ul>
+<p>D est entraîné à bien distinguer le vrai du faux ; G est entraîné à tromper D. Les auteurs utilisent l'analogie d'un faussaire qui fabrique de la fausse monnaie face à la police qui la détecte : la compétition pousse chacun à s'améliorer jusqu'à ce que les faux soient indiscernables. Formellement, c'est un jeu minimax à deux joueurs sur la fonction de valeur V(D, G) = E[log D(<i>x</i>)] + E[log(1 − D(G(<i>z</i>)))]. Aucune chaîne de Markov, aucune inférence approchée : tout s'entraîne par rétropropagation.</p>
+
+<h4>Résultats théoriques</h4>
+<p>Le papier démontre deux résultats. D'abord, pour un générateur fixé, le discriminateur optimal vaut D*(<i>x</i>) = p<sub>data</sub>(<i>x</i>) / (p<sub>data</sub>(<i>x</i>) + p<sub>g</sub>(<i>x</i>)). Ensuite, avec ce discriminateur optimal, le critère d'entraînement du générateur revient à minimiser la divergence de Jensen-Shannon entre la distribution des données et celle du générateur ; l'optimum global est atteint si et seulement si p<sub>g</sub> = p<sub>data</sub>, où D vaut 1/2 partout. Un résultat de convergence est donné sous l'hypothèse (forte) que l'on optimise directement dans l'espace des distributions.</p>
+<p>Une astuce pratique importante : au début, quand G est mauvais, log(1 − D(G(<i>z</i>))) sature et fournit des gradients faibles. Les auteurs proposent plutôt de maximiser log D(G(<i>z</i>)), ce qui donne des gradients plus forts.</p>
+
+<h4>Expériences et limites</h4>
+<p>Les GAN sont testés sur MNIST, la base de visages de Toronto et CIFAR-10, avec des réseaux multicouches simples. Les échantillons sont convaincants pour l'époque, et les auteurs montrent qu'ils ne sont pas de simples copies des exemples d'entraînement. Le papier identifie déjà les difficultés majeures : absence de représentation explicite de p<sub>g</sub>, nécessité de bien synchroniser D et G, et risque que G s'effondre sur quelques modes (le « scénario Helvetica », plus tard appelé effondrement de modes).</p>
+
+<h4>Héritage</h4>
+<p>Les GAN deviennent l'un des sujets les plus féconds de l'apprentissage profond : DCGAN (2015), WGAN (2017), puis StyleGAN (2018-2020) génère des visages photoréalistes. Ils sont aussi à l'origine des « deepfakes ». Yann LeCun a qualifié l'entraînement adversarial d'« idée la plus intéressante des dix dernières années en apprentissage automatique ». Depuis 2021, les modèles de diffusion ont largement supplanté les GAN pour la génération d'images, car ils sont plus stables et couvrent mieux la diversité des données, mais l'idée d'un critique appris reste présente partout, y compris dans les modèles de récompense du RLHF.</p>

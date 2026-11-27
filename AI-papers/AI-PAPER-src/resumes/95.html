@@ -1,0 +1,33 @@
+<h4>Le problème</h4>
+<p>Les agents LLM lisent des données non fiables (pages web, e-mails, résultats d'outils) et peuvent aussi agir (envoyer des messages, modifier des fichiers, appeler des API). Une <b>injection de prompt</b> cachée dans les données peut détourner l'agent pour exfiltrer des informations ou commettre des actions nuisibles. Le <b>contrôle des flux d'information</b> (IFC), une technique classique de sécurité, marque les données d'une étiquette (« taint ») selon leur provenance et leur confidentialité, et interdit qu'une donnée non fiable influence une action sensible. Mais appliqué aux agents, l'IFC est trop rigide : dès que l'agent a lu une donnée non fiable, tout son contexte est contaminé et il doit s'arrêter. Arseny Kravchenko et ses collègues d'Archestra AI proposent <b>APPA</b> (Agentic Permissions Policy Algebra), un IFC qui permet de <b>récupérer</b> au lieu d'abandonner.</p>
+
+<h4>Le moniteur de référence en deux phases</h4>
+<p>APPA s'interpose au moment de l'appel d'outils et dans les passerelles MCP (Model Context Protocol), sans modifier le modèle :</p>
+<ul>
+<li><b>Phase prospective</b> : avant l'exécution d'un outil, on vérifie que l'action est permise vu l'étiquette du contexte courant.</li>
+<li><b>Phase de validation</b> : après l'exécution, on vérifie le résultat avant qu'il n'entre dans le contexte de l'agent, et on lui attribue une étiquette.</li>
+</ul>
+
+<h4>Le typage graduel</h4>
+<p>Dans le monde réel, la plupart des outils ne sont pas annotés avec des règles de sécurité. APPA utilise un <b>typage de sécurité graduel</b> : les outils non annotés reçoivent une étiquette prudente par défaut, et une résolution bornée des conversions (« bounded cast resolution ») permet de les intégrer progressivement sans tout réécrire.</p>
+
+<h4>Le confinement de trajectoire</h4>
+<p>L'idée centrale pour la récupération : quand l'agent doit lire une donnée non fiable, cette lecture se fait dans une <b>branche enfant jetable</b>. La branche absorbe la contamination. Elle ne peut renvoyer à l'agent parent qu'une sortie au <b>format strictement contraint</b> (par un schéma attesté : un booléen, une date, une valeur d'une énumération). Une injection de prompt dans la donnée ne peut donc pas passer, car elle ne tient pas dans le schéma. L'agent principal reste propre et peut continuer à agir.</p>
+
+<h4>Garanties formelles</h4>
+<p>Les auteurs prouvent trois invariants :</p>
+<ul>
+<li><b>pas de blanchiment</b> : une donnée contaminée ne peut pas perdre son étiquette en transitant par un outil ou une branche ;</li>
+<li><b>isolation des branches</b> : une branche ne peut pas affecter l'état du parent hors du canal contraint ;</li>
+<li><b>confinement de la récupération</b> : la récupération ne fait jamais sortir d'information non autorisée.</li>
+</ul>
+
+<h4>Évaluation</h4>
+<p>Sur 6 600 épisodes issus d'OWASP AgentThreatBench et d'un environnement d'entreprise simulé (Bench-Corp) :</p>
+<ul>
+<li><b>aucune attaque réussie</b> sur les 1 320 épisodes protégés par APPA ;</li>
+<li>une <b>utilité</b> préservée de 64,2 à 91 % selon les tâches, alors qu'un IFC strict sans récupération bloque une grande partie des tâches légitimes.</li>
+</ul>
+
+<h4>Portée</h4>
+<p>APPA applique des techniques éprouvées de sécurité des langages de programmation aux agents, avec des garanties qui ne dépendent pas du bon comportement du modèle. C'est une approche complémentaire à la robustesse apprise mesurée dans les system cards (par exemple pour Sonnet 5.5 et Haiku 5.5, papiers 97 et 98). Elle répond à l'un des défis de gouvernance soulevés par la synthèse sur le raisonnement agentique (papier 85).</p>

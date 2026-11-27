@@ -1,0 +1,31 @@
+<h4>Objet</h4>
+<p>L'ingénierie de prompts (prompt engineering) a produit en quelques années une littérature foisonnante, au vocabulaire incohérent. Sander Schulhoff et une trentaine de co-auteurs (Université du Maryland, OpenAI, Stanford, Microsoft, Vanderbilt et d'autres) en font une <b>revue systématique</b> selon le protocole PRISMA : 1 565 articles retenus, après examen de plus de 4 000.</p>
+
+<h4>Un vocabulaire commun</h4>
+<p>Le rapport définit 33 termes : prompt, gabarit de prompt (template), technique de prompting, ingénierie de prompts, exemples (exemplars), etc. Il distingue par exemple le <b>prompt</b> (l'entrée d'un modèle génératif) de la <b>technique de prompting</b> (une méthode de construction de prompts) et de l'<b>ingénierie de prompts</b> (le processus itératif de modification et d'évaluation).</p>
+
+<h4>Taxonomie des techniques textuelles</h4>
+<p>58 techniques de prompting textuel sont classées en six familles :</p>
+<ul>
+<li><b>apprentissage en contexte</b> (few-shot) : choix, nombre, ordre et format des exemples ; sélection par similarité (KNN) ; exemples générés par le modèle ;</li>
+<li><b>zero-shot</b> : jeux de rôle, émotion (« c'est important pour ma carrière »), reformulation de la question, « System 2 Attention » ;</li>
+<li><b>génération de pensée</b> : chaîne de pensée (papier 53), zero-shot CoT, plan-and-solve, CoT avec exemples choisis automatiquement ;</li>
+<li><b>décomposition</b> : least-to-most, plan puis exécution, programme de pensée, arbre de pensées (papier 59) ;</li>
+<li><b>ensembles</b> : auto-cohérence (papier 54), vote sur plusieurs prompts, mélange de raisonnements ;</li>
+<li><b>auto-critique</b> : auto-vérification, auto-raffinement, chaîne de vérification (dont les limites sont discutées par le papier 62).</li>
+</ul>
+<p>Le rapport recense aussi 40 techniques pour d'autres modalités (images, audio, vidéo, 3D) et des techniques multilingues.</p>
+
+<h4>Au-delà des techniques</h4>
+<ul>
+<li><b>Agents</b> : usage d'outils (papier 57), génération de code, raisonnement-action (papier 56), RAG.</li>
+<li><b>Évaluation</b> : utiliser un LLM comme juge, avec ses propres techniques de prompting.</li>
+<li><b>Sécurité</b> : injection de prompts, jailbreaks, défenses.</li>
+<li><b>Alignement</b> : biais, sensibilité aux formulations, calibration, ambiguïté.</li>
+</ul>
+
+<h4>Études de cas</h4>
+<p>Une étude de référence (benchmark) compare plusieurs techniques sur MMLU avec GPT-3.5 : la chaîne de pensée zero-shot et l'auto-cohérence donnent des gains modestes et variables. Une deuxième étude de cas porte sur la détection de signaux de risque suicidaire (« entrapment ») dans des textes : un ingénieur de prompts a passé 20 heures à améliorer le prompt manuellement, avec des progrès irréguliers. Un outil d'optimisation automatique (DSPy) a obtenu de meilleurs résultats en quelques minutes. La conclusion : l'ingénierie manuelle reste fragile, et de petites modifications (dupliquer un e-mail dans le prompt) peuvent avoir des effets importants et imprévisibles.</p>
+
+<h4>Intérêt</h4>
+<p>C'est un panorama complet du prompting à l'époque où il était le principal moyen d'améliorer les LLM. Depuis, les modèles de raisonnement (papiers 69 et 33) ont internalisé beaucoup de ces techniques : la chaîne de pensée, la décomposition et l'auto-vérification sont apprises par renforcement plutôt que demandées dans le prompt. Le contexte fourni au modèle reste toutefois essentiel, et on parle désormais plutôt d'« ingénierie du contexte ».</p>

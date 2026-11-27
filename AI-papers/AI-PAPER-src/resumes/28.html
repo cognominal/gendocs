@@ -1,0 +1,24 @@
+<h4>Le problème du superalignement</h4>
+<p>Le RLHF suppose que des humains peuvent évaluer le comportement du modèle. Mais que se passera-t-il quand les modèles produiront des millions de lignes de code ou des raisonnements scientifiques que personne ne pourra vérifier ? Les humains deviendront alors des superviseurs « faibles » de modèles « forts ». Ce papier de l'équipe Superalignment d'OpenAI (Collin Burns, Pavel Izmailov, Jan Hendrik Kirchner, Leopold Aschenbrenner, Jan Leike, Ilya Sutskever et al., décembre 2023) propose d'étudier ce problème dès aujourd'hui grâce à une analogie expérimentale.</p>
+
+<h4>L'analogie</h4>
+<p>On ne peut pas encore étudier la supervision de modèles surhumains par des humains. On étudie donc la supervision d'un modèle fort par un modèle <b>faible</b> :</p>
+<ol>
+<li>on affine un petit modèle (le superviseur faible, par exemple de niveau GPT-2) sur des étiquettes de vérité ;</li>
+<li>il étiquette un jeu de données séparé ; ces étiquettes sont imparfaites ;</li>
+<li>on affine un grand modèle pré-entraîné (le modèle fort, jusqu'à GPT-4) sur ces étiquettes faibles ;</li>
+<li>on compare avec le même modèle fort affiné sur les vraies étiquettes, qui donne le plafond.</li>
+</ol>
+<p>La mesure clé est la <b>fraction d'écart de performance récupérée</b> (PGR, Performance Gap Recovered) : 0 si le modèle fort ne fait pas mieux que son superviseur, 1 s'il atteint le plafond. L'espoir est que le modèle fort, qui possède déjà les connaissances latentes grâce au pré-entraînement, puisse <i>généraliser au-delà</i> de son superviseur au lieu d'imiter ses erreurs.</p>
+
+<h4>Résultats</h4>
+<p>Trois types de tâches sont étudiés : 22 tâches de classification en langage naturel, des énigmes d'échecs et la modélisation des récompenses de ChatGPT.</p>
+<ul>
+<li><b>La généralisation faible-vers-fort existe</b> : le modèle fort dépasse systématiquement son superviseur. Sur les tâches de langage, GPT-4 supervisé par un modèle de niveau GPT-2 atteint à peu près le niveau de GPT-3.5.</li>
+<li><b>Mais elle est loin d'être complète</b> : l'affinage naïf ne récupère qu'une partie de l'écart, et presque rien en modélisation des récompenses de ChatGPT.</li>
+<li><b>Des méthodes simples aident beaucoup</b> : une <b>perte de confiance auxiliaire</b>, qui encourage le modèle fort à faire confiance à ses propres prédictions même quand elles contredisent l'étiquette faible, porte le PGR à près de 80 % sur les tâches de langage pour les plus grands écarts. Le <b>bootstrapping</b> (passer par des modèles de taille intermédiaire) aide aux échecs. Un pré-entraînement génératif non supervisé sur les données de la tâche aide pour les récompenses.</li>
+</ul>
+<p>Les auteurs analysent le mécanisme : le principal risque est l'<b>imitation des erreurs</b> du superviseur. Plus le modèle fort est grand, plus il peut apprendre à reproduire les fautes du superviseur au lieu de comprendre la tâche. Les méthodes efficaces limitent ce sur-apprentissage.</p>
+
+<h4>Limites et portée</h4>
+<p>L'analogie est imparfaite : les erreurs d'un petit modèle ne ressemblent pas forcément à celles des humains, et les futurs modèles pourraient apprendre à imiter spécifiquement les erreurs humaines, très présentes dans leurs données. Les auteurs présentent donc ce travail comme un premier pas méthodologique. Ils montrent qu'on peut étudier empiriquement l'alignement de modèles plus intelligents que leurs superviseurs, et qu'il y a des raisons d'espérer que les modèles puissent généraliser au-delà de leur supervision. L'équipe Superalignment a été dissoute en 2024 après le départ de Sutskever et de Leike ; Leike a rejoint Anthropic. La question posée par le papier reste centrale dans les recherches sur la supervision évolutive.</p>

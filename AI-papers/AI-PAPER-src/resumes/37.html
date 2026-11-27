@@ -1,0 +1,25 @@
+<h4>Contexte</h4>
+<p>Fin 2024, les modèles vision-langage (VLM) ouverts progressent vite (Qwen2-VL, InternVL2), mais deux problèmes persistent : traiter efficacement des images à <b>haute résolution</b> avec des rapports d'aspect variés, et réduire le coût d'inférence des grands modèles. DeepSeek-VL2 (décembre 2024) répond aux deux en combinant un découpage dynamique des images et le mélange d'experts du modèle de langage. La famille compte trois tailles : Tiny (3,37 milliards de paramètres au total, dont 1,0 milliard actif), Small (16,1 milliards, dont 2,8 actifs) et VL2 (27,5 milliards, dont 4,5 actifs).</p>
+
+<h4>Architecture</h4>
+<ul>
+<li><b>Découpage dynamique en tuiles</b> : DeepSeek-VL utilisait un encodeur hybride à deux résolutions fixes. VL2 découpe l'image en tuiles de 384×384 pixels, selon la grille qui préserve le mieux son rapport d'aspect, plus une vue globale miniature. Chaque tuile est encodée par un seul encodeur SigLIP-SO400M. Les documents longs, les infographies et les images très larges sont ainsi traités sans déformation.</li>
+<li><b>Compression des tokens visuels</b> : un « pixel shuffle » 2×2 réduit chaque tuile de 729 à 196 tokens. Des tokens spéciaux marquent les lignes et la séparation entre vue globale et tuiles locales.</li>
+<li><b>Modèle de langage DeepSeekMoE</b> (papier 36) avec <b>Multi-head Latent Attention</b> : le cache clé-valeur est compressé dans un vecteur latent, ce qui accélère l'inférence et augmente le débit. Les experts fins et partagés gardent le calcul par token faible.</li>
+</ul>
+
+<h4>Données et entraînement</h4>
+<p>L'entraînement se fait en trois étapes : alignement vision-langage (seul l'adaptateur est entraîné), pré-entraînement vision-langage sur environ 800 milliards de tokens d'images et de texte (avec 30 % de texte pur pour garder les capacités linguistiques), puis affinage supervisé. Les données ont été fortement enrichies par rapport à DeepSeek-VL :</p>
+<ul>
+<li>données entrelacées image-texte et légendes denses régénérées ;</li>
+<li>OCR (reconnaissance de texte) et documents, y compris en chinois ;</li>
+<li>questions-réponses visuelles sur des tableaux, graphiques, schémas et mathématiques visuelles ;</li>
+<li><b>ancrage visuel</b> (« visual grounding ») : le modèle localise par des boîtes englobantes les objets décrits en langage naturel, et peut même ancrer des objets mentionnés en contexte conversationnel ;</li>
+<li>compréhension d'interfaces graphiques et génération de code à partir de captures d'écran.</li>
+</ul>
+
+<h4>Résultats</h4>
+<p>À nombre de paramètres actifs comparable ou inférieur, DeepSeek-VL2 égale ou dépasse les meilleurs modèles ouverts, denses ou MoE, sur DocVQA (93,3 % pour le modèle complet), ChartQA, InfoVQA, TextVQA, OCRBench et MMStar. Il est aussi compétitif en mathématiques visuelles (MathVista) et en ancrage visuel (RefCOCO). Les auteurs notent des limites : la fenêtre de contexte limite le nombre d'images par conversation, et le modèle peine avec les objets flous ou jamais vus.</p>
+
+<h4>Héritage</h4>
+<p>DeepSeek-VL2 a montré que la recette MoE plus MLA de DeepSeek s'appliquait aussi à la multimodalité. Le découpage dynamique et la compression agressive des tokens visuels se retrouvent dans DeepSeek-OCR (papier 38), qui pousse l'idée de compression jusqu'à traiter l'image comme un moyen de compresser le texte lui-même, puis dans DeepSeek-OCR 2 (papier 46).</p>

@@ -1,0 +1,23 @@
+<h4>Le problème</h4>
+<p>Les modèles de génération audio modernes, comme AudioLM, représentent le son par des <b>jetons discrets</b> issus d'un codec neuronal (SoundStream). Ces codecs utilisent une <b>quantification vectorielle résiduelle</b> (RVQ) : chaque trame audio est codée par plusieurs niveaux de jetons, le premier capturant l'essentiel et les suivants des détails de plus en plus fins. Générer ces jetons un par un, de façon autorégressive, est très lent : quelques secondes d'audio représentent des milliers de jetons, et le coût de l'attention croît avec le carré de la longueur. Zalán Borsos et ses collègues de Google proposent <b>SoundStorm</b>, qui génère ces jetons en <b>parallèle</b>.</p>
+
+<h4>La méthode</h4>
+<p>SoundStorm remplace l'étape acoustique d'AudioLM : à partir des jetons sémantiques (qui décrivent le contenu, issus d'un modèle comme w2v-BERT), il produit les jetons acoustiques du codec.</p>
+<ul>
+<li><b>Architecture Conformer</b> bidirectionnelle (convolutions et attention). Les jetons des différents niveaux RVQ d'une même trame sont additionnés en une seule entrée, si bien que la longueur de séquence pour l'attention est le nombre de trames, pas le nombre de jetons.</li>
+<li><b>Décodage masqué inspiré de MaskGIT</b> : on part d'une séquence entièrement masquée. À chaque itération, le modèle prédit tous les jetons masqués et on garde les plus confiants. On recommence avec le reste.</li>
+<li>Le décodage procède <b>niveau RVQ par niveau</b> : d'abord le niveau grossier en plusieurs itérations, puis les niveaux fins, souvent en une seule itération chacun. Cela respecte la structure hiérarchique du codec.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>Vitesse</b> : 30 secondes d'audio générées en <b>0,5 seconde</b> sur un TPU-v4, soit deux ordres de grandeur plus vite que l'étape acoustique d'AudioLM.</li>
+<li><b>Qualité</b> : égale à celle d'AudioLM pour la voix et la qualité acoustique, avec une meilleure <b>cohérence</b> du locuteur et des conditions acoustiques sur les longues durées.</li>
+<li>Le coût de génération croît de façon quasi linéaire avec la durée.</li>
+</ul>
+
+<h4>Dialogues</h4>
+<p>Combiné à un modèle texte-vers-sémantique de type SPEAR-TTS, SoundStorm génère des <b>dialogues naturels à plusieurs locuteurs</b> à partir d'une transcription annotée avec les tours de parole et de courts échantillons des voix. Le résultat inclut des disfluences et des intonations naturelles. Les auteurs mentionnent les risques d'usurpation de voix et indiquent qu'un classifieur peut détecter l'audio généré.</p>
+
+<h4>Héritage</h4>
+<p>SoundStorm a montré l'intérêt du décodage parallèle hiérarchique pour l'audio, une idée qui a influencé les systèmes de synthèse vocale et de dialogue. Moshi (papier 89) reprend la hiérarchie RVQ, mais avec un « Transformer de profondeur » autorégressif sur les niveaux, pour le temps réel. L'idée de générer d'abord le niveau grossier puis les détails en parallèle se retrouve, pour le texte, dans Next-Concept Modeling (papier 96).</p>

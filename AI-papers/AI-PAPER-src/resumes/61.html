@@ -1,0 +1,27 @@
+<h4>La question</h4>
+<p>Pour améliorer le raisonnement mathématique, on peut entraîner un modèle de récompense qui juge des solutions, puis choisir la meilleure parmi de nombreuses candidates (papier 52) ou s'en servir pour l'apprentissage par renforcement. Deux façons de superviser ce juge existent :</p>
+<ul>
+<li>la <b>supervision du résultat</b> (outcome supervision, ORM) : on note seulement la réponse finale, ce qui est automatique ;</li>
+<li>la <b>supervision du processus</b> (process supervision, PRM) : on note chaque étape du raisonnement, ce qui demande des humains mais donne un signal plus précis.</li>
+</ul>
+<p>Hunter Lightman et ses collègues d'OpenAI comparent les deux à grande échelle, avec un modèle de base de la taille de GPT-4.</p>
+
+<h4>Données : PRM800K</h4>
+<p>Des annotateurs humains ont étiqueté chaque étape de solutions générées pour le benchmark MATH (problèmes de compétition) comme positive, neutre ou négative. Pour ne pas gaspiller l'effort, on leur montre surtout des solutions « convaincantes mais fausses » : celles que le meilleur PRM du moment note bien mais qui aboutissent à une mauvaise réponse. C'est un apprentissage actif. Le jeu de données final, <b>PRM800K</b>, contient environ 800 000 étiquettes d'étapes sur 75 000 solutions, et il est publié.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>En choisissant la meilleure parmi 1 860 solutions candidates, le PRM résout <b>78,2 %</b> d'un sous-ensemble représentatif de MATH, contre 72,4 % pour l'ORM et 69,6 % pour le vote majoritaire.</li>
+<li>L'écart se creuse quand on augmente le nombre de candidates : le PRM sait mieux repérer la bonne solution dans un grand ensemble.</li>
+<li>Avec de petits modèles, à budget d'annotation égal, la supervision par étape reste supérieure, et l'apprentissage actif multiplie par environ 2,6 l'efficacité des données.</li>
+<li>Le PRM généralise à des problèmes récents hors distribution (AP Calculus, AMC), ce qui écarte une simple mémorisation.</li>
+</ul>
+
+<h4>L'argument d'alignement</h4>
+<p>Les auteurs soulignent un avantage au-delà des performances. La supervision du résultat peut récompenser un raisonnement faux qui tombe juste, et donc encourager des raccourcis. La supervision du processus récompense directement un raisonnement que les humains approuvent : elle produit des chaînes de pensée plus interprétables. Ici, contrairement à beaucoup de méthodes de sécurité, il n'y a pas de « taxe d'alignement » : la méthode la plus alignée est aussi la plus performante.</p>
+
+<h4>Limites</h4>
+<p>L'annotation humaine étape par étape est chère et difficile à étendre au-delà des mathématiques. Le PRM est utilisé pour sélectionner des solutions, pas pour l'apprentissage par renforcement, qui reste à étudier. Le découpage en « étapes » est aussi une convention : lignes de la solution.</p>
+
+<h4>Héritage</h4>
+<p>Le papier, publié peu avant o1 (papier 69), a déclenché une vague de travaux sur les modèles de récompense de processus, souvent avec des étiquettes automatiques (Math-Shepherd, par simulations Monte-Carlo). Paradoxalement, DeepSeek-R1 (papier 33) a ensuite montré qu'un apprentissage par renforcement avec une simple récompense de résultat vérifiable suffit à faire émerger le raisonnement, et a jugé les PRM sujets au reward hacking. Le débat entre supervision du résultat et du processus rejoint aujourd'hui celui de la surveillabilité (papier 80) : superviser directement la chaîne de pensée peut la rendre moins honnête.</p>

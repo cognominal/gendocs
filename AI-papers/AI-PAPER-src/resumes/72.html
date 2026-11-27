@@ -1,0 +1,32 @@
+<h4>La question</h4>
+<p>o1 (papier 69) a montré que les performances augmentent avec le temps de réflexion, mais OpenAI n'a pas publié sa méthode. DeepSeek-R1 (papier 33) a utilisé un apprentissage par renforcement coûteux sur des millions d'exemples. Niklas Muennighoff et ses collègues (Stanford, Université de Washington, Allen AI) cherchent <b>la recette la plus simple possible</b> pour obtenir un passage à l'échelle au moment du test et de fortes capacités de raisonnement.</p>
+
+<h4>Les données : s1K</h4>
+<p>Les auteurs partent de 59 000 questions difficiles (mathématiques de compétition, olympiades, sciences, questions de probabilités de doctorat, énigmes de type « brain teaser »). Les traces de raisonnement et les réponses sont générées avec Gemini 2.0 Flash Thinking. Puis on filtre selon trois critères :</p>
+<ul>
+<li><b>qualité</b> : retrait des exemples mal formatés ;</li>
+<li><b>difficulté</b> : on garde les questions que deux modèles Qwen ne savent pas résoudre, et qui donnent de longues traces ;</li>
+<li><b>diversité</b> : on échantillonne parmi 50 domaines (classification MSC).</li>
+</ul>
+<p>Résultat : <b>s1K</b>, 1 000 exemples seulement. Les ablations montrent que chacun des trois critères compte : 1 000 exemples choisis au hasard, ou les plus longs seulement, donnent de moins bons résultats. Entraîner sur les 59 000 n'apporte presque rien de plus.</p>
+
+<h4>L'entraînement</h4>
+<p>Un simple affinage supervisé de Qwen2.5-32B-Instruct sur s1K : <b>26 minutes sur 16 GPU H100</b>. Pas d'apprentissage par renforcement.</p>
+
+<h4>Le budget forcing</h4>
+<p>Pour contrôler la durée de réflexion au moment du test, les auteurs proposent une technique de décodage très simple :</p>
+<ul>
+<li>pour <b>raccourcir</b> : quand le budget de jetons est atteint, on ajoute le délimiteur de fin de réflexion et « Final Answer: », ce qui force le modèle à conclure ;</li>
+<li>pour <b>allonger</b> : quand le modèle veut s'arrêter, on supprime le délimiteur de fin et on ajoute « <b>Wait</b> ». Le modèle reprend sa réflexion, et revérifie souvent sa réponse, corrigeant parfois une erreur.</li>
+</ul>
+<p>Comparé à d'autres méthodes de contrôle (indiquer un nombre de jetons ou d'étapes dans le prompt, échantillonnage par rejet sur la longueur), le budget forcing offre le meilleur contrôle et la meilleure progression.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>s1-32B dépasse o1-preview sur MATH et l'AIME 2024 (jusqu'à +27 %).</li>
+<li>Avec le budget forcing, l'AIME 2024 passe de 50 % à 57 % : la performance monte avec le calcul au moment du test.</li>
+<li>Le gain plafonne après quelques « Wait » : au-delà, le modèle tourne en boucle.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>s1 a marqué les esprits par son coût minime et son ouverture totale (données, code, modèle). Il soutient l'hypothèse que les capacités de raisonnement sont déjà latentes dans les modèles pré-entraînés et qu'il suffit de peu d'exemples pour les activer, comme le suggèrent aussi les papiers 68 et 75. Le « Wait » ajouté artificiellement est ironiquement devenu l'un des jetons que les méthodes contre la surréflexion cherchent à supprimer (papier 83).</p>

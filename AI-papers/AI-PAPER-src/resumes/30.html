@@ -1,0 +1,26 @@
+<h4>Contexte</h4>
+<p>Le 5 août 2025, OpenAI publie ses premiers modèles à poids ouverts depuis GPT-2 (2019) : <b>gpt-oss-120b</b> et <b>gpt-oss-20b</b>, sous licence Apache 2.0. C'est une réponse au succès des modèles ouverts chinois, notamment DeepSeek-R1 (papier 33) et Qwen, et à la demande des développeurs et des entreprises qui veulent exécuter des modèles de raisonnement sur leur propre matériel. Cette model card décrit l'architecture, l'entraînement et surtout une méthodologie de sécurité nouvelle, propre aux modèles ouverts.</p>
+
+<h4>Architecture</h4>
+<ul>
+<li><b>Mélange d'experts (MoE)</b> : gpt-oss-120b compte 117 milliards de paramètres, dont seulement 5,1 milliards actifs par token (36 couches, 128 experts, 4 actifs). gpt-oss-20b compte 21 milliards de paramètres, dont 3,6 milliards actifs (24 couches, 32 experts).</li>
+<li><b>Quantification MXFP4</b> des poids des experts (environ 4,25 bits par paramètre) : le grand modèle tient sur un seul GPU de 80 Go, le petit sur une machine avec 16 Go de mémoire, comme un ordinateur portable haut de gamme.</li>
+<li><b>Attention</b> : alternance de couches à attention dense et de couches à attention locale par fenêtre glissante de 128 tokens, attention à requêtes groupées, encodage rotatif RoPE, contexte de 131 072 tokens.</li>
+<li><b>Tokenizer</b> : o200k_harmony, un sur-ensemble du tokenizer de GPT-4o, publié lui aussi.</li>
+</ul>
+
+<h4>Entraînement</h4>
+<p>Le pré-entraînement porte sur des milliers de milliards de tokens, surtout en anglais, centrés sur les sciences, les mathématiques et le code, avec un filtrage des données dangereuses (notamment biologiques). Le post-entraînement suit la recette des modèles o : affinage supervisé puis RL à grande échelle pour le raisonnement et l'usage d'outils. Trois innovations pratiques :</p>
+<ul>
+<li>le <b>format de conversation « Harmony »</b>, qui distingue rôles (système, développeur, utilisateur, assistant, outil) et canaux (analyse pour la chaîne de pensée, commentaire, réponse finale), avec une hiérarchie d'instructions ;</li>
+<li>un <b>effort de raisonnement variable</b> (bas, moyen, élevé), réglable dans le prompt système ;</li>
+<li>un <b>usage d'outils agentique</b> : navigation web, exécution de Python et fonctions définies par le développeur, entremêlés au raisonnement.</li>
+</ul>
+<p>Performances : gpt-oss-120b est proche d'o4-mini (et le dépasse en santé et en mathématiques de compétition), gpt-oss-20b est proche d'o3-mini.</p>
+
+<h4>La question de sécurité propre aux poids ouverts</h4>
+<p>Une fois publiés, les poids peuvent être modifiés par n'importe qui : les garde-fous appris peuvent être retirés par affinage. OpenAI a donc posé la question du <b>pire cas</b> : qu'obtiendrait un acteur malveillant compétent qui affinerait gpt-oss pour maximiser ses capacités dangereuses ? OpenAI a lui-même conduit cet <b>affinage adversarial</b>, avec sa propre infrastructure, pour la biologie (entraînement anti-refus et données de virologie) et la cybersécurité (environnements de CTF). La méthodologie a été relue par des experts externes, dont plusieurs recommandations ont été adoptées.</p>
+<p>Résultat : même affiné de cette façon, gpt-oss-120b n'atteint le seuil « High » ni en biologie-chimie ni en cybersécurité selon le Preparedness Framework, et ne fait pas progresser significativement la frontière des capacités dangereuses par rapport aux modèles ouverts existants. Le modèle n'atteint pas non plus le seuil en auto-amélioration.</p>
+
+<h4>Chaîne de pensée et limites</h4>
+<p>La chaîne de pensée n'a reçu aucune supervision directe, pour préserver sa valeur de surveillance. Les développeurs sont prévenus qu'elle peut contenir des hallucinations ou des contenus non conformes, et qu'elle ne doit pas être montrée telle quelle aux utilisateurs. Les modèles hallucinent davantage que les grands modèles fermés, faute de connaissances encyclopédiques, et suivent moins bien la hiérarchie d'instructions qu'o4-mini. gpt-oss est devenu l'un des modèles ouverts les plus utilisés, notamment pour l'inférence locale.</p>

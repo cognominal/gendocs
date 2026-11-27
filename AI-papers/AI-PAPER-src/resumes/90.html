@@ -1,0 +1,24 @@
+<h4>Le problème</h4>
+<p>Les modèles de dialogue oral full-duplex comme Moshi (papier 89) offrent une interaction naturelle et très réactive. Mais pour rester en temps réel, ils doivent être relativement petits, et ils connaissent donc moins de faits que les grands LLM textuels. Augmenter leur taille ferait exploser la latence. La solution classique pour la factualité, la génération augmentée par récupération (RAG), consiste à chercher des documents avant de répondre. Mais une recherche prend du temps, et dans un dialogue oral, faire attendre l'utilisateur en silence n'est pas acceptable. Chung-Ming Chien (TTIC) et ses collègues de Kyutai, dont Alexandre Défossez, proposent <b>MoshiRAG</b>.</p>
+
+<h4>L'idée clé : exploiter le délai naturel</h4>
+<p>Quand un humain répond à une question, il ne donne pas l'information essentielle dès le premier mot : il commence par « Ah, bonne question… », « Alors, la capitale de l'Australie, c'est… ». Il existe donc un <b>délai naturel</b> entre le début de la réponse et l'arrivée de l'information clé. MoshiRAG l'exploite :</p>
+<ol>
+<li>pendant que l'utilisateur parle, ou au début de la réponse, le modèle décide qu'une recherche est utile et émet une requête ;</li>
+<li>la recherche se fait de façon <b>asynchrone</b>, en parallèle : le modèle continue à parler normalement, sans attendre ;</li>
+<li>quand les résultats arrivent, ils sont injectés dans le contexte du modèle, qui les intègre au moment où il atteint le contenu essentiel de sa réponse.</li>
+</ol>
+
+<h4>Entraînement</h4>
+<p>Le modèle doit apprendre à la fois quand déclencher une recherche, comment formuler la requête, et comment intégrer une information qui arrive en cours de réponse. Les données d'entraînement sont des dialogues synthétiques où l'information récupérée arrive avec des délais variés, ce qui apprend au modèle à commencer sa réponse de façon naturelle sans dépendre d'une arrivée immédiate.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>La <b>factualité</b> de MoshiRAG est comparable à celle des meilleurs modèles vocaux publics non duplex, qui peuvent pourtant prendre leur temps.</li>
+<li>L'<b>interactivité</b> du full-duplex est préservée : latence faible et capacité à gérer les interruptions.</li>
+<li>Les méthodes de récupération sont <b>interchangeables</b> (« plug-and-play ») sans réentraînement : moteur de recherche, base de connaissances, ou un LLM textuel qui fournit directement une réponse.</li>
+<li>Bonnes performances sur des tâches hors domaine, y compris le <b>raisonnement mathématique</b> quand le module récupéré est un modèle textuel puissant.</li>
+</ul>
+
+<h4>Portée</h4>
+<p>MoshiRAG illustre un principe général pour les systèmes en temps réel : découpler un front-end rapide et réactif d'un back-end lent mais savant, et masquer la latence du second par le comportement naturel du premier. On retrouve cette architecture « rapide + lent » dans d'autres domaines, et elle évoque la distinction Système 1 / Système 2 (papier 73). Le dialogue oral reste toutefois en retard sur le texte pour le raisonnement complexe.</p>

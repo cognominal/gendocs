@@ -1,0 +1,30 @@
+<h4>La question</h4>
+<p>La chaîne de pensée (papier 53) améliore nettement les performances sur l'arithmétique ou le raisonnement symbolique. Mais pourquoi, d'un point de vue théorique ? Écrire des jetons intermédiaires ne donne au modèle aucune connaissance nouvelle. Zhiyuan Li, Hong Liu, Denny Zhou et Tengyu Ma (Stanford, Google) répondent avec la théorie de la complexité des circuits : la chaîne de pensée donne au transformer de la <b>profondeur de calcul</b>, c'est-à-dire la possibilité de calculer en série.</p>
+
+<h4>Le cadre théorique</h4>
+<p>Un transformer (papier 9) de profondeur fixe traite tous les jetons en parallèle à chaque couche. Sans chaîne de pensée, le nombre d'étapes séquentielles de calcul qu'il peut effectuer est borné par son nombre de couches, quelle que soit la longueur de l'entrée. On le compare donc à des familles de <b>circuits booléens de profondeur constante</b> :</p>
+<ul>
+<li><b>AC⁰</b> : circuits de profondeur constante avec portes ET, OU, NON à nombre d'entrées illimité ;</li>
+<li><b>TC⁰</b> : AC⁰ plus des portes à seuil (majorité). Des travaux antérieurs montraient que les transformers à précision logarithmique sont dans TC⁰.</li>
+</ul>
+<p>Ces classes contiennent des problèmes très parallélisables, mais on conjecture qu'elles ne contiennent pas des problèmes « intrinsèquement séquentiels » comme l'évaluation d'un circuit booléen (problème P-complet).</p>
+
+<h4>Résultats principaux</h4>
+<ul>
+<li>Avec une <b>précision constante</b> (plus réaliste que la précision logarithmique) et sans chaîne de pensée, un transformer de profondeur constante ne calcule que des fonctions de <b>AC⁰</b>, une classe encore plus restreinte.</li>
+<li>Avec <b>T étapes</b> de chaîne de pensée, un transformer de profondeur constante peut simuler n'importe quel circuit booléen de taille T. Avec un nombre polynomial d'étapes, il peut donc résoudre tout problème de la classe <b>P/poly</b>.</li>
+<li>Autrement dit, la chaîne de pensée transforme un calculateur parallèle de faible profondeur en un calculateur séquentiel aussi puissant que l'on veut, si l'on paye en longueur de génération.</li>
+</ul>
+
+<h4>Expériences</h4>
+<p>Des transformers entraînés sur quatre tâches confirment la théorie :</p>
+<ul>
+<li><b>addition modulaire</b>, parallélisable : la chaîne de pensée aide peu ;</li>
+<li><b>composition de permutations</b> (groupe S5), problème NC¹-complet : sans chaîne de pensée, les modèles peu profonds échouent dès que la séquence s'allonge ; avec, ils réussissent ;</li>
+<li><b>carrés itérés</b> modulo un nombre, intrinsèquement séquentiel : même conclusion ;</li>
+<li><b>circuit value problem</b> : même conclusion.</li>
+</ul>
+<p>Le gain de la chaîne de pensée est plus fort pour les modèles peu profonds et pour les problèmes intrinsèquement séquentiels.</p>
+
+<h4>Portée</h4>
+<p>Ce papier fournit une justification théorique du « passage à l'échelle au moment de l'inférence » : plus de jetons de raisonnement, c'est littéralement plus de calcul séquentiel disponible. Il explique aussi pourquoi les jetons de remplissage (des points) n'aident pas, sauf dans des cas particuliers : seuls des jetons qui stockent des résultats intermédiaires permettent un calcul séquentiel. Il éclaire enfin le compromis étudié par les travaux sur l'efficacité du raisonnement (papiers 79, 81, 83 et 84) : on ne peut pas raccourcir indéfiniment la chaîne de pensée pour des problèmes qui exigent un calcul séquentiel long. Les capacités sans chaîne de pensée des modèles les plus récents, mesurées dans la system card de Mythos 5.2 (papier 99), sont un contrepoint : des modèles plus profonds et plus larges peuvent faire davantage en une seule passe.</p>

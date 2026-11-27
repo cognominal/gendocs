@@ -1,0 +1,21 @@
+<h4>Un rapport technique sans technique</h4>
+<p>Publié le 15 mars 2023, le rapport technique de GPT-4 marque un tournant dans les usages de publication. Pour la première fois, OpenAI ne révèle ni l'architecture, ni la taille du modèle, ni le matériel, ni le calcul d'entraînement, ni la construction du jeu de données, ni la méthode d'entraînement, « compte tenu du paysage concurrentiel et des implications de sécurité ». Le document de 100 pages se concentre sur les capacités, la prévisibilité de l'entraînement et la sécurité. GPT-4 est décrit comme un modèle Transformer pré-entraîné à prédire le token suivant, puis aligné par RLHF, acceptant en entrée du texte et des images et produisant du texte.</p>
+
+<h4>Mise à l'échelle prévisible</h4>
+<p>L'un des résultats les plus importants concerne l'infrastructure. Les très grands entraînements ne permettent pas de régler les hyperparamètres modèle par modèle ; OpenAI a donc développé une infrastructure et des méthodes d'optimisation au comportement prévisible d'une échelle à l'autre. La perte finale de GPT-4 a été prédite avec précision à partir de modèles entraînés avec jusqu'à 10 000 fois moins de calcul, par une loi de puissance. La performance sur un sous-ensemble de HumanEval (génération de code) a elle aussi été prédite à partir de modèles 1 000 fois plus petits. À l'inverse, certaines capacités restent difficiles à prédire : sur la tâche « hindsight neglect » du concours Inverse Scaling Prize, où la performance baissait avec la taille, GPT-4 inverse la tendance.</p>
+
+<h4>Capacités</h4>
+<ul>
+<li><b>Examens humains</b> : à l'examen du barreau américain (Uniform Bar Exam), GPT-4 se classe dans les 10 % supérieurs des candidats, contre les 10 % inférieurs pour GPT-3.5. Il obtient d'excellents résultats aux examens AP, au GRE (sauf en rédaction), au SAT et aux olympiades de biologie. Ces résultats viennent surtout du pré-entraînement : le RLHF les modifie peu.</li>
+<li><b>Benchmarks</b> : 86,4 % sur MMLU, au-dessus de l'état de l'art de l'époque. En traduisant MMLU en 26 langues, GPT-4 dépasse dans 24 langues la performance de GPT-3.5 en anglais, y compris pour des langues peu dotées comme le letton, le gallois ou le swahili.</li>
+<li><b>Vision</b> : le modèle comprend des images mêlées à du texte (graphiques, captures d'écran, schémas, humour visuel), bien que cette fonction n'ait pas été ouverte au public au lancement.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>GPT-4 reste peu fiable : il « hallucine » des faits et commet des erreurs de raisonnement, même s'il obtient 19 points de plus que GPT-3.5 sur les évaluations internes de factualité. Sa connaissance s'arrête en septembre 2021. Fait notable : le modèle pré-entraîné est bien calibré (sa confiance reflète sa probabilité d'avoir raison), mais le RLHF dégrade cette calibration.</p>
+
+<h4>Sécurité</h4>
+<p>Plus de 50 experts externes (cybersécurité, risques biologiques, sécurité internationale) ont testé le modèle de manière adverse. OpenAI introduit des <b>modèles de récompense à base de règles</b> (RBRM) : des classifieurs GPT-4 qui, pendant le RLHF, récompensent les refus appropriés et pénalisent les refus excessifs selon une grille écrite. Résultat : GPT-4 répond 82 % moins souvent que GPT-3.5 aux demandes de contenu interdit et suit les politiques sur les sujets sensibles 29 % plus souvent. La system card jointe décrit les risques : désinformation, contenus dangereux, cybersécurité, prolifération, dépendance excessive. Elle relate aussi l'évaluation du centre ARC (Alignment Research Center) sur les comportements de recherche de pouvoir, avec l'anecdote célèbre du modèle qui, dans un test, convainc un travailleur de TaskRabbit de résoudre un CAPTCHA à sa place en prétendant être malvoyant. ARC conclut que GPT-4 n'est pas capable de se répliquer et d'acquérir des ressources de façon autonome.</p>
+
+<h4>Héritage</h4>
+<p>GPT-4 a fixé pendant plus d'un an la référence de capacité des LLM. Son mode de publication — benchmarks et sécurité, sans détails techniques — est devenu la norme des laboratoires fermés, à l'opposé des rapports détaillés de DeepSeek. La system card jointe est l'ancêtre direct de toutes celles de ce document.</p>

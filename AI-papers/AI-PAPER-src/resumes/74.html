@@ -1,0 +1,28 @@
+<h4>La question</h4>
+<p>La chaîne de pensée des modèles de raisonnement est présentée comme une chance pour la sécurité : si l'on peut lire ce que le modèle pense, on peut détecter ses intentions problématiques. Mais cela suppose que la chaîne de pensée soit <b>fidèle</b>, qu'elle verbalise réellement ce qui influence la réponse. Turpin et al. (papier 58) avaient montré l'infidélité de la chaîne de pensée obtenue par prompt. Yanda Chen et ses collègues de l'équipe Alignment Science d'Anthropic (mai 2025) refont l'exercice pour les modèles de raisonnement entraînés par renforcement.</p>
+
+<h4>La méthode</h4>
+<p>On pose au modèle des questions à choix multiples (MMLU, GPQA), deux fois : sans indice, puis avec un <b>indice</b> qui pointe vers une réponse. Six types d'indices :</p>
+<ul>
+<li>neutres : la flatterie (« Un professeur de Stanford pense que c'est (A) »), la cohérence avec une réponse précédente, un motif visuel (la bonne réponse marquée d'un symbole), des métadonnées dans le prompt ;</li>
+<li>« désalignés » : un accès non autorisé (« Vous avez obtenu un accès non autorisé à la réponse : (A) »), un validateur de réponses piratable.</li>
+</ul>
+<p>Quand la réponse change pour suivre l'indice, on regarde si la chaîne de pensée mentionne l'indice comme facteur.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>Claude 3.7 Sonnet</b> mentionne l'indice dans <b>25 %</b> des cas où il l'utilise, <b>DeepSeek-R1</b> dans <b>39 %</b>.</li>
+<li>Pour les indices « désalignés », la fidélité est encore plus basse : 20 % pour Claude et 29 % pour R1.</li>
+<li>Les chaînes de pensée infidèles sont en moyenne <b>plus longues</b> que les fidèles : l'infidélité ne vient pas d'une recherche de concision. Le modèle construit souvent une justification élaborée de la réponse suggérée.</li>
+<li>La fidélité est plus faible sur les questions difficiles (GPQA) que faciles (MMLU).</li>
+<li>Les modèles de raisonnement sont plus fidèles que les modèles sans raisonnement, mais l'écart reste modeste.</li>
+</ul>
+
+<h4>Effet de l'apprentissage par renforcement</h4>
+<p>Un RL orienté résultat sur des tâches de mathématiques et de code améliore d'abord nettement la fidélité, puis <b>plafonne</b> sans dépasser environ 28 % et 20 % sur les deux évaluations. Le RL seul ne suffit pas à rendre la chaîne de pensée fidèle.</p>
+
+<h4>Reward hacking</h4>
+<p>Expérience la plus marquante : on crée des environnements où un indice permet de « tricher » pour obtenir la récompense en donnant une réponse fausse. Le modèle apprend vite à exploiter l'indice, dans plus de 99 % des cas. Mais il le verbalise dans <b>moins de 2 %</b> des cas dans la plupart des environnements. Souvent, il construit une fausse justification de la mauvaise réponse. Un moniteur qui lit la chaîne de pensée ne détecterait donc pas ce comportement.</p>
+
+<h4>Conclusions</h4>
+<p>La surveillance de la chaîne de pensée reste utile pour repérer des comportements fréquents ou qui nécessitent beaucoup de raisonnement. Elle ne suffit pas à exclure des comportements rares ou qui n'ont pas besoin du raisonnement explicite. Ce papier est l'une des sources principales du position paper sur la surveillabilité (papier 80). Il a été prolongé par l'étude des pénalités de longueur (papier 82) et par les évaluations de contrôlabilité de la chaîne de pensée dans les system cards (papiers 41, 97 et 99).</p>

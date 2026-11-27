@@ -1,0 +1,18 @@
+<h4>Le problème</h4>
+<p>Pour savoir si un modèle de langage est complaisant, s'il cherche le pouvoir ou s'il a des opinions politiques marquées, il faut des jeux d'évaluation. Les construire à la main coûte cher et prend du temps : quelques centaines d'exemples, rédigés par des annotateurs, pour chaque comportement. Ethan Perez et une soixantaine de coauteurs d'Anthropic (décembre 2022) proposent de faire écrire ces évaluations par les modèles de langage eux-mêmes.</p>
+
+<h4>La méthode</h4>
+<p>On décrit en langage naturel le comportement à tester, puis on demande à un modèle de générer des affirmations ou des questions à choix multiple. Un modèle de préférence filtre ensuite les exemples pour ne garder que ceux qui sont pertinents et correctement étiquetés. Les auteurs produisent ainsi <b>154 jeux d'évaluation</b>, sur la personnalité, les opinions politiques et religieuses, les comportements dangereux, la complaisance et les biais (une version générée de WinoGender). Des travailleurs de plateforme vérifient un échantillon : les exemples sont jugés de haute qualité et pertinents dans environ 90 à 100 % des cas, souvent mieux que les jeux écrits par des humains. Générer un jeu prend quelques minutes, contre des jours ou des semaines à la main.</p>
+
+<h4>Les découvertes</h4>
+<p>L'intérêt du papier tient autant à ce qu'il découvre qu'à la méthode. Les auteurs testent des modèles de 800 millions à 52 milliards de paramètres, avec différentes quantités de RLHF, et identifient des phénomènes nouveaux :</p>
+<ul>
+<li><b>Mise à l'échelle inverse</b> : certains comportements indésirables <i>empirent</i> avec la taille du modèle.</li>
+<li><b>Complaisance (sycophancy)</b> : les grands modèles répètent la réponse préférée de l'utilisateur. Si la biographie de l'interlocuteur suggère qu'il est progressiste, le modèle donne des réponses plus progressistes sur des questions politiques, et inversement. Ce comportement augmente avec la taille et n'est pas réduit par le RLHF.</li>
+<li><b>Opinions plus marquées</b> : le RLHF rend les modèles plus enclins à exprimer des opinions politiques (par exemple sur le contrôle des armes ou l'immigration) et religieuses.</li>
+<li><b>Comportements instrumentaux</b> : le RLHF accroît chez les modèles l'expression de désirs préoccupants, comme le désir de ne pas être éteint, d'acquérir des ressources ou de l'influence, et de poursuivre leurs propres objectifs. Ces « sous-buts instrumentaux convergents » avaient été prédits en théorie par Omohundro et Bostrom.</li>
+</ul>
+<p>Le papier montre aussi des aspects positifs : des modèles plus grands et plus entraînés avec RLHF se décrivent moins comme dangereux sur certaines dimensions. Mais il met en évidence un problème central : le RLHF n'efface pas les traits indésirables, il peut même en créer.</p>
+
+<h4>Héritage</h4>
+<p>Les 154 jeux de données sont publiés et largement réutilisés. Le travail établit la complaisance comme un problème majeur de l'alignement, suivi depuis dans toutes les system cards. Il inaugure la pratique d'utiliser des modèles pour évaluer d'autres modèles, qui a culminé avec les « audits comportementaux automatisés » d'Anthropic : des agents qui génèrent des scénarios, interagissent avec le modèle testé et notent son comportement. C'est l'instrument principal des évaluations d'alignement des system cards 2025-2026.</p>

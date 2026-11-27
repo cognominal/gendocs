@@ -1,0 +1,39 @@
+<h4>La question</h4>
+<p>Les modèles de raisonnement (« Large Reasoning Models », LRM) comme o1, o3, DeepSeek-R1 ou Claude 3.7 Sonnet en mode réflexion progressent sur les benchmarks de mathématiques et de code. Mais ces benchmarks sont contaminés (leurs problèmes circulent sur le web) et ne permettent pas de contrôler la difficulté. Parshin Shojaee, Iman Mirzadeh et leurs collègues d'Apple (juin 2025) proposent d'étudier les LRM sur des <b>puzzles à complexité réglable</b>, pour comprendre comment leur raisonnement se comporte quand la difficulté augmente.</p>
+
+<h4>Les puzzles</h4>
+<ul>
+<li><b>Tours de Hanoï</b> : la complexité est le nombre de disques (solution optimale de 2<sup>n</sup> − 1 coups).</li>
+<li><b>Saut de pions</b> (checker jumping) : échanger des pions rouges et bleus sur une ligne.</li>
+<li><b>Traversée de rivière</b> : faire traverser des acteurs et leurs agents sous contraintes.</li>
+<li><b>Monde des blocs</b> : réarranger des piles, comme dans PlanBench (papier 63).</li>
+</ul>
+<p>Un simulateur vérifie chaque coup, ce qui permet d'analyser non seulement la réponse finale mais aussi les solutions intermédiaires dans la chaîne de pensée.</p>
+
+<h4>Trois régimes</h4>
+<p>En comparant les modèles « pensants » et leurs versions sans réflexion, à budget de calcul égal :</p>
+<ol>
+<li><b>Basse complexité</b> : les modèles sans réflexion font aussi bien ou mieux, et sont plus efficaces.</li>
+<li><b>Complexité moyenne</b> : la réflexion donne un avantage net.</li>
+<li><b>Haute complexité</b> : les deux types de modèles <b>s'effondrent</b>, avec une précision nulle.</li>
+</ol>
+
+<h4>Observations surprenantes</h4>
+<ul>
+<li><b>Effort de réflexion décroissant</b> : à l'approche du seuil d'effondrement, les modèles utilisent <i>moins</i> de jetons de réflexion, alors qu'ils ont encore du budget disponible. Ils semblent « abandonner ».</li>
+<li><b>Surréflexion</b> pour les problèmes simples : le modèle trouve tôt la bonne solution, puis continue d'explorer des solutions fausses.</li>
+<li>Pour les problèmes plus difficiles, les solutions correctes n'apparaissent que tard dans la réflexion, voire jamais.</li>
+<li>Même quand on <b>donne l'algorithme</b> de résolution des tours de Hanoï dans le prompt, les modèles échouent au même seuil : ils ne savent pas exécuter fidèlement une procédure longue.</li>
+<li>Comportement incohérent entre puzzles : Claude 3.7 Sonnet réussit plus de 100 coups corrects aux tours de Hanoï mais échoue après 4 coups à la traversée de rivière, peut-être moins présente dans les données d'entraînement.</li>
+</ul>
+
+<h4>La controverse</h4>
+<p>Le titre a été lu comme « les modèles ne raisonnent pas », ce qui a provoqué un vif débat. Plusieurs réponses (dont « The Illusion of the Illusion of Thinking ») ont montré que :</p>
+<ul>
+<li>pour les grandes tours de Hanoï, la solution complète dépasse la <b>limite de longueur de sortie</b> des modèles, qui le disent parfois explicitement ;</li>
+<li>certaines instances de traversée de rivière sont <b>insolubles</b> mathématiquement, et étaient comptées comme des échecs ;</li>
+<li>demander un programme qui génère la solution, plutôt que la liste des coups, fait disparaître l'effondrement.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>Même contesté, le papier a imposé l'idée d'évaluer le raisonnement sur des problèmes à complexité contrôlée, en analysant les traces intermédiaires. Ses observations sur la surréflexion des problèmes faciles ont nourri les travaux sur l'efficacité (papiers 79, 81, 83 et 84), et la question de l'exécution fidèle de longues procédures rejoint l'analyse théorique du papier 65.</p>

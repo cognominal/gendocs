@@ -1,0 +1,32 @@
+<h4>L'idée : l'image comme compression du texte</h4>
+<p>Le coût des LLM croît avec la longueur du contexte, quadratiquement pour l'attention et linéairement pour le cache. Or une page de texte rendue en image peut être représentée par bien moins de tokens visuels qu'elle ne contient de tokens de texte. DeepSeek-OCR (Haoran Wei, Yaofeng Sun, Yukun Li, octobre 2025) pose une question audacieuse : peut-on utiliser la <b>vision comme moyen de compression</b> du texte ? Combien de tokens visuels faut-il pour décoder fidèlement N tokens de texte ? L'OCR, la reconnaissance de texte dans les images, sert de banc d'essai naturel, puisqu'il s'agit exactement de décompresser l'image en texte.</p>
+
+<h4>Architecture</h4>
+<p>Le système comprend deux parties.</p>
+<ul>
+<li><b>DeepEncoder</b> (environ 380 millions de paramètres), conçu pour gérer de hautes résolutions avec peu de tokens et peu de mémoire. Il enchaîne :
+<ol>
+<li>un encodeur SAM-base (80 millions), à attention locale par fenêtres, qui perçoit les détails sur de nombreux patches ;</li>
+<li>un <b>compresseur convolutif 16×</b> qui réduit drastiquement le nombre de tokens (par exemple de 4 096 à 256 pour une image de 1024×1024) ;</li>
+<li>un encodeur CLIP-large (300 millions), à attention globale, qui extrait les connaissances sémantiques sur ces tokens réduits.</li>
+</ol>
+Plusieurs modes de résolution existent : Tiny (64 tokens), Small (100), Base (256), Large (400) et un mode dynamique « Gundam » en tuiles pour les très grandes pages.</li>
+<li><b>Décodeur DeepSeek-3B-MoE</b> (environ 570 millions de paramètres actifs), qui reconstruit le texte à partir des tokens visuels compressés.</li>
+</ul>
+
+<h4>Les résultats de compression</h4>
+<p>Sur le benchmark Fox (documents dont le texte compte entre 600 et 1 300 tokens) :</p>
+<ul>
+<li>à un taux de compression <b>inférieur à 10×</b> (moins de dix tokens de texte par token visuel), la précision de décodage atteint environ <b>97 %</b> ;</li>
+<li>à <b>20×</b>, elle reste d'environ <b>60 %</b>.</li>
+</ul>
+<p>Une compression optique quasi sans perte autour de 10× est donc possible. Sur OmniDocBench, DeepSeek-OCR dépasse GOT-OCR2.0 (256 tokens par page) avec seulement 100 tokens visuels, et dépasse MinerU 2.0 (près de 7 000 tokens par page) avec moins de 800. En production, une seule carte A100 peut générer plus de 200 000 pages de données d'entraînement par jour pour les LLM et VLM.</p>
+
+<h4>Capacités au-delà de l'OCR</h4>
+<p>Le modèle a été entraîné sur des données d'OCR « 1.0 » (documents de près de 100 langues, scènes naturelles) et « 2.0 » : analyse de graphiques convertis en tableaux, formules chimiques converties en SMILES, figures géométriques et analyse de mise en page. Il peut produire du Markdown structuré, et garde des capacités générales de description d'images.</p>
+
+<h4>Spéculation : la mémoire et l'oubli</h4>
+<p>La partie la plus discutée du papier est une proposition prospective. Les conversations anciennes d'un agent pourraient être <b>rendues en images</b> puis progressivement réduites en résolution à mesure qu'elles vieillissent. Ce serait un mécanisme d'<b>oubli progressif</b>, analogue à la mémoire humaine où les souvenirs récents sont nets et les anciens flous : le texte récent garde une haute fidélité tandis que le contexte ancien coûte de moins en moins de tokens. Cela ouvrirait la voie à des contextes théoriquement illimités. Andrej Karpathy a commenté que les pixels pourraient être une meilleure entrée que le texte tokenisé pour les LLM.</p>
+
+<h4>Héritage</h4>
+<p>DeepSeek-OCR a relancé la recherche sur la « compression optique de contexte » et inspiré plusieurs travaux de mémoire agentique fondée sur des images. DeepSeek-OCR 2 (papier 46) le prolonge en introduisant un ordre de lecture causal appris dans l'encodeur visuel.</p>

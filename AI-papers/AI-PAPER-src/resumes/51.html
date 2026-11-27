@@ -1,0 +1,24 @@
+<h4>Un constat de gaspillage</h4>
+<p>L'attention creuse rend presque constant le <b>calcul</b> par jeton généré, mais la <b>mémoire</b> du cache KV croît toujours linéairement avec la longueur du contexte. DeepSeek-V4 (papier 31) et Qwen3.5 freinent cette croissance avec des couches très compressées (HCA) ou linéaires. Pour garder un rappel factuel fin, ils doivent pourtant conserver des couches peu compressées. Les auteurs partent d'une observation sur de vrais journaux d'inférence : <b>plus de 90 % des requêtes de plus de 64K jetons peuvent être résolues avec seulement les 8K derniers jetons</b>. La quasi-totalité de la mémoire GPU est donc occupée par un contexte inactif. Mais supprimer l'historique, comme le fait une simple fenêtre glissante, échoue sur les tâches qui exigent vraiment une synthèse globale.</p>
+<p>Ce rapport n'est pas un papier officiel de DeepSeek. Il vient de chercheurs de Tencent, de HKUST (Guangzhou) et de Tsinghua, et s'appuie sur les poids ouverts de DeepSeek-V4-Flash. Le projet est <b>suspendu</b> après le départ de son responsable de Tencent, et les auteurs cherchent des partenaires.</p>
+
+<h4>Lookahead Sparse Attention (LSA)</h4>
+<ul>
+<li>On garde toutes les couches HCA (compression 128:1), qui assurent une <b>vue globale</b> peu coûteuse.</li>
+<li>Les couches CSA deviennent <b>prédictives</b>. Toutes les τ étapes de génération (par exemple 64), un petit <b>Neural Memory Indexer</b> examine l'état caché courant et <b>anticipe</b> les blocs de contexte dont les prochains jetons auront besoin.</li>
+<li>Au lieu d'un Top-k fixe, il rapatrie tous les blocs dont le score dépasse un seuil (0,5), depuis un <b>« pool froid » en mémoire CPU</b> vers le GPU. Le reste du cache est évincé physiquement.</li>
+<li>Les blocs choisis s'ajoutent à la fenêtre glissante locale, qui reste toujours en GPU.</li>
+</ul>
+
+<h4>Entraînement découplé</h4>
+<p>L'astuce pratique : l'indexeur est formulé comme un <b>dual-encoder</b> de recherche d'information classique. On l'entraîne sur des états cachés et des étiquettes calculés à l'avance, <b>sans jamais charger le modèle principal</b> en mémoire GPU, ce qui prend environ une heure sur un seul GPU H20. Les étiquettes reprennent ce que l'indexeur natif de DeepSeek (le « Lightning Indexer ») sélectionne sur la fenêtre future, filtré par un pipeline de débruitage en trois étapes. Ce filtrage est nécessaire, car un Top-k rigide force à rappeler des entrées inutiles. Toutes les couches ne se prêtent pas à l'anticipation, et le choix des couches converties fait partie de la méthode.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur LongBench-v2, LongMemEval et RULER, le cache KV physique moyen tombe à <b>13,5 %</b> de la référence, avec une précision maintenue ou légèrement meilleure (+0,6 point en moyenne). Les auteurs y voient un effet de <b>« débruiteur d'attention »</b> : moins de contexte non pertinent, c'est moins de distraction.</li>
+<li>À <b>1 million de jetons</b>, le calcul par jeton tombe à 0,30× la référence et le cache GPU baisse de 90 % (de 3,73 à 0,37 Go).</li>
+<li>En service désagrégé (pré-remplissage et génération séparés) sur 8 GPU H20, le débit est multiplié par 2,8 et la concurrence par 2,7.</li>
+</ul>
+
+<h4>Limites et intérêt</h4>
+<p>Les auteurs soulignent des choix dictés par le manque de ressources plutôt que par l'optimalité : clés gelées, interaction par simple produit scalaire, pas d'optimisation conjointe avec le modèle principal. Le travail montre surtout l'effet d'écosystème des <b>poids ouverts</b> de DeepSeek : des équipes extérieures peuvent explorer des idées d'inférence que le laboratoire n'a pas lui-même publiées. La même préoccupation, réduire le cache KV pour les agents à long contexte, guide DeepSeek-V4.1-Flash (papier 45) par d'autres moyens : réutilisation entre couches, cache en FP4 et rejeu borné.</p>

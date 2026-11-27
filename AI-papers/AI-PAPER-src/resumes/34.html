@@ -1,0 +1,31 @@
+<h4>Contexte</h4>
+<p>Début 2024, le raisonnement mathématique reste l'une des grandes faiblesses des modèles ouverts : GPT-4 et Gemini Ultra dominent nettement. DeepSeekMath (Zhihong Shao et al., février 2024) montre qu'un modèle de seulement <b>7 milliards de paramètres</b> peut approcher ces géants grâce à deux ingrédients : des données de mathématiques web soigneusement collectées et un nouvel algorithme d'apprentissage par renforcement, <b>GRPO</b>, qui deviendra un an plus tard le moteur de DeepSeek-R1.</p>
+
+<h4>Le DeepSeekMath Corpus</h4>
+<p>Le cœur du papier est un pipeline itératif d'extraction de pages mathématiques depuis Common Crawl :</p>
+<ol>
+<li>on entraîne un classifieur fastText à partir d'un ensemble de départ de haute qualité (OpenWebMath) ;</li>
+<li>on récupère dans Common Crawl les pages qu'il juge mathématiques ;</li>
+<li>on identifie les domaines où beaucoup de pages sont mathématiques (par exemple mathoverflow.net), on fait annoter manuellement les URL pertinentes de ces domaines et on enrichit l'ensemble de départ ;</li>
+<li>on recommence. Après quatre itérations, 98 % des données étaient déjà collectées à la troisième.</li>
+</ol>
+<p>Le corpus final compte <b>120 milliards de tokens</b>, environ sept fois plus que les pages mathématiques de Minerva et neuf fois plus qu'OpenWebMath. Il est filtré pour éviter la contamination par les benchmarks et il est multilingue (beaucoup de chinois).</p>
+
+<h4>Pré-entraînement</h4>
+<p>DeepSeekMath-Base 7B est initialisé à partir de <b>DeepSeek-Coder-Base-v1.5</b> plutôt que d'un modèle généraliste : partir d'un modèle de code aide le raisonnement mathématique. Il est entraîné sur 500 milliards de tokens, dont 56 % du corpus mathématique, plus du code, de l'arXiv et du langage naturel. Il obtient 64,2 % sur GSM8K et 36,2 % sur MATH, au-delà de Minerva 540B, un modèle 77 fois plus grand. Une observation surprenante : <b>les articles arXiv n'aident pas</b> le raisonnement mathématique dans leurs expériences, contrairement à une intuition répandue.</p>
+
+<h4>GRPO : Group Relative Policy Optimization</h4>
+<p>PPO, l'algorithme standard du RLHF, nécessite un <b>réseau critique</b> (fonction de valeur) aussi grand que le modèle, qui estime la valeur de chaque état pour calculer les « avantages ». C'est coûteux en mémoire et difficile à entraîner pour les LLM, où la récompense n'arrive souvent qu'au dernier token. GRPO supprime le critique :</p>
+<ul>
+<li>pour chaque question, on échantillonne un <b>groupe</b> de G réponses (par exemple 64) avec la politique actuelle ;</li>
+<li>on les note avec le modèle de récompense ;</li>
+<li>l'avantage de chaque réponse est sa récompense normalisée par la moyenne et l'écart-type du groupe. Une réponse meilleure que ses « sœurs » est renforcée, une moins bonne est découragée ;</li>
+<li>une pénalité KL envers le modèle de référence est ajoutée directement à la perte.</li>
+</ul>
+<p>Appliqué à DeepSeekMath-Instruct 7B, GRPO porte le score sur MATH à <b>51,7 %</b> (60,9 % avec auto-cohérence sur 64 échantillons), le premier modèle ouvert à dépasser 50 %, proche de Gemini Ultra et de GPT-4 de l'époque.</p>
+
+<h4>Une vue unifiée et une observation clé</h4>
+<p>Les auteurs proposent un cadre unifié dans lequel affinage supervisé, échantillonnage par rejet, DPO, PPO et GRPO sont tous des variantes d'une même formule de gradient, qui ne diffèrent que par la source des données et la fonction qui pondère le gradient. Leur analyse montre que le RL améliore surtout <b>Maj@K</b> (le vote majoritaire) mais pas <b>Pass@K</b> (la présence d'au moins une bonne réponse parmi K) : le RL rendrait la distribution de sortie plus robuste en remontant les bonnes réponses déjà présentes, plutôt que d'ajouter de nouvelles capacités. Cette observation a été reprise et débattue en 2025 par « Does RL Really Incentivize Reasoning Capacity… » (dans la section « Raisonnement »).</p>
+
+<h4>Héritage</h4>
+<p>GRPO est devenu l'algorithme de RL le plus utilisé pour le raisonnement des LLM après DeepSeek-R1 (papier 33). Il a été intégré dans les principales bibliothèques (TRL, verl, OpenRLHF) et a donné de nombreuses variantes (DAPO, Dr. GRPO, GSPO). Le pipeline de collecte de données mathématiques a aussi inspiré de nombreux corpus spécialisés.</p>

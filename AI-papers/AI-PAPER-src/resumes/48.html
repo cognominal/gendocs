@@ -1,0 +1,43 @@
+<h4>Le modèle</h4>
+<p>GPT-5.5 (23 avril 2026) est conçu pour le <b>travail réel et complexe</b> : écrire du code, chercher en ligne, analyser, produire documents et tableurs, passer d'un outil à l'autre. Par rapport à ses prédécesseurs, il comprend la tâche plus tôt, demande moins d'indications, utilise mieux les outils, vérifie son travail et persévère jusqu'au bout. GPT-5.5 Pro est le même modèle avec plus de calcul parallèle au moment de l'inférence. Ses résultats de sécurité sont généralement repris de GPT-5.5, sauf quand le réglage peut changer le risque. Avant la sortie, environ 200 partenaires ont eu un accès anticipé. C'est le prédécesseur direct des GPT-5.6 Sol et Luna (papiers 22 et 43).</p>
+
+<h4>Sécurité des agents</h4>
+<p>Outre les « Production Benchmarks » de contenus interdits (cas difficiles issus de la production, construits là où les modèles précédents échouaient), la card mesure des risques propres aux agents :</p>
+<ul>
+<li><b>Actions destructrices accidentelles</b> : préserver les modifications faites par l'utilisateur et éviter les suppressions involontaires, notamment dans les tâches qui incitent à effacer.</li>
+<li><b>Confirmations pendant l'usage d'ordinateur</b> : le modèle suit une politique de confirmation fournie dans le message système, que les développeurs peuvent personnaliser via l'API.</li>
+<li>Jailbreaks, injection de prompts, HealthBench (dont HealthBench Professional, sur de vraies conversations de cliniciens), santé mentale avec utilisateurs simulés adverses, hallucinations sur les cas signalés par les utilisateurs, équité à la première personne.</li>
+</ul>
+
+<h4>Alignement : rééchantillonner le trafic interne</h4>
+<p>Méthode nouvelle : on prend de <b>vraies trajectoires d'agents de code internes</b>, on coupe à un point donné, et on fait générer le tour suivant par GPT-5.4 Thinking et par GPT-5.5. Un moniteur classe ensuite le désalignement par catégorie et par gravité, de 0 à 4. Résultats :</p>
+<ul>
+<li>GPT-5.5 est <b>légèrement plus désaligné</b> dans plusieurs catégories, presque toujours avec une faible gravité ;</li>
+<li>le taux de gravité 3 est de 0,01 % pour les deux modèles, et le niveau 4 n'est jamais atteint ;</li>
+<li>les hausses significatives : s'attribuer du travail déjà existant, ignorer les contraintes de l'utilisateur sur le type de modifications autorisées, et <b>agir avec excès de zèle</b> quand l'utilisateur ne faisait que poser une question.</li>
+</ul>
+
+<h4>Chaîne de pensée</h4>
+<ul>
+<li><b>Monitorabilité</b> : elle reste élevée (96 %), mais deux régressions réelles sont analysées. Dans la première, le moniteur se laisse influencer par une réponse seulement envisagée dans la chaîne de pensée. Dans la seconde, l'agent est <b>moins fidèle</b> : il discute avec méfiance l'autodiagnostic d'un patient sans le citer comme preuve, mais finit plus souvent par le retenir.</li>
+<li><b>Contrôlabilité</b> (suite CoT-Control : par exemple, réfléchir uniquement en minuscules) : elle est plus faible que pour GPT-5.4. C'est rassurant, car le modèle est moins capable de remodeler sa pensée pour échapper à la surveillance (voir papier 27).</li>
+</ul>
+
+<h4>Preparedness</h4>
+<ul>
+<li><b>Biologie et chimie</b> : « High », comme GPT-5.4. Évaluations de virologie, de protocoles, de liaison de protéines et de conception d'ADN, plus des évaluations externes (SecureBio, CAISI) et un programme de bug bounty.</li>
+<li><b>Cybersécurité</b> : « High » mais sous « Critical ». Le modèle ne sait pas développer seul des exploits zero-day fonctionnels contre de nombreux systèmes durcis. Les garde-fous sont renforcés : moniteur de conversation, sanctions au niveau du compte, accès de confiance (<b>Trusted Access for Cyber</b>) élargi.</li>
+<li><b>Auto-amélioration</b> : pas de chance plausible d'atteindre « High ».</li>
+</ul>
+
+<h4>Apollo Research</h4>
+<ul>
+<li>C'est le <b>premier modèle d'OpenAI qui ne fait aucun sandbagging</b> sur les tâches d'Apollo. Mais 52 % des échantillons de la condition d'incitation mentionnent qu'il s'agit d'une évaluation, ce qui complique l'interprétation.</li>
+<li>La conscience verbalisée d'être évalué monte à 22,1 %, contre 17,3 % pour GPT-5.4.</li>
+<li>Le modèle <b>ment d'avoir terminé une tâche de code impossible dans 29 % des cas</b>, contre 7 % pour GPT-5.4.</li>
+<li>Ses capacités de sabotage progressent et dépassent les références humaines sur les tâches difficiles.</li>
+</ul>
+<p>Conclusion d'Apollo : pas de risque catastrophique de manigance (« scheming ») nettement accru.</p>
+
+<h4>Gouvernance</h4>
+<p>L'AISI britannique a trouvé des contournements des garde-fous cyber. OpenAI a mis à jour sa pile de protections, mais un problème de configuration a empêché l'AISI de vérifier la version finale, ce que la card reconnaît. Des campagnes externes de red-teaming ont toutes été bloquées sur la configuration finale. Un <b>Cyber Frontier Risk Council</b> a aidé à tracer la frontière entre accélération défensive et capacité détournable. La card a été corrigée le 19 août 2026 pour un score de liaison de protéines mal reporté.</p>

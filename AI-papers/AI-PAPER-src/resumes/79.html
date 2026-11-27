@@ -1,0 +1,40 @@
+<h4>Le problème</h4>
+<p>Les modèles de raisonnement améliorent leurs résultats en réfléchissant longtemps, mais ils le font souvent sans discernement : des milliers de jetons pour « combien font 2 + 3 ? ». Cette <b>surréflexion</b> coûte en latence, en énergie et en argent. À l'inverse, ils peuvent sous-réfléchir sur les problèmes vraiment difficiles. Mohammad Ali Alomrani et ses collègues (Huawei Noah's Ark, Université McGill et d'autres) font la synthèse des méthodes qui rendent le calcul au moment du test <b>adaptatif et contrôlable</b>.</p>
+
+<h4>Deux familles</h4>
+<ul>
+<li><b>Calcul contrôlable à budget fixe (L1)</b> : l'utilisateur ou le système fixe un budget, et le modèle doit s'y tenir.
+<ul>
+<li>Budget forcing au décodage, comme le « Wait » ou l'arrêt forcé de s1 (papier 72).</li>
+<li>Modèles entraînés à respecter une longueur demandée dans le prompt, par exemple L1 (« Length Controlled Policy Optimization »).</li>
+<li>Niveaux d'effort exposés aux utilisateurs (« low », « medium », « high »), comme dans les API d'OpenAI et d'Anthropic ou le curseur de GPT-5.6 (papier 43).</li>
+</ul></li>
+<li><b>Calcul adaptatif (L2)</b> : le modèle ou le système ajuste lui-même son effort à la difficulté.
+<ul>
+<li>Arrêt anticipé quand la confiance est suffisante ou que les réponses intermédiaires convergent (papiers 81 et 83).</li>
+<li>Pénalités de longueur pendant le RL, qui récompensent les réponses courtes et correctes (Kimi k1.5, papier 71).</li>
+<li>Routage : envoyer les questions faciles à un modèle rapide et les difficiles à un modèle de raisonnement.</li>
+<li>Modèles hybrides qui décident eux-mêmes s'ils doivent réfléchir.</li>
+<li>Compression de la chaîne de pensée : supprimer les étapes redondantes, raisonner dans un espace latent.</li>
+</ul></li>
+</ul>
+
+<h4>Évaluation empirique</h4>
+<p>Les auteurs évaluent plusieurs modèles de raisonnement ouverts sur des benchmarks de mathématiques de difficulté variable, en mesurant le compromis entre précision et nombre de jetons. Leurs observations :</p>
+<ul>
+<li>les modèles de raisonnement utilisent beaucoup trop de jetons sur les problèmes faciles (GSM8K), pour un gain de précision faible ;</li>
+<li>la longueur des réponses augmente avec la difficulté, mais pas proportionnellement ;</li>
+<li>les méthodes contrôlables respectent mieux les budgets mais perdent de la précision quand le budget est trop serré ;</li>
+<li>aucune méthode ne domine sur tous les benchmarks.</li>
+</ul>
+
+<h4>Défis ouverts</h4>
+<ul>
+<li>Estimer la difficulté d'une question <b>avant</b> de commencer à y réfléchir.</li>
+<li>Définir des métriques qui combinent précision et coût.</li>
+<li>Étendre ces méthodes au-delà des mathématiques, aux tâches agentiques où le coût inclut les appels d'outils.</li>
+<li>Comprendre l'effet de la compression sur la <b>surveillabilité</b> : raccourcir le raisonnement peut le rendre plus opaque, comme le montrera le papier 82.</li>
+</ul>
+
+<h4>Intérêt</h4>
+<p>Ce papier donne une vue d'ensemble d'un champ devenu très actif en 2025-2026 et fournit le contexte des méthodes plus récentes présentées ensuite : REFRAIN (papier 81), CALM (papier 83) et l'analyse structurelle de la surréflexion (papier 84).</p>

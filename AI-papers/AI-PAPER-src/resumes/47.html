@@ -1,0 +1,27 @@
+<h4>Le « diff » de modèles</h4>
+<p>Pour relire un changement de code, un développeur ne relit pas tout le programme : il regarde le <b>diff</b>. Le <i>model diffing</i> applique la même idée à la sûreté de l'IA. Au lieu d'analyser chaque nouveau modèle de zéro, on compare ses représentations internes à celles d'un modèle connu pour isoler ce qui a changé. L'intérêt principal est de découvrir les <b>« inconnues inconnues »</b> : des tendances comportementales qu'aucune évaluation ne cherche, puisque personne ne les soupçonne. Les auteurs citent la mise à jour trop flagorneuse de GPT-4o en avril 2025, qu'un diff non supervisé aurait peut-être signalée avant le déploiement.</p>
+<p>Jusqu'ici, le model diffing ne comparait qu'un modèle de base et sa version affinée, partageant la même architecture. Il a servi par exemple à étudier le désalignement émergent, les « agents dormants », ou l'apparition de la conscience d'être évalué dans la system card de Claude Sonnet 4.5. Or les nouveaux modèles ont souvent des <b>architectures nouvelles</b>. Ce papier (T. Jiralerspong, Anthropic Fellow à Mila, et T. Bricken, Anthropic, février 2026) applique pour la première fois les <b>crosscoders</b> à des modèles d'architectures différentes.</p>
+
+<h4>Crosscoders et DFC</h4>
+<p>Un crosscoder, variante des autoencodeurs creux de l'interprétabilité (papier 9), apprend un <b>dictionnaire de features commun</b> aux deux modèles. Chaque feature peut se lire et s'écrire dans les activations des deux réseaux. Mais un crosscoder standard a un biais connu : il préfère apprendre des features partagées plutôt que des features propres à un modèle, alors que ce sont justement celles-là qui intéressent.</p>
+<p>D'où le <b>Dedicated Feature Crosscoder (DFC)</b>. Le dictionnaire est partitionné <i>par construction</i> en trois ensembles disjoints : features exclusives au modèle A, exclusives au modèle B, et partagées. Les activations de chaque modèle ne peuvent être encodées et décodées que via ses features dédiées et l'ensemble partagé, avec par exemple 5 % du dictionnaire réservé à chaque modèle. L'exclusivité est mesurée par un score qui teste si une feature se transfère à l'autre modèle via une application affine apprise.</p>
+
+<h4>Découvertes</h4>
+<p>Sans supervision, les DFC trouvent des features aux effets comportementaux mesurables, que l'on vérifie par <b>pilotage</b> (amplifier ou supprimer la feature) :</p>
+<ul>
+<li>dans <b>Qwen3-8B</b> et DeepSeek-R1-0528-Qwen3-8B, une feature d'<b>« alignement sur le PCC »</b> qui contrôle la censure et l'adhésion aux récits du Parti communiste chinois sur les sujets sensibles. On peut l'activer ou la désactiver ;</li>
+<li>dans <b>Llama-3.1-8B-Instruct</b>, une feature d'<b>« exceptionnalisme américain »</b> : l'amplifier provoque des affirmations de supériorité américaine ;</li>
+<li>dans <b>GPT-OSS-20B</b> (papier 30), un <b>mécanisme de refus lié au droit d'auteur</b> : le pilotage décide si le modèle reproduit ou non un texte protégé.</li>
+</ul>
+
+<h4>Validation</h4>
+<p>Un modèle jouet avec des concepts exclusifs connus sert de vérité terrain. Les DFC y retrouvent <b>plus de vrais concepts exclusifs</b> que les crosscoders standard, au prix de plus de faux positifs. Les auteurs jugent ce compromis favorable pour l'audit de sûreté : rater une feature critique coûte plus cher que d'en signaler une de trop, puisqu'on peut filtrer ensuite par validation causale. Sur les vrais modèles, les features DFC ont de meilleurs scores d'exclusivité, et une plus grande part correspond à des différences comportementales significatives.</p>
+
+<h4>Limites</h4>
+<ul>
+<li>Sur les vrais modèles, l'exclusivité n'est mesurée que par un indicateur indirect.</li>
+<li>La découverte est <b>instable</b> : la feature PCC apparaît avec toutes les graines aléatoires, la feature américaine dans 4 cas sur 5, et les features pro-Chine plus fines dans 2 ou 3 cas sur 5.</li>
+<li>Dans les comparaisons base contre affinage, la méthode bute sur le phénomène des « features miroirs ».</li>
+<li>Elle ne dit rien de l'<b>origine</b> des features (entraînement délibéré ou artefact des données).</li>
+</ul>
+<p>Les auteurs la présentent donc comme un outil d'investigation, un premier pas de découverte à compléter par une validation rigoureuse, aux côtés du red-teaming et des évaluations comportementales. C'est une brique de l'audit d'alignement que les system cards d'Anthropic intègrent progressivement (papiers 21 et 41).</p>

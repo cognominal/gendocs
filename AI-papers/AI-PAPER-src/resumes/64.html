@@ -1,0 +1,36 @@
+<h4>Le problème</h4>
+<p>En 2023, les agents fondés sur des LLM se multiplient : ReAct (papier 56), Reflexion (papier 60), Voyager dans Minecraft, les « Generative Agents » qui simulent un village, AutoGPT… Chacun utilise un vocabulaire propre, et il est difficile de les comparer ou de voir ce qui manque. Theodore Sumers, Shunyu Yao, Karthik Narasimhan et Thomas Griffiths (Princeton) proposent un cadre conceptuel commun, <b>CoALA</b> (Cognitive Architectures for Language Agents), inspiré de cinquante ans de recherche sur les architectures cognitives comme Soar et ACT-R.</p>
+
+<h4>L'analogie</h4>
+<p>Les architectures cognitives classiques utilisaient des <b>systèmes de production</b> : des règles « si condition, alors action » qui réécrivent des chaînes de symboles. Un LLM fait quelque chose d'analogue de façon probabiliste : il réécrit un texte en un autre. Les architectures cognitives ajoutaient à ces règles une mémoire, des boucles de décision et de l'apprentissage. CoALA propose de faire de même autour des LLM.</p>
+
+<h4>Les trois dimensions</h4>
+<ul>
+<li><b>Mémoire</b> :
+<ul>
+<li>mémoire de travail : l'état courant (observations, objectifs, résultats intermédiaires) ;</li>
+<li>mémoire épisodique : les expériences passées (trajectoires, réflexions de Reflexion) ;</li>
+<li>mémoire sémantique : les connaissances sur le monde (documents récupérés, faits) ;</li>
+<li>mémoire procédurale : le savoir-faire, à la fois implicite (les poids du LLM) et explicite (le code de l'agent, les prompts, une bibliothèque de compétences).</li>
+</ul></li>
+<li><b>Espace d'actions</b> :
+<ul>
+<li>actions externes, ou d'<b>ancrage</b> : agir sur le monde physique, dialoguer avec des humains, utiliser des outils numériques ;</li>
+<li>actions internes : <b>raisonnement</b> (lire et écrire la mémoire de travail), <b>récupération</b> (lire la mémoire à long terme), <b>apprentissage</b> (écrire dans la mémoire à long terme, y compris modifier son propre code ou ses poids).</li>
+</ul></li>
+<li><b>Prise de décision</b> : un cycle où l'agent planifie (propose, évalue, sélectionne des actions, éventuellement par recherche arborescente comme Tree of Thoughts, papier 59), puis exécute l'action choisie et observe le résultat.</li>
+</ul>
+
+<h4>Application aux agents existants</h4>
+<p>Le papier classe plusieurs agents dans ce cadre. Par exemple, ReAct n'a qu'une mémoire de travail et des actions de raisonnement et d'ancrage. Voyager ajoute une mémoire procédurale explicite (une bibliothèque de programmes) et apprend en y écrivant. Generative Agents combine mémoire épisodique, réflexion et planification. Cette grille fait apparaître les choix possibles et les manques.</p>
+
+<h4>Pistes proposées</h4>
+<ul>
+<li>Structurer les agents de façon modulaire plutôt qu'en prompts monolithiques.</li>
+<li>Explorer davantage l'apprentissage, au-delà de l'ajout d'épisodes en mémoire : mise à jour des poids, écriture de code, réflexion.</li>
+<li>Rendre les décisions plus délibérées, avec une planification explicite là où le coût d'une erreur est élevé.</li>
+<li>Penser la sécurité : un agent capable de modifier son propre code ou ses poids est puissant mais risqué.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>CoALA a fourni le vocabulaire « mémoire épisodique, sémantique, procédurale » largement repris dans la conception des agents. Les mémoires persistantes des assistants actuels, les fichiers de compétences (« skills ») des agents de code et les bibliothèques d'outils réutilisables en sont des exemples concrets. La synthèse de 2026 sur le raisonnement agentique (papier 85) prolonge ce travail avec des agents qui s'améliorent eux-mêmes et collaborent.</p>

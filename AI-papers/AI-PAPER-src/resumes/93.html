@@ -1,0 +1,24 @@
+<h4>L'hypothèse platonicienne</h4>
+<p>En 2024, Huh, Cheung, Wang et Isola ont formulé l'<b>hypothèse de la représentation platonicienne</b> : à mesure qu'ils grandissent, des modèles entraînés sur des données et des modalités différentes (images, texte) convergent vers une même représentation statistique du monde, comme les ombres de la caverne de Platon renvoient à une même réalité. Les observations allaient dans ce sens : les représentations des grands LLM s'alignent de plus en plus avec celles des modèles de vision. Mais c'était une hypothèse empirique. Randall Balestriero (Brown) et Yann LeCun (NYU, AMI Labs) la transforment en <b>théorème</b>, avec une condition précise.</p>
+
+<h4>Le théorème</h4>
+<p>Le cadre est celui des <b>JEPA</b> (Joint-Embedding Predictive Architectures), défendues par LeCun : au lieu de prédire des pixels ou des jetons, le modèle prédit la représentation d'une « vue » à partir de celle d'une autre vue du même objet. Le <b>théorème de la représentation platonicienne</b> dit que :</p>
+<ul>
+<li>si des JEPA sont entraînées séparément, sur des modalités différentes, avec de <b>« bonnes vues »</b>, c'est-à-dire des paires positives qui sont deux observations d'une même scène sous-jacente,</li>
+<li>alors elles apprennent la <b>même représentation, à une rotation près</b>.</li>
+</ul>
+<p>La convergence n'est donc pas un effet magique de l'échelle : elle découle du choix des vues.</p>
+
+<h4>Pourquoi les LLM ont besoin d'échelle</h4>
+<p>Les auteurs montrent que la <b>prédiction du jeton suivant</b> est une JEPA avec de <b>« mauvaises vues »</b> : le contexte et le jeton suivant ne sont pas deux observations d'une même scène, mais deux morceaux de texte liés de façon bruitée. L'alignement avec les autres modalités n'apparaît alors que lentement, avec beaucoup de données et de paramètres. Cela explique pourquoi l'hypothèse platonicienne semblait liée à la taille des modèles.</p>
+
+<h4>Résultats expérimentaux</h4>
+<ul>
+<li>Avec de bonnes vues, il faut <b>42 fois moins d'exemples</b> pour atteindre un même niveau d'alignement.</li>
+<li>Une JEPA texte de seulement <b>109 millions</b> de paramètres, entraînée avec de bonnes vues (par exemple deux descriptions d'une même scène), s'aligne mieux avec DINOv2 et CLIP que des LLM allant jusqu'à <b>72 milliards</b> de paramètres.</li>
+<li>Puisque les représentations ne diffèrent que d'une rotation, il suffit d'apprendre <b>une rotation</b> pour transformer un encodeur d'images et un encodeur de texte entraînés séparément en un système de légendage d'images : CIDEr de 0,838 sur COCO.</li>
+<li>La méthode fonctionne même <b>sans paires</b> image-texte alignées : 64 % de précision top-5 sur ImageNet-100, contre 56 % au plus pour les autres méthodes sans paires.</li>
+</ul>
+
+<h4>Portée</h4>
+<p>Le papier donne une explication théorique à une observation empirique importante, et un argument pour l'approche JEPA contre la prédiction autorégressive de jetons. C'est le programme de recherche de LeCun, qui soutient depuis longtemps que les LLM ne suffiront pas pour atteindre une intelligence de niveau humain et qui a fondé AMI Labs autour des modèles du monde. Le résultat ouvre des pistes pratiques : aligner des modèles de modalités différentes à faible coût, ou choisir les données d'entraînement selon la qualité des « vues ». Il reste à voir si ces avantages tiennent à l'échelle des modèles frontière.</p>

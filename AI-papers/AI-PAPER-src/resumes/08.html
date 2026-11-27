@@ -1,0 +1,19 @@
+<h4>Contexte</h4>
+<p>Le jeu de Go était considéré comme le « Graal » de l'IA des jeux. Son facteur de branchement est d'environ 250 coups par position, pour des parties d'environ 150 coups, et il est très difficile d'écrire une fonction d'évaluation d'une position. Les meilleurs programmes de 2015, fondés sur la recherche arborescente Monte-Carlo (MCTS), n'atteignaient que le niveau d'un bon amateur. Ce papier de DeepMind (David Silver, Aja Huang et al., <i>Nature</i>, janvier 2016) décrit AlphaGo, qui combine réseaux de neurones profonds et recherche.</p>
+
+<h4>Le pipeline d'entraînement</h4>
+<ul>
+<li><b>Réseau de politique supervisé (SL)</b> : un CNN de 13 couches est entraîné à prédire le coup joué par des experts humains sur 30 millions de positions du serveur KGS. Il atteint 57 % de précision, contre 44 % pour l'état de l'art précédent.</li>
+<li><b>Politique rapide (rollout)</b> : un modèle linéaire beaucoup plus simple, 24 % de précision, mais environ mille fois plus rapide, utilisé pour simuler des parties jusqu'au bout.</li>
+<li><b>Réseau de politique par renforcement (RL)</b> : initialisé à partir du réseau SL, il joue contre des versions antérieures de lui-même et est optimisé par gradient de politique pour gagner, plutôt que pour imiter. Il bat le réseau SL dans 80 % des parties, et le meilleur programme open source, Pachi, dans 85 % des cas sans aucune recherche.</li>
+<li><b>Réseau de valeur</b> : il prédit, à partir d'une position, la probabilité de victoire. Il est entraîné par régression sur 30 millions de positions, chacune issue d'une partie différente d'auto-jeu, ce qui évite le surapprentissage dû aux positions corrélées d'une même partie.</li>
+</ul>
+
+<h4>La recherche</h4>
+<p>Pendant la partie, AlphaGo utilise une MCTS guidée par les réseaux. Le réseau de politique SL fournit des probabilités <i>a priori</i> qui orientent l'exploration vers les coups prometteurs. Chaque feuille est évaluée en combinant, à parts égales, la sortie du réseau de valeur et le résultat d'une simulation rapide. Fait intéressant, la politique SL, plus « humaine » et plus diverse, s'avère meilleure pour guider la recherche que la politique RL, plus forte mais plus étroite. La version distribuée utilise 1 202 CPU et 176 GPU.</p>
+
+<h4>Résultats</h4>
+<p>AlphaGo remporte 494 parties sur 495 contre les autres programmes de Go. En octobre 2015, il bat 5-0 Fan Hui, triple champion d'Europe et joueur professionnel 2<sup>e</sup> dan, sur un goban de 19×19 et sans handicap : une première historique, que les experts n'attendaient pas avant une décennie. Les études d'ablation montrent que chaque composant (réseau de valeur, simulations, politique) apporte un gain, et que leur combinaison est nettement supérieure.</p>
+
+<h4>Suite et héritage</h4>
+<p>En mars 2016, après la publication, AlphaGo bat Lee Sedol 4-1 à Séoul. Le 37<sup>e</sup> coup de la deuxième partie, d'abord jugé une erreur par les commentateurs, devient le symbole d'une machine capable de créativité stratégique. AlphaGo Zero (2017) supprime ensuite toute donnée humaine et apprend uniquement par auto-jeu, puis AlphaZero (2017) généralise la méthode aux échecs et au shogi. L'idée centrale — une politique apprise, une valeur apprise et une recherche à l'inférence — revient aujourd'hui dans les modèles de raisonnement (o1, DeepSeek-R1), qui « réfléchissent » longuement avant de répondre, et dans les systèmes de démonstration formelle comme AlphaProof.</p>

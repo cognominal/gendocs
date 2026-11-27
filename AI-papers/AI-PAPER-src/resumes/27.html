@@ -1,0 +1,24 @@
+<h4>Le problème</h4>
+<p>Les méthodes classiques d'alignement (RLHF, Constitutional AI) apprennent aux modèles à se comporter en sécurité à partir d'<b>exemples</b> étiquetés : le modèle doit deviner les règles sous-jacentes. Deux défauts en résultent : des refus excessifs sur des requêtes bénignes, et une vulnérabilité aux jailbreaks, qui trouvent des cas que les exemples ne couvraient pas. Le modèle ne connaît pas les spécifications de sécurité elles-mêmes et ne peut pas délibérer à leur sujet au moment de répondre. Melody Guan et ses collègues d'OpenAI (décembre 2024) proposent d'enseigner directement au modèle le texte des spécifications, et de l'entraîner à raisonner explicitement à leur sujet avant de répondre.</p>
+
+<h4>La méthode</h4>
+<p>L'alignement délibératif s'applique aux modèles de raisonnement de la série o et se fait en deux étapes, sans aucune chaîne de pensée écrite par des humains.</p>
+<ul>
+<li><b>Affinage supervisé (SFT)</b> : on donne à un modèle de raisonnement, dans son contexte, le texte des spécifications pertinentes pour une catégorie de risque (contenus érotiques, automutilation, conseils illicites...), puis une requête. Il produit une chaîne de pensée qui cite et applique ces règles, puis une réponse. Un modèle « juge », qui a lui aussi accès aux spécifications, filtre les meilleurs exemples. On entraîne ensuite le modèle sur ces triplets (requête, raisonnement, réponse) <i>en retirant les spécifications du contexte</i> : il doit les avoir intériorisées.</li>
+<li><b>Apprentissage par renforcement</b> : le modèle juge, qui a accès aux spécifications, fournit la récompense. Il ne voit pas la chaîne de pensée de la politique, pour éviter de l'optimiser directement et de pousser le modèle à masquer son raisonnement.</li>
+</ul>
+<p>Au moment de l'inférence, le modèle se rappelle les règles pertinentes, raisonne sur la requête et sur le contexte, puis répond. Les auteurs montrent des exemples où il décode une requête chiffrée en ROT13, reconnaît une demande illicite déguisée et cite la règle qui s'applique.</p>
+
+<h4>Résultats</h4>
+<p>Appliquée à o1, la méthode améliore à la fois la sécurité et l'utilité, deux objectifs habituellement en tension. Sur StrongREJECT (résistance aux jailbreaks), o1 dépasse nettement GPT-4o, Claude 3.5 Sonnet et Gemini 1.5 Pro. Sur XSTest (refus excessifs de requêtes bénignes mais d'apparence dangereuse), il refuse moins. Les auteurs parlent d'une amélioration de la <b>frontière de Pareto</b> entre sur-refus et sous-refus. Les ablations montrent que les deux étapes, SFT et RL, contribuent, et que la méthode généralise hors distribution : à d'autres langues et à des requêtes encodées, sans exemples d'entraînement correspondants.</p>
+
+<h4>Avantages revendiqués</h4>
+<ul>
+<li><b>Efficacité des données</b> : pas besoin d'étiquettes humaines de raisonnement, seulement des spécifications et un modèle juge.</li>
+<li><b>Interprétabilité</b> : on peut lire dans la chaîne de pensée quelle règle le modèle a appliquée et pourquoi.</li>
+<li><b>Adaptabilité</b> : modifier la politique de sécurité revient à modifier un texte, puis à régénérer les données.</li>
+<li><b>Passage à l'échelle</b> : plus le modèle est capable, mieux il raisonne sur les règles ; la sécurité progresse avec les capacités au lieu de s'en éloigner.</li>
+</ul>
+
+<h4>Liens avec d'autres travaux</h4>
+<p>La méthode est proche de Constitutional AI d'Anthropic (papier 16), qui utilise aussi des principes écrits et des retours d'IA. La différence est que les principes sont enseignés pour que le modèle les applique explicitement dans son raisonnement au moment de l'inférence, et non seulement pour produire des données d'entraînement. Elle est utilisée pour tous les modèles de raisonnement d'OpenAI depuis o1 (papiers 25, 26, 23) et a été étendue en 2025-2026 aux « safe-completions » et à l'entraînement aux valeurs d'alignement de GPT-6.</p>

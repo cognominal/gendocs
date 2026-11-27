@@ -1,0 +1,157 @@
+<style>
+.tf-n{fill:#fff;stroke:#555;stroke-width:1.2}
+.tf-hl{fill:#fde68a;stroke:#b45309;stroke-width:1.4}
+.tf-bl{fill:#dbeafe;stroke:#1d4ed8;stroke-width:1.2}
+.tf-gr{fill:#dcfce7;stroke:#15803d;stroke-width:1.2}
+.tf-gy{fill:#f5f5f4;stroke:#a8a29e;stroke-width:1.2}
+.tf-rd{fill:#fee2e2;stroke:#b91c1c;stroke-width:1.2}
+.tf-e{stroke:#888;stroke-width:1.2;fill:none}
+.tf-ea{stroke:#b45309;stroke-width:1.6;fill:none}
+.tf-t{font:600 11px Helvetica,Arial,sans-serif;fill:#1f1f1f}
+.tf-s{font:10px Helvetica,Arial,sans-serif;fill:#444}
+.tf-xs{font:8.5px Helvetica,Arial,sans-serif;fill:#666}
+.tf-m{font:italic 11px "Times New Roman",serif;fill:#1f1f1f}
+</style>
+<svg width="0" height="0" style="position:absolute"><defs>
+<marker id="tf-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#666"/></marker>
+<marker id="tf-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+</defs></svg>
+
+<p class="chap-lead">En juin 2017, huit chercheurs de Google publient « Attention Is All You Need » (<a href="#p9">fiche 9</a>). Le papier propose une architecture de traduction automatique, le <a href="#g-transformer">Transformer</a>, qui se passe de récurrence et de convolution et ne garde que l'<a href="#g-attention">attention</a>. Moins de dix ans plus tard, tous les grands modèles de langage cités dans ce document, de BERT (<a href="#p10">fiche 10</a>) à GPT-4 (<a href="#p24">fiche 24</a>), DeepSeek-V3 (<a href="#p32">fiche 32</a>) et aux modèles frontières de 2026, sont des Transformers, de même que les modèles de vision, de parole et de génération d'images les plus utilisés. Ce dossier explique l'architecture de bout en bout : d'où elle vient, comment chaque pièce fonctionne et pourquoi elle est là, comment on l'entraîne et comment on l'utilise pour générer du texte, ce qu'on comprend de son fonctionnement interne, et quelles variantes ou rivales sont apparues.</p>
+
+<div class="box"><div class="box-t">Comment lire ce dossier</div>
+Les parties I à V décrivent l'architecture pièce par pièce et peuvent se lire seules. Les parties VI à VIII portent sur la façon de l'entraîner et de l'utiliser. Les parties IX et X sont plus prospectives. Les notations suivent le papier de 2017 : <i>d</i> (ou <i>d</i><sub>model</sub>) est la largeur du modèle, <i>h</i> le nombre de têtes d'attention, <i>d</i><sub>k</sub> = <i>d</i>/<i>h</i> la dimension d'une tête, <i>n</i> la longueur de la séquence, <i>L</i> le nombre de couches et <i>V</i> la taille du vocabulaire. L'efficacité de l'attention en contexte long (cache KV, attention latente, parcimonie, FlashAttention) fait l'objet d'un dossier séparé, <a href="#attention">Attention efficace et cache KV</a>, auquel celui-ci renvoie plutôt que de le répéter ; l'entraînement par renforcement des LLM est traité dans le dossier <a href="#renforcement">Renforcement</a>.</div>
+
+<h3 class="part first" id="tf-1">I. Avant le Transformer : la séquence comme goulot d'étranglement</h3>
+
+<h4>1.1 Le problème des séquences</h4>
+<p>Le langage arrive sous forme de séquences de longueur variable : une phrase à traduire, un document à résumer, une conversation à poursuivre. Les réseaux de la première vague du deep learning, perceptrons multicouches (<a href="#p3">fiche 3</a>) et réseaux convolutifs (<a href="#p4">fiche 4</a>, <a href="#p5">fiche 5</a>), attendent des entrées de taille fixe. Il faut donc une architecture capable de lire une suite d'éléments, de garder trace de ce qui précède, et de relier des mots parfois très éloignés : dans « Les clés que j'avais posées hier soir sur la table de l'entrée <i>sont</i> introuvables », l'accord du verbe dépend d'un mot situé douze mots plus tôt.</p>
+<p>Deux idées déjà présentes dans ce document préparent le terrain. Les <a href="#g-embedding-plongement">plongements</a> de Word2Vec (<a href="#p6">fiche 6</a>, 2013) montrent qu'on peut représenter chaque mot par un vecteur dense dont la géométrie encode le sens. Et la <a href="#g-retropropagation">rétropropagation</a> (<a href="#p3">fiche 3</a>) permet d'entraîner de bout en bout n'importe quel réseau dérivable, y compris un réseau déroulé dans le temps.</p>
+
+<h4>1.2 Les réseaux récurrents</h4>
+<p>Un réseau récurrent (RNN) lit la séquence un élément à la fois et maintient un état caché <i>h<sub>t</sub></i> qui résume tout ce qu'il a vu :</p>
+<p class="formula">h<sub>t</sub> = tanh( W<sub>h</sub> h<sub>t−1</sub> + W<sub>x</sub> x<sub>t</sub> + b )</p>
+<p>Les mêmes poids sont réutilisés à chaque pas de temps, si bien qu'un RNN traite des séquences de n'importe quelle longueur avec un nombre fixe de paramètres. Pour l'entraîner, on « déroule » le réseau sur toute la séquence et on applique la rétropropagation à travers le temps (<i>backpropagation through time</i>). C'est là que le bât blesse : le gradient qui relie la perte au pas <i>t</i> à une entrée du pas <i>t</i> − <i>k</i> est un produit de <i>k</i> matrices jacobiennes. Selon leurs valeurs propres, ce produit tend vers zéro (<b>évanouissement du gradient</b>) ou explose. Hochreiter l'analyse dès 1991, Bengio, Simard et Frasconi en 1994 : un RNN simple apprend mal les dépendances de plus d'une dizaine de pas.</p>
+<p>La réponse vient en 1997 avec le <b>LSTM</b> (<i>Long Short-Term Memory</i>) de Hochreiter et Schmidhuber. Il ajoute une « cellule mémoire » <i>c<sub>t</sub></i> mise à jour de façon additive, et des <b>portes</b> (oubli, entrée, sortie), petites couches sigmoïdes qui décident à chaque pas quoi effacer, quoi écrire et quoi lire. Comme la mise à jour de la cellule est une somme plutôt qu'un produit, le gradient peut la traverser sur de longues distances sans s'éteindre. On retrouvera exactement cette idée, un chemin additif pour l'information et le gradient, dans les <a href="#g-connexion-residuelle">connexions résiduelles</a> du Transformer. Le GRU (Cho et al., 2014) en est une version simplifiée à deux portes. De 2014 à 2017, les LSTM empilés dominent la reconnaissance de la parole, la traduction et la modélisation du langage.</p>
+
+<h4>1.3 Encodeur-décodeur et goulot d'étranglement</h4>
+<p>En 2014, Sutskever, Vinyals et Le (Google) et, indépendamment, Cho et al. proposent l'architecture <b>séquence-à-séquence</b> (seq2seq) : un premier LSTM, l'<b>encodeur</b>, lit la phrase source et la résume dans son dernier état caché ; un second LSTM, le <b>décodeur</b>, part de ce vecteur et génère la traduction mot à mot, chaque mot produit étant réinjecté en entrée du pas suivant. Avec quatre couches de LSTM et une astuce empirique (lire la phrase source à l'envers), le système égale les meilleurs traducteurs statistiques sur l'anglais-français.</p>
+<p>Le défaut est structurel : toute la phrase source doit tenir dans <b>un seul vecteur</b> de taille fixe, quelques centaines ou milliers de nombres, quelle que soit sa longueur. Les performances chutent nettement sur les phrases longues. C'est ce goulot d'étranglement que l'attention va faire sauter.</p>
+
+<h4>1.4 L'attention de Bahdanau : regarder en arrière</h4>
+<p>Bahdanau, Cho et Bengio (2014, publié à ICLR 2015) gardent tous les états cachés de l'encodeur, un par mot source, au lieu du seul dernier. À chaque pas de génération, le décodeur calcule un score d'alignement entre son état courant et chacun de ces états, normalise ces scores par une <a href="#g-softmax-et-temperature">softmax</a>, et forme un <b>vecteur de contexte</b> comme moyenne pondérée des états de l'encodeur. Le décodeur « regarde » ainsi la partie de la phrase source utile pour le mot qu'il s'apprête à produire : en traduisant « the European Economic Area » par « la zone économique européenne », les poids d'attention suivent l'inversion de l'ordre des adjectifs. Les matrices d'attention deviennent d'ailleurs un outil de visualisation : pour la première fois, on voit ce qu'un réseau de traduction « aligne ».</p>
+<p>Luong, Pham et Manning (2015) simplifient le score d'alignement en un simple <b>produit scalaire</b> entre états, la forme que reprendra le Transformer. Pendant deux ans, l'attention est un module ajouté à des LSTM, et elle améliore tous les systèmes. La synthèse de Niu, Zhong et Yu (<a href="#p87">fiche 87</a>) retrace cette histoire et la variété des mécanismes d'attention qui en est issue.</p>
+
+<h4>1.5 Ce qui restait à résoudre : le calcul séquentiel</h4>
+<p>Même avec l'attention, un système seq2seq de 2016 reste séquentiel : pour calculer <i>h<sub>t</sub></i>, il faut <i>h<sub>t−1</sub></i>. Sur une phrase de 50 mots, l'encodeur enchaîne 50 étapes qui ne peuvent pas être parallélisées, alors que les GPU sont faits pour exécuter des milliers d'opérations identiques simultanément. Le système de traduction neuronale de Google (GNMT, Wu et al., 2016), avec 8 couches de LSTM à l'encodeur et 8 au décodeur, demande ainsi environ une semaine d'entraînement sur 96 GPU.</p>
+<p>Deux pistes cherchent alors à remplacer la récurrence. Les <b>convolutions</b> (ByteNet, Kalchbrenner et al., 2016 ; ConvS2S, Gehring et al., Facebook, 2017) traitent toutes les positions en parallèle, mais deux mots distants de <i>n</i> positions ne communiquent qu'après O(log <i>n</i>) ou O(<i>n</i>/<i>k</i>) couches. L'<b>auto-attention</b> (<i>self-attention</i>), où chaque position d'une même séquence regarde toutes les autres, avait été utilisée en lecture de texte (Cheng et al., 2016 ; Parikh et al., 2016 ; Lin et al., 2017), mais toujours en complément d'un réseau récurrent.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 170" width="100%" role="img" aria-label="Récurrence contre auto-attention">
+<text class="tf-t" x="150" y="14" text-anchor="middle">Réseau récurrent : n étapes séquentielles</text>
+<g>
+ <rect class="tf-bl" x="20" y="60" width="44" height="30" rx="4"/><rect class="tf-bl" x="90" y="60" width="44" height="30" rx="4"/>
+ <rect class="tf-bl" x="160" y="60" width="44" height="30" rx="4"/><rect class="tf-bl" x="230" y="60" width="44" height="30" rx="4"/>
+ <text class="tf-m" x="42" y="80" text-anchor="middle">h₁</text><text class="tf-m" x="112" y="80" text-anchor="middle">h₂</text>
+ <text class="tf-m" x="182" y="80" text-anchor="middle">h₃</text><text class="tf-m" x="252" y="80" text-anchor="middle">h₄</text>
+ <path class="tf-e" d="M64,75 L88,75" marker-end="url(#tf-ar)"/><path class="tf-e" d="M134,75 L158,75" marker-end="url(#tf-ar)"/><path class="tf-e" d="M204,75 L228,75" marker-end="url(#tf-ar)"/>
+ <text class="tf-s" x="42" y="125" text-anchor="middle">Les</text><text class="tf-s" x="112" y="125" text-anchor="middle">clés</text>
+ <text class="tf-s" x="182" y="125" text-anchor="middle">…</text><text class="tf-s" x="252" y="125" text-anchor="middle">sont</text>
+ <path class="tf-e" d="M42,113 L42,92" marker-end="url(#tf-ar)"/><path class="tf-e" d="M112,113 L112,92" marker-end="url(#tf-ar)"/>
+ <path class="tf-e" d="M182,113 L182,92" marker-end="url(#tf-ar)"/><path class="tf-e" d="M252,113 L252,92" marker-end="url(#tf-ar)"/>
+ <text class="tf-xs" x="150" y="150" text-anchor="middle">« clés » n'atteint « sont » qu'après n − 1 transformations</text>
+</g>
+<text class="tf-t" x="480" y="14" text-anchor="middle">Auto-attention : une seule étape, tous les couples</text>
+<g>
+ <rect class="tf-hl" x="350" y="60" width="44" height="30" rx="4"/><rect class="tf-hl" x="420" y="60" width="44" height="30" rx="4"/>
+ <rect class="tf-hl" x="490" y="60" width="44" height="30" rx="4"/><rect class="tf-hl" x="560" y="60" width="44" height="30" rx="4"/>
+ <path class="tf-ea" d="M372,60 C400,25 560,25 582,58"/><path class="tf-e" d="M442,60 C460,38 560,38 582,58"/>
+ <path class="tf-e" d="M512,60 C530,46 560,46 582,58"/><path class="tf-e" d="M372,60 C390,40 425,40 442,58"/>
+ <path class="tf-e" d="M442,60 C460,48 495,48 512,58"/><path class="tf-e" d="M372,60 C400,32 490,32 512,58"/>
+ <text class="tf-s" x="372" y="125" text-anchor="middle">Les</text><text class="tf-s" x="442" y="125" text-anchor="middle">clés</text>
+ <text class="tf-s" x="512" y="125" text-anchor="middle">…</text><text class="tf-s" x="582" y="125" text-anchor="middle">sont</text>
+ <text class="tf-xs" x="480" y="150" text-anchor="middle">chemin de longueur 1 entre deux positions ; calcul parallèle</text>
+</g>
+</svg>
+<figcaption>Figure 1. Un réseau récurrent propage l'information pas à pas ; l'auto-attention relie directement toutes les paires de positions.</figcaption>
+</figure>
+
+<h4>1.6 Le pari de 2017</h4>
+<p>Le titre du papier de Vaswani et al. résume le pari : l'attention suffit (<i>is all you need</i>). Le Transformer supprime toute récurrence et toute convolution. Chaque couche relie directement toutes les positions entre elles en un seul pas, et tous les calculs d'une couche s'exécutent en parallèle sur toute la séquence. Le tableau 1 du papier compare les trois familles :</p>
+<table class="chap-table">
+<tr><th>Type de couche</th><th>Coût par couche</th><th>Opérations séquentielles</th><th>Chemin maximal</th></tr>
+<tr><td>Auto-attention</td><td>O(n²·d)</td><td>O(1)</td><td>O(1)</td></tr>
+<tr><td>Récurrente</td><td>O(n·d²)</td><td>O(n)</td><td>O(n)</td></tr>
+<tr><td>Convolutive (noyau k)</td><td>O(k·n·d²)</td><td>O(1)</td><td>O(log<sub>k</sub> n)</td></tr>
+</table>
+<p>Le prix à payer apparaît dans la première colonne : le coût de l'attention croît comme le <b>carré</b> de la longueur de la séquence. Pour des phrases de quelques dizaines de mots, où <i>n</i> &lt; <i>d</i>, c'est moins cher qu'une couche récurrente. Pour des contextes d'un million de jetons comme ceux de DeepSeek-V4 (<a href="#p31">fiche 31</a>), ce terme devient le problème central, et c'est tout le sujet du dossier <a href="#attention">Attention efficace et cache KV</a>.</p>
+<p>Les résultats de 2017 sont nets. Sur la traduction anglais-allemand WMT 2014, le « Transformer big » atteint 28,4 BLEU, plus de 2 points au-dessus des meilleurs systèmes existants, ensembles de modèles compris ; sur l'anglais-français, 41,8 BLEU. Le modèle de base s'entraîne en 12 heures sur 8 GPU P100, le grand en 3,5 jours, soit une fraction du coût de GNMT ou de ConvS2S. L'architecture se généralise aussi à l'analyse syntaxique sans réglage particulier. Mais ce qui en fera la base de toute l'IA moderne, c'est une propriété que le papier ne met pas en avant : elle <b>passe à l'échelle</b>. Parce qu'elle est parallèle et ne contient presque que des multiplications de matrices, on peut la rendre plus large, plus profonde et l'entraîner sur plus de données à mesure que le matériel progresse, et ses performances suivent (partie VII).</p>
+
+<div class="box"><div class="box-t">Le Transformer de 2017 en chiffres</div>
+<table class="chap-table">
+<tr><th>Hyperparamètre</th><th>Base</th><th>Big</th></tr>
+<tr><td>Couches (encodeur + décodeur)</td><td>6 + 6</td><td>6 + 6</td></tr>
+<tr><td>Largeur <i>d</i><sub>model</sub></td><td>512</td><td>1 024</td></tr>
+<tr><td>Largeur du FFN <i>d</i><sub>ff</sub></td><td>2 048</td><td>4 096</td></tr>
+<tr><td>Têtes <i>h</i> (dimension <i>d</i><sub>k</sub>)</td><td>8 (64)</td><td>16 (64)</td></tr>
+<tr><td>Dropout</td><td>0,1</td><td>0,3 (EN-DE)</td></tr>
+<tr><td>Paramètres</td><td>65 M</td><td>213 M</td></tr>
+<tr><td>Entraînement (8 GPU P100)</td><td>100 000 pas, 12 h</td><td>300 000 pas, 3,5 j</td></tr>
+<tr><td>BLEU EN-DE / EN-FR</td><td>27,3 / 38,1</td><td>28,4 / 41,8</td></tr>
+</table>
+Données : WMT 2014, 4,5 millions de paires de phrases anglais-allemand (vocabulaire BPE partagé d'environ 37 000 jetons) et 36 millions de paires anglais-français (32 000 jetons). Optimiseur Adam (β<sub>1</sub> = 0,9, β<sub>2</sub> = 0,98), 4 000 pas de warmup, lissage des étiquettes 0,1, recherche en faisceau de largeur 4 à la traduction. Chaque lot contient environ 25 000 jetons source et 25 000 jetons cible.</div>
+<h3 class="part" id="tf-2">II. Du texte aux vecteurs : jetons, plongements et sortie</h3>
+
+<h4>2.1 Pourquoi découper le texte en jetons</h4>
+<p>Un Transformer manipule des vecteurs. La première étape transforme donc un texte en une suite d'entiers, les identifiants de <a href="#g-jeton">jetons</a> (<i>tokens</i>), chacun associé à un vecteur appris. Le choix de l'unité est un compromis :</p>
+<ul>
+<li><b>Le mot</b> donne des séquences courtes mais un vocabulaire ouvert et énorme (formes conjuguées, noms propres, fautes de frappe, langues agglutinantes). Tout mot absent du vocabulaire devient un symbole « inconnu », et l'information est perdue.</li>
+<li><b>Le caractère ou l'octet</b> donne un vocabulaire minuscule et aucune forme inconnue, mais des séquences 4 à 5 fois plus longues. Comme le coût de l'attention est quadratique, c'est très cher, et le modèle doit réapprendre l'orthographe de chaque mot.</li>
+<li><b>Le sous-mot</b> est le compromis qui s'est imposé : les mots fréquents sont des jetons uniques, les mots rares se décomposent en morceaux fréquents (« anticonstitutionnellement » → « anti », « constitution », « nellement »), et on peut toujours retomber sur les caractères ou les octets.</li>
+</ul>
+
+<h4>2.2 Byte-Pair Encoding et ses cousins</h4>
+<p>L'algorithme le plus répandu, le <b>Byte-Pair Encoding</b> (BPE), vient de la compression de données (Gage, 1994) et a été adapté à la traduction neuronale par Sennrich, Haddow et Birch (2016). L'apprentissage du vocabulaire est un algorithme glouton :</p>
+<ol>
+<li>partir d'un vocabulaire réduit aux caractères (ou aux 256 octets) ;</li>
+<li>compter, dans le corpus d'entraînement, toutes les paires de symboles adjacents ;</li>
+<li>fusionner la paire la plus fréquente en un nouveau symbole et l'ajouter au vocabulaire ;</li>
+<li>recommencer jusqu'à atteindre la taille voulue (32 000, 50 000, 100 000 ou 200 000 jetons).</li>
+</ol>
+<p>Pour découper un nouveau texte, on rejoue les fusions dans l'ordre où elles ont été apprises. Sur un corpus français, les premières fusions créent « e␣ », « es », « de », « ent », puis des mots entiers comme « les » ou « dans », et beaucoup plus tard des morceaux comme « tion » ou « ément ». Les variantes diffèrent par le critère de fusion ou la gestion des espaces : <b>WordPiece</b> (Schuster et Nakajima, 2012, utilisé par BERT) choisit la fusion qui augmente le plus la vraisemblance du corpus ; l'algorithme <b>Unigram</b> (Kudo, 2018) part au contraire d'un grand vocabulaire et l'élague ; <b>SentencePiece</b> (Kudo et Richardson, 2018) traite l'espace comme un caractère ordinaire, ce qui rend la tokenisation réversible et indépendante de la langue. GPT-2 a popularisé le <b>BPE sur octets</b> : on part des 256 octets de l'UTF-8, si bien qu'aucun texte n'est jamais « inconnu ».</p>
+<div class="box"><div class="box-t">Le BPE sur un exemple</div>
+Prenons un corpus minuscule de quatre mots avec leur nombre d'occurrences : <i>chat</i> (5), <i>chats</i> (2), <i>chaton</i> (3), <i>achat</i> (4). On part des caractères. Les paires adjacentes les plus fréquentes sont c-h, h-a et a-t, présentes 14 fois chacune ; on départage par ordre d'apparition.
+<table class="chap-table">
+<tr><th>Fusion</th><th>Paire</th><th>Effectif</th><th>Découpage obtenu</th></tr>
+<tr><td>1</td><td>c + h</td><td>14</td><td>ch a t · ch a t s · ch a t o n · a ch a t</td></tr>
+<tr><td>2</td><td>ch + a</td><td>14</td><td>cha t · cha t s · cha t o n · a cha t</td></tr>
+<tr><td>3</td><td>cha + t</td><td>14</td><td>chat · chat s · chat o n · a chat</td></tr>
+<tr><td>4</td><td>a + chat</td><td>4</td><td>chat · chat s · chat o n · achat</td></tr>
+<tr><td>5</td><td>o + n</td><td>3</td><td>chat · chat s · chat on · achat</td></tr>
+</table>
+Après cinq fusions, le vocabulaire contient « chat » et « achat » comme jetons entiers, et « chaton » se découpe en « chat » + « on », un suffixe que le modèle pourra réutiliser pour « raton » ou « chaton ». Un mot jamais vu comme « chatons » sera découpé en « chat » + « on » + « s » : il n'y a jamais de mot inconnu, seulement des mots plus ou moins coûteux en jetons.</div>
+<table class="chap-table">
+<tr><th>Modèle</th><th>Année</th><th>Algorithme</th><th>Vocabulaire</th></tr>
+<tr><td>Transformer (EN-DE)</td><td>2017</td><td>BPE partagé</td><td>≈ 37 000</td></tr>
+<tr><td>BERT</td><td>2018</td><td>WordPiece</td><td>30 522</td></tr>
+<tr><td>GPT-2, GPT-3</td><td>2019-2020</td><td>BPE sur octets</td><td>50 257</td></tr>
+<tr><td>GPT-4 (cl100k)</td><td>2023</td><td>BPE sur octets</td><td>≈ 100 000</td></tr>
+<tr><td>Llama 3</td><td>2024</td><td>BPE sur octets</td><td>128 256</td></tr>
+<tr><td>DeepSeek-V3</td><td>2024</td><td>BPE sur octets</td><td>≈ 128 000</td></tr>
+</table>
+
+<h4>2.3 Les effets de bord de la tokenisation</h4>
+<p>La tokenisation est la seule partie d'un LLM qui n'est pas apprise de bout en bout, et elle laisse des traces visibles. Les modèles voient « fraise » comme un ou deux jetons opaques et non comme une suite de lettres : compter les « r » ou épeler un mot à l'envers leur est difficile pour cette raison. Les nombres sont découpés de façon irrégulière (« 2026 » peut être un jeton, « 20261 » deux), ce qui complique l'arithmétique ; plusieurs modèles récents découpent donc les nombres chiffre par chiffre ou par groupes de trois. Les langues peu représentées dans le corpus d'apprentissage du tokeniseur sont découpées en beaucoup plus de jetons pour le même sens, ce qui les rend plus coûteuses et réduit d'autant la longueur de contexte effective. Enfin, des jetons très rares dans les données d'entraînement du modèle, mais présents dans le vocabulaire, peuvent provoquer des comportements aberrants (le cas célèbre de « SolidGoldMagikarp » dans GPT-3).</p>
+<p>Pour les autres modalités, l'idée est la même : transformer le signal en suite de jetons. Une image est découpée en carrés de 14 ou 16 pixels de côté (partie X), un signal audio est codé par un codec neuronal en jetons discrets, comme dans SoundStorm (<a href="#p88">fiche 88</a>) et Moshi (<a href="#p89">fiche 89</a>), et un <a href="#g-vq-vae">VQ-VAE</a> peut coder n'importe quelle donnée en indices d'un dictionnaire appris. DeepSeek-OCR (<a href="#p38">fiche 38</a>) renverse même la logique : il compresse du texte en le rendant sous forme d'image, parce que les jetons visuels peuvent être plus denses que les jetons de texte.</p>
+
+<h4>2.4 La table des plongements</h4>
+<p>Chaque identifiant de jeton indexe une ligne d'une matrice <i>E</i> de taille <i>V</i> × <i>d</i>. C'est l'équivalent exact d'une multiplication par un vecteur « one-hot », mais réalisée par une simple lecture en mémoire. Ces vecteurs sont des paramètres comme les autres, appris par rétropropagation. Au début de l'entraînement, ils sont aléatoires. À la fin, des jetons de sens voisin ont des vecteurs proches, comme dans Word2Vec (<a href="#p6">fiche 6</a>), à une différence près : dans un Transformer, le plongement d'entrée n'est que le point de départ. Le sens d'un mot en contexte (« avocat » le fruit ou le juriste) est construit par les couches suivantes. C'est la différence entre plongements <b>statiques</b> et <b>contextuels</b>, que BERT (<a href="#p10">fiche 10</a>) a rendue évidente.</p>
+<p>Pour un vocabulaire de 128 000 jetons et une largeur de 4 096, la table compte déjà 524 millions de paramètres. Dans les petits modèles, c'est une part importante du total ; dans un modèle de 70 milliards de paramètres, elle devient marginale.</p>
+
+<h4>2.5 La tête de sortie et le partage des poids</h4>
+<p>À l'autre bout, le modèle doit produire une distribution de probabilité sur le vocabulaire. Le dernier vecteur de chaque position, de dimension <i>d</i>, est multiplié par une matrice <i>W</i><sub>out</sub> de taille <i>d</i> × <i>V</i> ; on obtient <i>V</i> scores, les <b>logits</b>, que la softmax transforme en probabilités :</p>
+<p class="formula">P(jeton = <i>i</i>) = exp(z<sub>i</sub>) / Σ<sub>j</sub> exp(z<sub>j</sub>)</p>
+<p>Press et Wolf (2017) observent que <i>W</i><sub>out</sub> et la table d'entrée <i>E</i> jouent des rôles symétriques : l'une transforme un jeton en vecteur, l'autre compare un vecteur à tous les jetons. On peut donc utiliser la même matrice (transposée) pour les deux, ce qu'on appelle le <b>partage des poids</b> (<i>weight tying</i>). Le Transformer de 2017 le fait, en multipliant les plongements par √<i>d</i> pour les mettre à l'échelle des autres activations. GPT-2 le fait aussi ; beaucoup de grands modèles récents (Llama, DeepSeek) y renoncent, car la contrainte gêne davantage qu'elle ne fait économiser de paramètres à grande échelle.</p>
+
+<h4>2.6 Un ensemble sans ordre</h4>
+<p>Reste une difficulté, qui justifie toute la partie V. L'attention traite ses entrées comme un <b>ensemble</b> : si l'on permute les jetons d'entrée, les sorties sont permutées de la même façon, sans autre changement. On dit que l'attention est <i>équivariante par permutation</i>. Sans information supplémentaire, « le chien mord l'homme » et « l'homme mord le chien » seraient indiscernables. Il faut donc injecter la <b>position</b> de chaque jeton, soit en l'ajoutant au plongement, soit en modifiant le calcul de l'attention elle-même. Avant d'y venir, il faut décrire précisément ce calcul.</p>

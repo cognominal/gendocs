@@ -1,0 +1,19 @@
+<h4>Contexte</h4>
+<p>En 2017, la traduction automatique repose sur des réseaux récurrents (LSTM, GRU) en architecture encodeur-décodeur, enrichis depuis 2014 d'un mécanisme d'attention (Bahdanau et al.) qui permet au décodeur de regarder les états pertinents de l'encodeur. Mais la récurrence est intrinsèquement séquentielle : pour calculer l'état au mot <i>t</i>, il faut l'état au mot <i>t</i>−1. On ne peut donc pas paralléliser l'entraînement le long de la séquence, et les dépendances lointaines doivent traverser de nombreuses étapes. Ashish Vaswani et sept coauteurs de Google Brain et Google Research proposent de supprimer entièrement la récurrence et les convolutions.</p>
+
+<h4>L'architecture Transformer</h4>
+<p>Le Transformer conserve la structure encodeur-décodeur, avec 6 couches de chaque côté. Chaque couche de l'encodeur contient deux sous-couches : une auto-attention multi-têtes et un réseau feed-forward appliqué position par position. Chaque sous-couche est entourée d'une connexion résiduelle et d'une normalisation de couche. Le décodeur ajoute une attention sur la sortie de l'encodeur, et masque son auto-attention pour qu'une position ne voie pas les mots futurs.</p>
+<ul>
+<li><b>Attention par produit scalaire normalisé</b> : chaque position produit une requête (Q), une clé (K) et une valeur (V). La sortie est softmax(QK<sup>T</sup>/√<i>d<sub>k</sub></i>)·V. Le facteur √<i>d<sub>k</sub></i> empêche le softmax de saturer quand la dimension est grande.</li>
+<li><b>Attention multi-têtes</b> : on fait 8 attentions en parallèle sur des projections de dimension 64, puis on concatène. Chaque tête peut se spécialiser dans un type de relation (syntaxe, coréférence...).</li>
+<li><b>Encodage positionnel</b> : faute de récurrence, l'ordre des mots est injecté par des sinusoïdes de fréquences différentes, ajoutées aux embeddings.</li>
+</ul>
+
+<h4>Pourquoi l'auto-attention</h4>
+<p>Les auteurs comparent trois critères : coût par couche, opérations séquentielles et longueur maximale du chemin entre deux positions. L'auto-attention relie toute paire de positions en une seule étape (chemin O(1), contre O(<i>n</i>) pour un RNN), et ne demande qu'O(1) opérations séquentielles. Son coût est quadratique en la longueur de séquence, mais reste inférieur à celui des RNN tant que la séquence est plus courte que la dimension de représentation, ce qui était le cas en traduction en 2017.</p>
+
+<h4>Résultats</h4>
+<p>Sur la traduction anglais-allemand WMT 2014, le grand Transformer atteint 28,4 BLEU, soit plus de 2 points au-dessus des meilleurs systèmes existants, ensembles compris. En anglais-français, il atteint 41,8 BLEU après 3,5 jours d'entraînement sur 8 GPU P100, une fraction du coût des modèles concurrents. Le modèle généralise aussi à l'analyse syntaxique en constituants. L'entraînement utilise Adam avec une phase d'échauffement du taux d'apprentissage, du dropout et du lissage des étiquettes.</p>
+
+<h4>Héritage</h4>
+<p>C'est probablement le papier le plus influent de l'IA moderne, avec plus de 150 000 citations. En un an apparaissent GPT (décodeur seul) et BERT (encodeur seul). Le Transformer s'étend ensuite à la vision (ViT), à l'audio, à la biologie (AlphaFold 2) et au multimodal. Tous les modèles de ce document — GPT, Claude, DeepSeek — sont des Transformers, avec des variantes : normalisation avant les sous-couches, encodages positionnels rotatifs (RoPE), attention à requêtes groupées ou latente (MLA), mélanges d'experts. Le coût quadratique de l'attention reste le principal goulot d'étranglement, d'où les travaux de DeepSeek-V4 et FlashMemory sur l'attention parcimonieuse pour les contextes d'un million de tokens. Les huit auteurs ont tous quitté Google depuis ; plusieurs ont fondé des entreprises d'IA (Cohere, Character.AI, Essential AI, Sakana AI).</p>

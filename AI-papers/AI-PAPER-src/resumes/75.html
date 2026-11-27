@@ -1,0 +1,24 @@
+<h4>La question</h4>
+<p>Le succès de DeepSeek-R1 (papier 33) a convaincu beaucoup de chercheurs que l'apprentissage par renforcement avec des récompenses vérifiables (RLVR) permet aux modèles de <b>découvrir</b> de nouvelles stratégies de raisonnement, comme AlphaGo (papier 8) découvrait des coups inédits. Yang Yue et ses collègues de Tsinghua (avril 2025) testent cette hypothèse. Leur conclusion est plus sobre : le RLVR rend le modèle plus efficace à trouver les raisonnements qu'il savait déjà produire, mais ne lui en apprend pas de nouveaux.</p>
+
+<h4>La méthode : pass@k à grande échelle</h4>
+<p>La métrique habituelle, pass@1, mesure la probabilité de réussir du premier coup. Les auteurs utilisent <b>pass@k</b> pour de grandes valeurs de k, jusqu'à 256 ou 1 024 : la probabilité qu'au moins un des k échantillons soit correct. Pass@k avec k grand mesure la <b>frontière des capacités</b> d'un modèle : l'ensemble des problèmes qu'il peut résoudre s'il essaie assez.</p>
+<p>Ils comparent des modèles de base (Qwen2.5, Llama) et leurs versions entraînées par RLVR, sur les mathématiques (GSM8K, MATH500, AIME24…), le code (LiveCodeBench, HumanEval+) et le raisonnement visuel.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Pour <b>k petit</b>, les modèles RL l'emportent nettement : c'est le gain bien connu.</li>
+<li>Quand <b>k augmente</b>, l'écart se réduit, puis s'inverse : pour k grand, le <b>modèle de base résout plus de problèmes</b> que sa version RL.</li>
+<li>Les problèmes résolus par le modèle RL sont presque tous résolus par le modèle de base avec assez d'essais. Le RL réduit même la couverture : il perd certains problèmes.</li>
+<li>L'analyse de perplexité montre que les chaînes de pensée produites par le modèle RL sont déjà très probables sous le modèle de base.</li>
+<li>Les différents algorithmes de RL (PPO, GRPO, Reinforce++…) se comportent de la même façon, et restent loin de la limite supérieure donnée par le pass@k du modèle de base.</li>
+</ul>
+
+<h4>Interprétation</h4>
+<p>Le RLVR <b>concentre la probabilité</b> sur les chemins de raisonnement qui réussissent : il améliore l'efficacité d'échantillonnage, au prix d'une exploration réduite. Les capacités viennent du pré-entraînement. À l'inverse, la <b>distillation</b> depuis un modèle plus fort (par exemple les modèles distillés de R1) élargit réellement la frontière : elle apporte de nouveaux schémas de raisonnement.</p>
+
+<h4>Débat et limites</h4>
+<p>Le papier a suscité de nombreuses réponses. Certains travaux ont montré qu'un RL plus long, avec plus de diversité et des techniques d'exploration, peut repousser la frontière (par exemple ProRL de NVIDIA). D'autres ont noté que pass@k avec k très grand peut récompenser des réponses devinées au hasard, surtout pour les réponses numériques simples. Les auteurs eux-mêmes signalent que leurs expériences portent sur des modèles et des budgets de RL modestes.</p>
+
+<h4>Héritage</h4>
+<p>Ce travail est devenu une référence dans le débat « le RL découvre-t-il ou affine-t-il ? ». Il rejoint les conclusions de s1 (papier 72) et de « CoT Reasoning Without Prompting » (papier 68) sur un raisonnement latent dans les modèles de base. Le débat a été partiellement tranché par les modèles de 2026, dont les progrès en mathématiques de recherche (papiers 42 et 49) dépassent ce que leurs modèles de base pouvaient atteindre, mais avec des RL bien plus longs et plus variés.</p>

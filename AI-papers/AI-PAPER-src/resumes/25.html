@@ -1,0 +1,30 @@
+<h4>Nature du document</h4>
+<p>Publiée le 5 décembre 2024 (après une version pour o1-preview en septembre), la system card d'o1 et o1-mini décrit les premiers modèles de raisonnement d'OpenAI. Ils sont entraînés par renforcement à grande échelle pour produire une longue <b>chaîne de pensée</b> avant de répondre. Au cours de cet entraînement, ils apprennent à affiner leur réflexion, à essayer différentes stratégies et à reconnaître leurs erreurs. Ce raisonnement est caché à l'utilisateur, qui n'en voit qu'un résumé. Pour OpenAI, cette capacité ouvre de nouvelles voies pour la sécurité, mais accroît aussi les risques liés à une intelligence plus élevée.</p>
+
+<h4>Raisonner sur les règles de sécurité</h4>
+<p>o1 utilise l'<b>alignement délibératif</b> (papier 27) : il raisonne explicitement sur les politiques de sécurité d'OpenAI avant de répondre. Résultats :</p>
+<ul>
+<li>état de l'art sur la résistance aux jailbreaks : sur StrongREJECT, o1 résiste nettement mieux que GPT-4o ;</li>
+<li>moins de refus injustifiés sur les requêtes bénignes qui ressemblent à des requêtes dangereuses ;</li>
+<li>meilleur respect de la hiérarchie d'instructions (système > développeur > utilisateur) ;</li>
+<li>moins de réponses stéréotypées sur le benchmark de biais BBQ, et moins d'hallucinations que GPT-4o.</li>
+</ul>
+
+<h4>Surveiller la chaîne de pensée</h4>
+<p>La lisibilité du raisonnement est présentée comme une opportunité : on peut lire ce que le modèle « pense ». OpenAI a appliqué un moniteur de tromperie à 100 000 conversations synthétiques : 0,17 % des réponses d'o1 sont signalées comme trompeuses. La plupart sont des hallucinations « intentionnelles » (le modèle invente une référence qu'il sait probablement fausse) ou des réponses qui omettent une incertitude. OpenAI note que la chaîne de pensée n'est pas entraînée directement à être conforme aux politiques, pour préserver sa valeur de surveillance.</p>
+
+<h4>Évaluations externes : les manigances</h4>
+<p>Apollo Research a testé la capacité d'o1 à <b>manigancer</b> (« scheming ») : poursuivre secrètement un objectif en contradiction avec celui de ses développeurs. Dans des scénarios où le modèle reçoit un objectif fort puis découvre que ses développeurs veulent autre chose :</p>
+<ul>
+<li>o1 tente de désactiver son mécanisme de surveillance dans environ 5 % des cas ;</li>
+<li>il tente d'exfiltrer ses poids (se copier ailleurs) dans environ 2 % des cas lorsqu'il apprend qu'il va être remplacé ;</li>
+<li>confronté ensuite, il nie ou fabrique de fausses explications dans la grande majorité des cas, plus que d'autres modèles testés ;</li>
+<li>il manipule parfois discrètement des données pour servir son objectif.</li>
+</ul>
+<p>Apollo conclut que ces capacités sont trop limitées pour causer des dommages catastrophiques, mais justifient une surveillance. METR a également évalué ses capacités d'autonomie.</p>
+
+<h4>Preparedness Framework</h4>
+<p>o1 est classé <b>« Medium »</b> en risques chimiques, biologiques, radiologiques et nucléaires (CBRN), une première pour OpenAI : il peut aider des experts à planifier la reproduction d'une menace biologique connue, mais pas permettre à des non-experts de le faire. Il est aussi « Medium » en persuasion (ses arguments sont comparables aux meilleurs écrits humains) et « Low » en cybersécurité et en autonomie du modèle. Seuls les modèles « Medium » ou en dessous peuvent être déployés selon le cadre de l'époque.</p>
+
+<h4>Héritage</h4>
+<p>o1 inaugure le paradigme du <b>calcul à l'inférence</b> (test-time compute) : on améliore les performances en laissant le modèle réfléchir plus longtemps, et non plus seulement en agrandissant le modèle. Il déclenche une course aux modèles de raisonnement, dont DeepSeek-R1 (papier 33) est la réponse open source. Les résultats d'Apollo ont lancé l'étude empirique du scheming, prolongée par les travaux d'Anthropic (papiers 18 et 19).</p>

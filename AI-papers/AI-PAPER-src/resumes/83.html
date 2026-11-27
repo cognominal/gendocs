@@ -1,0 +1,28 @@
+<h4>Le problème</h4>
+<p>Les grands modèles de raisonnement (LRM) surréfléchissent : ils trouvent la bonne réponse tôt, puis continuent avec des « Wait », « Alternatively », « Hmm » qui relancent l'exploration. Les méthodes d'arrêt anticipé (comme REFRAIN, papier 81) coupent la génération quand des réponses provisoires concordent. Mais une coupure brutale interrompt le raisonnement au milieu, sans conclusion propre, et peut nuire à la qualité de la réponse finale. Shengjing Liu, Feiyang Li et leurs collègues de l'université de Shenzhen proposent <b>CALM</b> (Consistency-Aware Logit Masking), une approche plus douce.</p>
+
+<h4>La méthode</h4>
+<p>CALM agit directement dans l'<b>espace de décodage</b>, sans entraînement :</p>
+<ol>
+<li><b>Surveillance de la cohérence</b> : à chaque frontière d'étape de raisonnement (par exemple une fin de paragraphe), on demande au modèle une <b>réponse d'essai</b> (trial answer), en forçant brièvement une conclusion dans une branche à part.</li>
+<li><b>Détection de concordance</b> : quand plusieurs réponses d'essai successives concordent, on considère que le modèle a trouvé sa réponse et que la suite risque d'être redondante.</li>
+<li><b>Masquage des logits</b> : à partir de ce moment, on met à zéro la probabilité des <b>jetons de transition</b> qui relancent l'exploration : « Wait », « Alternatively », « Hmm », « But », etc. Le modèle ne peut plus dire « Attends… ».</li>
+</ol>
+<p>Au lieu d'être coupé, le modèle est orienté vers une conclusion naturelle : il termine son raisonnement en cours, formule sa réponse et ferme la réflexion lui-même.</p>
+
+<h4>Pourquoi masquer plutôt que couper</h4>
+<p>Les auteurs montrent que la troncature dégrade parfois la réponse, car le modèle n'a pas pu finaliser son raisonnement (par exemple simplifier une expression). Le masquage préserve la structure de la conclusion. Il est aussi plus ciblé : il supprime seulement les mécanismes de relance, pas le contenu du raisonnement.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Testé sur <b>quatre LRM</b> (familles DeepSeek-R1 distillées et Qwen3) et <b>cinq benchmarks</b> de mathématiques et de science.</li>
+<li>Réduction des jetons de <b>18,6 à 25 %</b> par rapport à la chaîne de pensée complète.</li>
+<li>Précision maintenue ou légèrement améliorée : <b>+0,07 à +1,48 point</b>.</li>
+<li>CALM dépasse les méthodes d'arrêt anticipé par troncature, qui économisent parfois plus de jetons mais au prix de la précision.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>La liste des jetons de transition est fixée à la main et dépend de la langue et du style du modèle. Un modèle pourrait trouver d'autres formulations pour relancer l'exploration. Les réponses d'essai ajoutent un petit coût de calcul. Le gain est plus modeste que celui des méthodes les plus agressives.</p>
+
+<h4>Liens</h4>
+<p>Le « Wait » qu'ajoutait s1 (papier 72) pour prolonger la réflexion est ici précisément le jeton qu'on supprime pour l'écourter : les deux papiers montrent combien ces quelques jetons pilotent le comportement de réflexion. CALM s'inscrit dans les méthodes adaptatives de la synthèse du papier 79. Comme toute compression, son effet sur la surveillabilité (papier 82) reste à mesurer.</p>

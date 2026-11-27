@@ -1,0 +1,28 @@
+<h4>Le problème</h4>
+<p>En 2022, on voit fleurir des affirmations sur les capacités de planification des LLM, souvent fondées sur des tâches de bon sens où le modèle peut avoir mémorisé des plans typiques (« comment faire un gâteau »). Karthik Valmeekam, Subbarao Kambhampati et leurs collègues (Arizona State) veulent un test rigoureux : un benchmark qui distingue une vraie capacité à raisonner sur les actions et leurs effets d'une simple récupération de motifs familiers.</p>
+
+<h4>Le benchmark</h4>
+<p>PlanBench s'appuie sur le langage <b>PDDL</b> (Planning Domain Definition Language) de la planification automatique classique. Chaque domaine définit des actions avec préconditions et effets ; chaque problème donne un état initial et un but. Un planificateur classique (Fast Downward) fournit des plans optimaux de référence, et un validateur (VAL) vérifie automatiquement les plans proposés.</p>
+<ul>
+<li><b>Blocksworld</b> : empiler des blocs dans une configuration cible avec une pince.</li>
+<li><b>Logistics</b> : transporter des colis entre villes en camion et en avion.</li>
+<li><b>Mystery Blocksworld</b> : le même domaine, mais les noms d'actions et d'objets sont remplacés par des mots sans rapport (« attaquer », « succomber »…), parfois choisis au hasard. La structure logique est identique ; seule la familiarité disparaît.</li>
+</ul>
+<p>Le benchmark comprend huit tâches : génération de plan, recherche du plan optimal, vérification d'un plan, raisonnement sur l'exécution d'un plan, robustesse à la reformulation du but, réutilisation d'un plan, remplacement d'une action, généralisation du plan.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Dans les premières versions, GPT-3 et ses successeurs produisent très peu de plans corrects. GPT-4 atteint environ <b>un tiers</b> de plans valides sur Blocksworld avec quelques exemples.</li>
+<li>Sur <b>Mystery Blocksworld</b>, les performances tombent à presque zéro : le modèle ne raisonne pas sur la structure du domaine, il s'appuie sur des noms familiers.</li>
+<li>La chaîne de pensée et d'autres prompts aident peu.</li>
+<li>Les LLM sont aussi mauvais pour <b>vérifier</b> des plans que pour en produire.</li>
+</ul>
+
+<h4>Position des auteurs</h4>
+<p>Kambhampati défend une position constante : les LLM sont des générateurs d'idées approximatives, pas des planificateurs. Il propose l'architecture « LLM-Modulo » : le LLM propose, et des vérificateurs externes fiables (ici VAL) critiquent et filtrent, dans une boucle. Cette vision rejoint les conclusions sur l'auto-correction (papier 62).</p>
+
+<h4>La suite : o1</h4>
+<p>En septembre 2024, les mêmes auteurs ont évalué o1-preview (papier 69) sur PlanBench. Le résultat est un saut net : environ 98 % sur Blocksworld et 52 % sur Mystery Blocksworld, contre moins de 5 % pour les meilleurs LLM précédents. Ils notent toutefois que la performance chute vite avec la longueur des plans, que le modèle déclare parfois résolu un problème insoluble, et que le coût est très élevé par rapport à un planificateur classique qui résout tout instantanément.</p>
+
+<h4>Héritage</h4>
+<p>PlanBench est resté une référence pour tester le raisonnement sur des structures nouvelles, comme les puzzles à complexité réglable de « The Illusion of Thinking » (papier 77). Le principe des noms brouillés, qui sépare raisonnement et mémorisation, a été repris par de nombreux benchmarks.</p>

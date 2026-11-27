@@ -1,0 +1,32 @@
+<h4>L'idée</h4>
+<p>Avant ce papier, on interrogeait un modèle de langage en lui montrant quelques exemples question-réponse (« few-shot prompting », popularisé par GPT-3 en 2020). Pour les problèmes qui demandent plusieurs étapes, cela marchait mal, et l'augmentation de la taille des modèles n'y changeait presque rien. Jason Wei et ses collègues de Google proposent une modification minime : dans les exemples du prompt, écrire non seulement la réponse, mais aussi le <b>raisonnement intermédiaire</b> en langage naturel. C'est la « chaîne de pensée » (chain of thought, CoT).</p>
+<p>Exemple classique : « Roger a 5 balles de tennis. Il achète 2 boîtes de 3 balles. Combien en a-t-il ? » La réponse d'exemple devient : « Roger avait 5 balles. 2 boîtes de 3 balles font 6 balles. 5 + 6 = 11. La réponse est 11. » Le modèle imite ce format sur la nouvelle question.</p>
+
+<h4>Expériences</h4>
+<p>Les auteurs testent cinq familles de modèles (GPT-3, LaMDA, PaLM, UL2, Codex) sur trois types de tâches :</p>
+<ul>
+<li><b>arithmétique</b> : GSM8K (papier 52), SVAMP, ASDiv, AQuA, MAWPS ;</li>
+<li><b>bon sens</b> : CommonsenseQA, StrategyQA, compréhension de dates et de sport, instructions pour robots ;</li>
+<li><b>manipulation symbolique</b> : concaténer la dernière lettre de chaque mot, suivre l'état d'une pièce qu'on retourne. Ces tâches testent aussi la généralisation à des entrées plus longues que les exemples.</li>
+</ul>
+<p>Huit exemples rédigés à la main suffisent ; aucun entraînement n'est nécessaire.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur GSM8K, PaLM 540B passe de 18 % à <b>57 %</b>, au-dessus du meilleur résultat de l'époque obtenu par affinage avec vérificateur.</li>
+<li>La capacité est <b>émergente</b> : la chaîne de pensée ne sert à rien, voire nuit, pour les modèles de moins d'environ 100 milliards de paramètres. Les petits modèles écrivent des raisonnements fluides mais illogiques.</li>
+<li>Les gains sont plus forts pour les problèmes difficiles et pour les plus grands modèles.</li>
+<li>Pour les tâches symboliques, la chaîne de pensée permet de généraliser à des séquences plus longues que celles des exemples.</li>
+</ul>
+
+<h4>Pourquoi ça marche</h4>
+<p>Des ablations écartent les explications triviales :</p>
+<ul>
+<li>écrire seulement l'équation, sans le texte, aide sur les problèmes simples mais pas sur GSM8K ;</li>
+<li>ajouter des jetons de « remplissage » (des points) pour donner plus de calcul au modèle n'aide pas ;</li>
+<li>placer le raisonnement <i>après</i> la réponse n'aide pas non plus.</li>
+</ul>
+<p>C'est donc bien le raisonnement en langage naturel, produit avant la réponse, qui compte. Une analyse manuelle montre que, parmi les bonnes réponses, les raisonnements sont presque tous corrects, et que les erreurs viennent de fautes de calcul, de symboles mal recopiés ou d'étapes manquantes.</p>
+
+<h4>Héritage</h4>
+<p>Ce papier a lancé une famille de travaux : la chaîne de pensée « zero-shot » (« Let's think step by step », Kojima et al., 2022), l'auto-cohérence (papier 54), l'arbre de pensées (papier 59), puis les modèles de raisonnement comme o1 (papier 69) et DeepSeek-R1 (papier 33), qui produisent eux-mêmes leur chaîne de pensée après un entraînement par renforcement. La théorie a ensuite expliqué pourquoi la chaîne de pensée donne plus de puissance de calcul aux transformers (papier 65). L'idée d'une capacité « émergente » à l'échelle a été discutée : certains travaux l'attribuent au choix de métriques discontinues. La question de savoir si le raisonnement écrit reflète vraiment le calcul du modèle a donné la recherche sur la fidélité (papiers 58 et 74).</p>

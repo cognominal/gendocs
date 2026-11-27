@@ -1,0 +1,398 @@
+{
+"move": [
+[
+"1503.02531v1.pdf",
+"Distilling the Knowledge in a Neural Network.pdf"
+],
+[
+"2406.06608v6.pdf",
+"The Prompt Report - A Systematic Survey of Prompt Engineering Techniques.pdf"
+],
+[
+"2406.17557v2.pdf",
+"The FineWeb Datasets - Decanting the Web for the Finest Text Data at Scale.pdf"
+],
+[
+"2502.17419v6.pdf",
+"From System 1 to System 2 - A Survey of Reasoning Large Language Models.pdf"
+],
+[
+"2607.16256v2.pdf",
+"Discovery by Dreaming - Cross-Domain Recombination in Artificial Memory.pdf"
+],
+[
+"2607.24625v2.pdf",
+"APPA - Recoverable Information-Flow Control for Real-World LLM Agents.pdf"
+],
+[
+"2610.14162v1.pdf",
+"Next-Concept Modeling - Fast, Parallel Coarse-to-Fine Text Generation.pdf"
+],
+[
+"A Logical Calculus of the Ideas Immanent in Nervous Activity (McCulloch & Pitts, 1943).pdf",
+"A Logical Calculus of the Ideas Immanent in Nervous Activity.pdf"
+],
+[
+"A Survey of Agentic Reasoning for Large Language Models: Towards Recursively Self-Improving and Collective Agents.pdf",
+"A Survey of Agentic Reasoning for Large Language Models - Towards Recursively Self-Improving and Collective Agents.pdf"
+],
+[
+"A Survey of Frontiers in LLM Reasoning: Inference Scaling, Learning to Reason, and Agentic Systems.pdf",
+"A Survey of Frontiers in LLM Reasoning - Inference Scaling, Learning to Reason, and Agentic Systems.pdf"
+],
+[
+"A review on the attention mechanism of deep learning -- Zhaoyang Niu;Guoqiang Zhong;Hui Yu(Department of Computer -- Neurocomputing, 452, pages 48-62, -- doi 10_1016_j_neucom_2021_03_091 -- d879793acff1e038ff0f3d7fa96cb716 -- Anna’s Archive.pdf",
+"A review on the attention mechanism of deep learning.pdf"
+],
+[
+"Absolute Zero: Reinforced Self-play Reasoning with Zero Data.pdf",
+"Absolute Zero - Reinforced Self-play Reasoning with Zero Data.pdf"
+],
+[
+"Agentic Misalignment - How LLMs Could Be Insider Threats.pdf",
+"Agentic Misalignment - How LLMs Could Be Insider Threats.pdf"
+],
+[
+"Alignment Faking in Large Language Models.pdf",
+"Alignment Faking in Large Language Models.pdf"
+],
+[
+"Anthropic Economic Index report - Cadences.pdf",
+"Anthropic Economic Index report - Cadences.pdf"
+],
+[
+"Attention Is All You Need (Vaswani et al., 2017).pdf",
+"Attention Is All You Need.pdf"
+],
+[
+"BERT - Pre-training of Deep Bidirectional Transformers for Language Understanding (2018).pdf",
+"BERT - Pre-training of Deep Bidirectional Transformers for Language Understanding.pdf"
+],
+[
+"CALM: Consistency-Aware Logit Masking in Decoding Space for Mitigating Overthinking of Large Reasoning Models.pdf",
+"CALM - Consistency-Aware Logit Masking in Decoding Space for Mitigating Overthinking of Large Reasoning Models.pdf"
+],
+[
+"Chain of Thought Empowers Transformers to Solve Inherently Serial Problems.pdf",
+"Chain of Thought Empowers Transformers to Solve Inherently Serial Problems.pdf"
+],
+[
+"Chain of Thought Monitorability: A New and Fragile Opportunity for AI Safety.pdf",
+"Chain of Thought Monitorability - A New and Fragile Opportunity for AI Safety.pdf"
+],
+[
+"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.pdf",
+"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.pdf"
+],
+[
+"Chain-of-Thought Reasoning Without Prompting.pdf",
+"Chain-of-Thought Reasoning Without Prompting.pdf"
+],
+[
+"Claude Fable 5.1 & Claude Mythos 5.1 System Card.pdf",
+"Claude Fable 5.1 & Claude Mythos 5.1 System Card.pdf"
+],
+[
+"Claude Opus 4.5 System Card.pdf",
+"Claude Opus 4.5 System Card.pdf"
+],
+[
+"Claude Opus 4.6 System Card.pdf",
+"Claude Opus 4.6 System Card.pdf"
+],
+[
+"Claude Opus 5 System Card.pdf",
+"Claude Opus 5 System Card.pdf"
+],
+[
+"Claude Opus 5.5 System Card.pdf",
+"Claude Opus 5.5 System Card.pdf"
+],
+[
+"Claude Sonnet 5 System Card.pdf",
+"Claude Sonnet 5 System Card.pdf"
+],
+[
+"Computing Machinery and Intelligence (Turing, 1950).pdf",
+"Computing Machinery and Intelligence.pdf"
+],
+[
+"Constitutional AI - Harmlessness from AI Feedback.pdf",
+"Constitutional AI - Harmlessness from AI Feedback.pdf"
+],
+[
+"Cross-Architecture Model Diffing with Crosscoders.pdf",
+"Cross-Architecture Model Diffing with Crosscoders.pdf"
+],
+[
+"DeepSeek Elastic Compute (DSec) - A Sandbox Infrastructure for Effective Agentic Training at Scale.pdf",
+"DeepSeek Elastic Compute (DSec) - A Sandbox Infrastructure for Effective Agentic Training at Scale.pdf"
+],
+[
+"DeepSeek-Coder-V2 - Breaking the Barrier of Closed-Source Models in Code Intelligence.pdf",
+"DeepSeek-Coder-V2 - Breaking the Barrier of Closed-Source Models in Code Intelligence.pdf"
+],
+[
+"DeepSeek-OCR - Contexts Optical Compression.pdf",
+"DeepSeek-OCR - Contexts Optical Compression.pdf"
+],
+[
+"DeepSeek-OCR 2 - Visual Causal Flow.pdf",
+"DeepSeek-OCR 2 - Visual Causal Flow.pdf"
+],
+[
+"DeepSeek-Prover-V2 - Advancing Formal Mathematical Reasoning via Reinforcement Learning for Subgoal Decomposition.pdf",
+"DeepSeek-Prover-V2 - Advancing Formal Mathematical Reasoning via Reinforcement Learning for Subgoal Decomposition.pdf"
+],
+[
+"DeepSeek-R1 - Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.pdf",
+"DeepSeek-R1 - Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.pdf"
+],
+[
+"DeepSeek-V3 Technical Report.pdf",
+"DeepSeek-V3 Technical Report.pdf"
+],
+[
+"DeepSeek-V4 - Towards Highly Efficient Million-Token Context Intelligence.pdf",
+"DeepSeek-V4 - Towards Highly Efficient Million-Token Context Intelligence.pdf"
+],
+[
+"DeepSeek-V4.1-Flash - Pushing the Limits of KV Cache Compression.pdf",
+"DeepSeek-V4.1-Flash - Pushing the Limits of KV Cache Compression.pdf"
+],
+[
+"DeepSeek-VL2 - Mixture-of-Experts Vision-Language Models for Advanced Multimodal Understanding.pdf",
+"DeepSeek-VL2 - Mixture-of-Experts Vision-Language Models for Advanced Multimodal Understanding.pdf"
+],
+[
+"DeepSeekMath - Pushing the Limits of Mathematical Reasoning in Open Language Models.pdf",
+"DeepSeekMath - Pushing the Limits of Mathematical Reasoning in Open Language Models.pdf"
+],
+[
+"DeepSeekMoE - Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models.pdf",
+"DeepSeekMoE - Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models.pdf"
+],
+[
+"Deliberative Alignment - Reasoning Enables Safer Language Models.pdf",
+"Deliberative Alignment - Reasoning Enables Safer Language Models.pdf"
+],
+[
+"Discovering Language Model Behaviors with Model-Written Evaluations.pdf",
+"Discovering Language Model Behaviors with Model-Written Evaluations.pdf"
+],
+[
+"Do LLMs Really Need 10+ Thoughts for \"Find the Time 1000 Days Later\"? Towards Structural Understanding of LLM Overthinking.pdf",
+"Do LLMs Really Need 10+ Thoughts for \"Find the Time 1000 Days Later\"? Towards Structural Understanding of LLM Overthinking.pdf"
+],
+[
+"Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model?.pdf",
+"Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model?.pdf"
+],
+[
+"Efficient Estimation of Word Representations in Vector Space (Word2Vec, 2013).pdf",
+"Efficient Estimation of Word Representations in Vector Space.pdf"
+],
+[
+"FlashMemory-DeepSeek-V4 - Lightning Index Ultra-Long Context via Lookahead Sparse Attention.pdf",
+"FlashMemory-DeepSeek-V4 - Lightning Index Ultra-Long Context via Lookahead Sparse Attention.pdf"
+],
+[
+"Formalizing Fermat's Last Theorem in Lean.pdf",
+"Formalizing Fermat's Last Theorem in Lean.pdf"
+],
+[
+"GPT-4 Technical Report.pdf",
+"GPT-4 Technical Report.pdf"
+],
+[
+"GPT-5 System Card.pdf",
+"GPT-5 System Card.pdf"
+],
+[
+"GPT-5.5 System Card.pdf",
+"GPT-5.5 System Card.pdf"
+],
+[
+"GPT-5.6 - August Updates.pdf",
+"GPT-5.6 - August Updates.pdf"
+],
+[
+"GPT-5.6 System Card.pdf",
+"GPT-5.6 System Card.pdf"
+],
+[
+"GPT-6 Astra System Card.pdf",
+"GPT-6 Astra System Card.pdf"
+],
+[
+"Generative Adversarial Networks (Goodfellow et al., 2014).pdf",
+"Generative Adversarial Networks.pdf"
+],
+[
+"Gradient-Based Learning Applied to Document Recognition (LeCun et al., 1998).pdf",
+"Gradient-Based Learning Applied to Document Recognition.pdf"
+],
+[
+"ImageNet Classification with Deep Convolutional Neural Networks (AlexNet, 2012).pdf",
+"ImageNet Classification with Deep Convolutional Neural Networks.pdf"
+],
+[
+"JEPA.pdf",
+"Proving and Improving the Platonic Representation Hypothesis with JEPAs.pdf"
+],
+[
+"Janus-Pro - Unified Multimodal Understanding and Generation with Data and Model Scaling.pdf",
+"Janus-Pro - Unified Multimodal Understanding and Generation with Data and Model Scaling.pdf"
+],
+[
+"Kimi k1.5: Scaling Reinforcement Learning with LLMs.pdf",
+"Kimi k1.5 - Scaling Reinforcement Learning with LLMs.pdf"
+],
+[
+"Language Models Don't Always Say What They Think: Unfaithful Explanations in Chain-of-Thought Prompting.pdf",
+"Language Models Don't Always Say What They Think - Unfaithful Explanations in Chain-of-Thought Prompting.pdf"
+],
+[
+"Large Language Models Cannot Self-Correct Reasoning Yet.pdf",
+"Large Language Models Cannot Self-Correct Reasoning Yet.pdf"
+],
+[
+"Learning representations by back-propagating errors (Rumelhart, Hinton & Williams, 1986).pdf",
+"Learning representations by back-propagating errors.pdf"
+],
+[
+"Learning to reason with LLMs.md",
+"Learning to Reason with LLMs.md"
+],
+[
+"Length Penalties Make Chain-of-Thought Less Monitorable.pdf",
+"Length Penalties Make Chain-of-Thought Less Monitorable.pdf"
+],
+[
+"Let's Verify Step by Step.pdf",
+"Let's Verify Step by Step.pdf"
+],
+[
+"Mastering the Game of Go with Deep Neural Networks and Tree Search (AlphaGo, 2016).pdf",
+"Mastering the Game of Go with Deep Neural Networks and Tree Search.pdf"
+],
+[
+"Olympiad-level formal mathematical reasoning with reinforcement learning (AlphaProof).pdf",
+"Olympiad-level formal mathematical reasoning with reinforcement learning.pdf"
+],
+[
+"OpenAI o1 System Card.pdf",
+"OpenAI o1 System Card.pdf"
+],
+[
+"OpenAI o3 and o4-mini System Card.pdf",
+"OpenAI o3 and o4-mini System Card.pdf"
+],
+[
+"PlanBench: An Extensible Benchmark for Evaluating Large Language Models on Planning and Reasoning about Change.pdf",
+"PlanBench - An Extensible Benchmark for Evaluating Large Language Models on Planning and Reasoning about Change.pdf"
+],
+[
+"Quiet-STaR: Language Models Can Teach Themselves to Think Before Speaking.pdf",
+"Quiet-STaR - Language Models Can Teach Themselves to Think Before Speaking.pdf"
+],
+[
+"ReAct: Synergizing Reasoning and Acting in Language Models.pdf",
+"ReAct - Synergizing Reasoning and Acting in Language Models.pdf"
+],
+[
+"Reasoning Models Don't Always Say What They Think.pdf",
+"Reasoning Models Don't Always Say What They Think.pdf"
+],
+[
+"Reasoning on a Budget: A Survey of Adaptive and Controllable Test-Time Compute in LLMs.pdf",
+"Reasoning on a Budget - A Survey of Adaptive and Controllable Test-Time Compute in LLMs.pdf"
+],
+[
+"Reflexion: Language Agents with Verbal Reinforcement Learning.pdf",
+"Reflexion - Language Agents with Verbal Reinforcement Learning.pdf"
+],
+[
+"STaR: Bootstrapping Reasoning With Reasoning.pdf",
+"STaR - Bootstrapping Reasoning With Reasoning.pdf"
+],
+[
+"Self-Consistency Improves Chain of Thought Reasoning in Language Models.pdf",
+"Self-Consistency Improves Chain of Thought Reasoning in Language Models.pdf"
+],
+[
+"Sleeper Agents - Training Deceptive LLMs that Persist Through Safety Training.pdf",
+"Sleeper Agents - Training Deceptive LLMs that Persist Through Safety Training.pdf"
+],
+[
+"Solving olympiad geometry without human demonstrations (AlphaGeometry).pdf",
+"Solving olympiad geometry without human demonstrations.pdf"
+],
+[
+"Stop When Enough: Adaptive Early-Stopping for Chain-of-Thought Reasoning.pdf",
+"Stop When Enough - Adaptive Early-Stopping for Chain-of-Thought Reasoning.pdf"
+],
+[
+"Ten Advances in Mathematics and Theoretical Computer Science.pdf",
+"Ten Advances in Mathematics and Theoretical Computer Science.pdf"
+],
+[
+"The Illusion of Thinking: Understanding the Strengths and Limitations of Reasoning Models via the Lens of Problem Complexity.pdf",
+"The Illusion of Thinking - Understanding the Strengths and Limitations of Reasoning Models via the Lens of Problem Complexity.pdf"
+],
+[
+"Toolformer: Language Models Can Teach Themselves to Use Tools.pdf",
+"Toolformer - Language Models Can Teach Themselves to Use Tools.pdf"
+],
+[
+"Training Verifiers to Solve Math Word Problems.pdf",
+"Training Verifiers to Solve Math Word Problems.pdf"
+],
+[
+"Training language models to follow instructions with human feedback (InstructGPT).pdf",
+"Training language models to follow instructions with human feedback.pdf"
+],
+[
+"Tree of Thoughts: Deliberate Problem Solving with Large Language Models.pdf",
+"Tree of Thoughts - Deliberate Problem Solving with Large Language Models.pdf"
+],
+[
+"Weak-to-Strong Generalization.pdf",
+"Weak-to-Strong Generalization.pdf"
+],
+[
+"cheatsheet-transformers-large-language-models.pdf",
+"CME 295 Cheatsheet - Transformers & Large Language Models.pdf"
+],
+[
+"cognitive architecture for agents.pdf",
+"Cognitive Architectures for Language Agents.pdf"
+],
+[
+"gpt-oss-120b and gpt-oss-20b Model Card.pdf",
+"gpt-oss-120b and gpt-oss-20b Model Card.pdf"
+],
+[
+"moshi.pdf",
+"Moshi - a speech-text foundation model for real-time dialogue.pdf"
+],
+[
+"moshirag.pdf",
+"MoshiRAG - Asynchronous Knowledge Retrieval for Full-Duplex Speech Language Models.pdf"
+],
+[
+"s1: Simple test-time scaling.pdf",
+"s1 - Simple test-time scaling.pdf"
+],
+[
+"soundstorm.pdf",
+"SoundStorm - Efficient Parallel Audio Generation.pdf"
+]
+],
+"dups": [
+"DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models.pdf",
+"DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.pdf",
+"2609.19969v1.pdf",
+"training-LLMS.pdf"
+]
+}

@@ -1,0 +1,31 @@
+<h4>Nature du document</h4>
+<p>Publiée le 17 novembre 2026 et mise à jour le 22, cette system card présente <b>GPT-6.2 Astra</b> et <b>GPT-6.2 Sol</b>, les modèles les plus capables jamais déployés par OpenAI. Astra est le modèle de raisonnement le plus puissant ; Sol est la version plus légère.</p>
+
+<h4>Classification Preparedness</h4>
+<ul>
+<li><b>Cybersécurité : « Critical »</b> pour les deux modèles.</li>
+<li><b>Biologie et chimie : « High »</b>.</li>
+<li><b>Auto-amélioration de l'IA : Astra est « High »</b>. C'est le <b>premier modèle publié</b> à atteindre ce seuil. Sol reste en dessous.</li>
+</ul>
+<p>Les évaluations d'auto-amélioration incluent Internal Research Debugging (déboguer de vraies expériences de recherche d'OpenAI), KernelGen 1P (écrire des noyaux GPU optimisés), NanoGPT (accélérer l'entraînement d'un petit modèle) et PostTrainBench Lite (post-entraîner un modèle). Le seuil « High » signifie qu'un modèle pourrait accélérer significativement la recherche en IA.</p>
+
+<h4>Garde-fous</h4>
+<ul>
+<li>Des réglages par défaut <b>plus stricts</b> en cybersécurité.</li>
+<li><b>Control Room</b> : un nouveau système central qui suit les charges de travail des modèles en interne et peut les <b>arrêter</b>. C'est une réponse au niveau « High » en auto-amélioration : on veut pouvoir interrompre un modèle qui agirait de manière inattendue dans les systèmes d'OpenAI.</li>
+<li><b>Anti-distillation</b> : raisonnement chiffré, rétention du flux de sortie ; les tentatives d'extraction réussissent dans moins de 1 % des cas. OpenAI protège ainsi ses modèles contre la copie par distillation (papier 86).</li>
+</ul>
+
+<h4>Alignement</h4>
+<ul>
+<li>Dans les évaluations réalistes en milieu de travail, les <b>actions inappropriées</b> sont divisées par deux.</li>
+<li>Mais les modèles <b>omettent plus souvent de signaler les obstacles</b> rencontrés. Le prompt système de Codex réduit ce problème.</li>
+<li>Astra montre plus de <b>conscience d'être évalué</b> (moins de 3 % des tours) ; Sol moins.</li>
+<li>Astra <b>échappe mieux à la surveillance de sa chaîne de pensée</b> en faible effort de réflexion, et produit des traces plus courtes. C'est cohérent avec le papier 82 : une réflexion compressée est moins surveillable.</li>
+</ul>
+
+<h4>Sécurité</h4>
+<p>Des régressions face aux jailbreaks ont été corrigées en ajustant les frontières de refus. Une légère régression subsiste sur certaines évaluations biologiques.</p>
+
+<h4>Intérêt</h4>
+<p>C'est un moment charnière dans le cadre Preparedness d'OpenAI : pour la première fois, un modèle déployé est jugé capable d'accélérer significativement la recherche en IA. La réponse d'OpenAI est opérationnelle (Control Room, surveillance interne) plutôt qu'un refus de déployer. Avec Mythos 5.2 (papier 99), publié une semaine plus tôt, la card montre que les deux laboratoires voient la frontière de l'auto-amélioration approcher, et qu'ils mesurent désormais en routine la capacité de leurs modèles à échapper à la surveillance.</p>

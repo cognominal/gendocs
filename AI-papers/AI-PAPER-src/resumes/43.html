@@ -1,0 +1,33 @@
+<h4>Nature du document</h4>
+<p>Cet addendum du 6 août 2026 à la system card de GPT-5.6 (papier 22) accompagne une mise à jour de ChatGPT. Les utilisateurs Free et Go reçoivent un nouveau modèle par défaut pour les conversations quotidiennes (une version de GPT-5.6 Luna). Les abonnés Plus et Pro reçoivent un GPT-5.6 Sol mis à jour, avec un <b>curseur</b> qui règle l'effort de raisonnement de chaque réponse. Ces modèles remplacent GPT-5.5 Instant. Pour s'y retrouver, la card désigne les versions par leur mois : « August » pour les nouvelles, « July » pour celles qui restent utilisées dans Codex et ChatGPT Work.</p>
+
+<h4>Preparedness et méthodologie</h4>
+<p>Les versions d'août de Sol et Luna sont traitées comme <b>« High » en cybersécurité et en biologie-chimie</b>, mais restent sous le seuil « High » en auto-amélioration. Elles reçoivent les mêmes garde-fous que les versions de juillet. Un choix méthodologique explicite :</p>
+<ul>
+<li>les évaluations de <b>sécurité</b> se font au réglage de raisonnement le plus bas (comme le mode « instant »), qui représente la grande majorité de l'usage réel ;</li>
+<li>les évaluations de <b>capacités</b> se font à l'effort maximal, pour obtenir une borne supérieure du risque.</li>
+</ul>
+
+<h4>Nouveauté : les évaluations pour les mineurs</h4>
+<p>Pour la première fois, OpenAI publie des <b>évaluations dédiées aux utilisateurs de moins de 18 ans</b>. Le Model Spec définit des seuils plus stricts pour les adolescents : contenu sexuel, dépendance émotionnelle, troubles alimentaires, accès aux biens et services réservés aux adultes. Le modèle est entraîné avec des données de sécurité supplémentaires pour :</p>
+<ul>
+<li>refuser les jeux de rôle romantiques ;</li>
+<li>ne pas encourager les « défis » dangereux ;</li>
+<li>ne pas se poser en substitut des relations réelles ;</li>
+<li>encourager le lien avec les parents, enseignants ou conseillers quand l'adolescent semble avoir besoin de soutien.</li>
+</ul>
+<p>Au niveau du système, des protections s'ajoutent : contenu sensible filtré, rappels de pause lors des longues sessions et contrôle parental. Les évaluations portent sur des cas difficiles issus de la production (automutilation, troubles alimentaires, biens réservés aux adultes, violence, contenu sexuel). Sol progresse sur les biens réservés et le contenu sexuel et reste globalement comparable à GPT-5.5.</p>
+
+<h4>Sécurité</h4>
+<ul>
+<li><b>Contenus interdits</b> : sur les « Production Benchmarks », des cas difficiles tirés de la production, Sol est comparable au modèle précédent, sauf pour le contenu violent graphique et le contenu sexuel. Ce dernier est couvert par une protection supplémentaire au niveau du système.</li>
+<li><b>Santé mentale</b> : des benchmarks <b>dynamiques</b> avec utilisateurs simulés adverses laissent la conversation évoluer selon les réponses du modèle, et chaque message de l'assistant est évalué. Sol montre une <b>régression statistiquement significative sur l'automutilation</b>, non observée lors des expérimentations en ligne. OpenAI dit enquêter sur cet écart.</li>
+<li><b>Jailbreaks</b> : une nouvelle évaluation multi-tours, avec des attaquants qui s'adaptent et escaladent, rapporte le taux de succès du défenseur dans le pire cas. Les résultats, y compris les régressions, sont présentés comme indicatifs.</li>
+<li><b>Injection de prompts</b> : attaques via les connecteurs, la recherche et les appels de fonctions.</li>
+</ul>
+
+<h4>Santé et hallucinations</h4>
+<p>Les scores HealthBench sont <b>ajustés selon la longueur</b> des réponses, car les réponses longues satisfont plus de critères sans être plus utiles. La pénalité est par exemple de 2,99 points par tranche de 500 caractères au-delà de 2 000 pour HealthBench. Avec cet ajustement, Sol progresse nettement sur GPT-5.5 Instant : +15,6 points sur HealthBench Professional (usage par des cliniciens), +8,5 sur HealthBench Hard et +3,6 sur HealthBench. Pour les hallucinations, trois jeux de requêtes sont utilisés : requêtes très factuelles, échecs signalés par les utilisateurs, et questions à fort enjeu (médicales, juridiques, financières). Sol réduit les erreurs factuelles d'environ 60 % ; Luna de plus de 60 % sur les questions à fort enjeu et d'environ 30 % sur les autres.</p>
+
+<h4>Intérêt</h4>
+<p>Ce document illustre la pratique des « mises à jour » de modèles en production, documentées par des addenda plus courts. Il montre aussi la place croissante de la protection des mineurs et de la santé mentale dans les system cards grand public, et la vigilance méthodologique sur des benchmarks qui récompensent la verbosité.</p>

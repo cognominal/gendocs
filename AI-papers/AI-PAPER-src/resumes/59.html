@@ -1,0 +1,24 @@
+<h4>L'idée</h4>
+<p>Les modèles de langage génèrent du texte de gauche à droite, jeton par jeton, sans revenir en arrière. La chaîne de pensée (papier 53) suit un seul chemin ; l'auto-cohérence (papier 54) en suit plusieurs, mais indépendamment et jusqu'au bout. Or la résolution humaine de problèmes difficiles ressemble plutôt à une <b>recherche</b> : on explore des pistes, on évalue où elles mènent, on abandonne les impasses et on revient en arrière. Shunyu Yao et ses collègues proposent <b>Tree of Thoughts</b> (ToT), qui ramène la recherche classique de l'IA (Newell et Simon) dans les LLM.</p>
+
+<h4>La méthode</h4>
+<p>Un problème est découpé en étapes intermédiaires, des « pensées » cohérentes (une ligne d'équation, un paragraphe de plan, un mot dans une grille). ToT a quatre composants :</p>
+<ol>
+<li><b>Décomposition</b> : choisir la granularité des pensées selon le problème.</li>
+<li><b>Générateur</b> : le LLM propose plusieurs pensées candidates à partir d'un état, soit par échantillonnage indépendant, soit en les proposant toutes à la suite.</li>
+<li><b>Évaluateur</b> : le LLM juge lui-même chaque état, en attribuant une valeur (« sûr / probable / impossible ») ou en votant entre plusieurs états.</li>
+<li><b>Algorithme de recherche</b> : recherche en largeur (BFS) qui garde les meilleurs états à chaque niveau, ou en profondeur (DFS) avec retour en arrière quand un état est jugé sans issue.</li>
+</ol>
+
+<h4>Expériences</h4>
+<ul>
+<li><b>Jeu de 24</b> (combiner quatre nombres avec les quatre opérations pour obtenir 24) : GPT-4 avec chaîne de pensée réussit 4 % des cas ; ToT avec une largeur de 5 réussit <b>74 %</b>.</li>
+<li><b>Écriture créative</b> (écrire un passage cohérent de quatre paragraphes finissant par quatre phrases imposées) : ToT génère d'abord plusieurs plans, vote pour le meilleur, puis écrit. Les textes sont jugés plus cohérents, par GPT-4 comme par des humains.</li>
+<li><b>Mini mots croisés</b> 5×5 : 60 % de mots corrects contre moins de 16 % pour la chaîne de pensée, avec une recherche en profondeur et des retours en arrière.</li>
+</ul>
+
+<h4>Coûts et limites</h4>
+<p>ToT est coûteux : pour le jeu de 24, il demande environ 5 à 100 fois plus de jetons que la chaîne de pensée. Il nécessite aussi de concevoir la décomposition, le générateur et l'évaluateur pour chaque type de problème. Sur des tâches où GPT-4 réussit déjà bien, il apporte peu. Enfin, l'évaluateur est le même LLM, avec ses erreurs de jugement.</p>
+
+<h4>Héritage</h4>
+<p>ToT a inspiré de nombreuses variantes : Graph of Thoughts, recherche Monte-Carlo (MCTS) guidée par des LLM, combinaison avec des modèles de récompense par étape (papier 61). Il a nourri l'idée que le raisonnement « Système 2 » passerait par une recherche explicite. Les modèles de raisonnement de 2024-2025 (papiers 69, 71 et 33) ont pris un autre chemin : l'apprentissage par renforcement leur apprend à faire cette exploration, avec retours en arrière, <i>à l'intérieur</i> d'une seule longue chaîne de pensée, sans orchestration externe. La synthèse « From System 1 to System 2 » (papier 73) compare ces deux approches.</p>

@@ -1,0 +1,42 @@
+<h4>Objet</h4>
+<p>Cette synthèse de Zhaoyang Niu, Guoqiang Zhong et Hui Yu (Neurocomputing, 2021) porte sur le <b>mécanisme d'attention</b>, devenu en quelques années un composant omniprésent de l'apprentissage profond. L'idée vient de la perception humaine : nous ne traitons pas toute l'information d'une scène de la même façon, nous nous concentrons sur ce qui est pertinent. Elle a été introduite en traduction automatique par Bahdanau et ses collègues (2014), puis généralisée par le transformer (papier 9).</p>
+
+<h4>Un modèle unifié</h4>
+<p>Les auteurs proposent une formulation générale qui couvre la plupart des variantes :</p>
+<ol>
+<li>des <b>clés</b> K et des <b>valeurs</b> V sont associées aux éléments de l'entrée ;</li>
+<li>une <b>requête</b> q représente ce que l'on cherche ;</li>
+<li>une <b>fonction de score</b> mesure la compatibilité entre q et chaque clé (produit scalaire, produit scalaire normalisé, forme additive avec une petite couche cachée, forme bilinéaire…) ;</li>
+<li>une <b>fonction de distribution</b> (souvent softmax) transforme les scores en poids d'attention ;</li>
+<li>le résultat est la somme des valeurs pondérée par ces poids.</li>
+</ol>
+
+<h4>Une taxonomie en quatre critères</h4>
+<ul>
+<li><b>Douceur</b> de l'attention :
+<ul>
+<li>douce (soft) : poids continus sur tous les éléments, différentiable ;</li>
+<li>dure (hard) : sélection d'un seul élément, entraînée par renforcement ;</li>
+<li>locale : une fenêtre autour d'une position, compromis entre les deux ;</li>
+<li>globale.</li>
+</ul></li>
+<li><b>Forme des caractéristiques d'entrée</b> : niveau de l'élément (mot, région d'image) ou niveau de la position (pixels, cartes de caractéristiques).</li>
+<li><b>Représentation d'entrée</b> : une seule entrée ou plusieurs (co-attention entre une image et une question), attention distincte ou auto-attention, attention hiérarchique (mots puis phrases).</li>
+<li><b>Représentation de sortie</b> : une seule sortie, multi-têtes (plusieurs attentions en parallèle, comme dans le transformer) ou multidimensionnelle (un poids par dimension).</li>
+</ul>
+
+<h4>Architectures</h4>
+<p>La synthèse passe en revue l'attention dans plusieurs familles de réseaux :</p>
+<ul>
+<li>les <b>encodeurs-décodeurs récurrents</b> pour la traduction ;</li>
+<li>les <b>réseaux à mémoire</b> (memory networks), où l'attention sert à lire une mémoire externe ;</li>
+<li>les <b>réseaux convolutifs</b> (papiers 4 et 5) avec modules d'attention spatiale et de canal (comme SE-Net et CBAM) ;</li>
+<li>le <b>transformer</b>, fondé entièrement sur l'auto-attention, et ses descendants (BERT, papier 10 ; GPT) ;</li>
+<li>les <b>réseaux de graphes</b> à attention (GAT), où chaque nœud pondère ses voisins.</li>
+</ul>
+
+<h4>Applications et interprétabilité</h4>
+<p>Les applications couvrent la vision (légendage d'images, détection), le traitement du langage (traduction, résumé, questions-réponses), la parole et les recommandations. Les auteurs discutent l'<b>interprétabilité</b> : les poids d'attention se visualisent facilement et semblent montrer ce que le modèle « regarde ». Mais ils citent le débat « Attention is not Explanation » : des poids différents peuvent donner la même prédiction, donc les poids ne sont pas forcément une explication fidèle, une question proche de celle de la fidélité de la chaîne de pensée (papier 58).</p>
+
+<h4>Intérêt</h4>
+<p>C'est une bonne introduction pédagogique à la diversité des mécanismes d'attention avant la domination du transformer. Pour les LLM actuels, les variantes importantes sont plutôt l'attention multi-têtes à clés partagées (GQA), l'attention latente multi-têtes de DeepSeek (papier 32) et les attentions éparses ou compressées pour les très longs contextes (papiers 31, 45 et 51).</p>

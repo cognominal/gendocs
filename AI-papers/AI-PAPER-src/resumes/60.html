@@ -1,0 +1,25 @@
+<h4>Le problème</h4>
+<p>Un agent fondé sur un LLM, comme ReAct (papier 56), peut agir dans un environnement, mais il apprend mal de ses erreurs. L'apprentissage par renforcement classique demanderait beaucoup d'essais et la mise à jour des poids, ce qui est coûteux et impossible avec un modèle accessible seulement par API. Noah Shinn et ses collègues proposent <b>Reflexion</b> : l'agent apprend par des mots plutôt que par des gradients.</p>
+
+<h4>La méthode</h4>
+<p>Reflexion combine trois modèles, qui peuvent être le même LLM avec des prompts différents :</p>
+<ul>
+<li>l'<b>acteur</b> produit des actions ou du code, par exemple avec ReAct ou la chaîne de pensée ;</li>
+<li>l'<b>évaluateur</b> note le résultat : réussite ou échec dans l'environnement, tests unitaires, heuristiques comme la détection de boucles, ou jugement par un LLM ;</li>
+<li>le modèle d'<b>auto-réflexion</b> transforme ce signal, souvent pauvre (un simple échec), en un retour verbal riche : ce qui a mal tourné, pourquoi, et quoi faire autrement.</li>
+</ul>
+<p>Cette réflexion est stockée dans une <b>mémoire épisodique</b> (limitée à quelques réflexions récentes) et ajoutée au contexte de l'essai suivant. C'est un « renforcement verbal » : la politique change par le contexte, sans mise à jour des poids.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>Programmation</b> : 91 % pass@1 sur HumanEval, contre 80 % pour GPT-4 seul à l'époque. Pour le code, l'agent écrit lui-même des tests unitaires, les exécute, puis réfléchit sur les échecs.</li>
+<li><b>Prise de décision</b> (ALFWorld) : 130 tâches sur 134 réussies après 12 essais, soit +22 points par rapport à ReAct seul.</li>
+<li><b>Raisonnement</b> (HotpotQA) : +20 points par rapport à la chaîne de pensée ou à ReAct.</li>
+<li>Une ablation montre que la réflexion verbale fait mieux qu'une simple mémoire de la trajectoire précédente : formuler la leçon compte.</li>
+</ul>
+
+<h4>Limites</h4>
+<p>La méthode dépend fortement de la qualité de l'évaluateur. Si les tests écrits par l'agent sont faux, il peut « corriger » un code juste. Sur WebShop, une tâche qui demande de l'exploration diversifiée, Reflexion n'apporte presque rien : la réflexion ne suffit pas à trouver de nouvelles stratégies. La mémoire est courte et limitée par la fenêtre de contexte. Le papier « LLMs Cannot Self-Correct Reasoning Yet » (papier 62) a ensuite souligné que les gains d'auto-correction viennent surtout du signal externe (tests, environnement) et non de l'introspection seule.</p>
+
+<h4>Héritage</h4>
+<p>Reflexion a popularisé l'idée de mémoire et d'apprentissage en contexte pour les agents. On la retrouve dans les mémoires persistantes des assistants, dans les fichiers de notes que tiennent les agents de code pendant de longues sessions, et dans la catégorie « auto-évolution » de la synthèse sur le raisonnement agentique (papier 85). Le cadre CoALA (papier 64) classe Reflexion comme un agent avec mémoire épisodique et action interne d'apprentissage.</p>

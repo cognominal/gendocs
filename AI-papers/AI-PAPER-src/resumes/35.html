@@ -1,0 +1,25 @@
+<h4>Contexte</h4>
+<p>Mi-2024, les meilleurs modèles de code (GPT-4 Turbo, Claude 3 Opus, Gemini 1.5 Pro) sont fermés, et les modèles de code ouverts accusent un retard net. Avec DeepSeek-Coder-V2 (juin 2024), DeepSeek publie le <b>premier modèle de code ouvert</b> à atteindre le niveau de GPT-4 Turbo en programmation et en mathématiques. Il en existe deux versions : 236 milliards de paramètres (21 milliards actifs) et une version « Lite » de 16 milliards (2,4 milliards actifs), toutes deux sous une licence permettant l'usage commercial.</p>
+
+<h4>Méthode : continuer le pré-entraînement d'un modèle généraliste</h4>
+<p>Au lieu d'entraîner un modèle de code à partir de zéro, DeepSeek part d'un point de contrôle intermédiaire de <b>DeepSeek-V2</b>, son modèle généraliste à mélange d'experts et à attention latente (MLA), et continue son pré-entraînement sur <b>6 000 milliards de tokens</b> supplémentaires. Le total atteint 10 200 milliards de tokens vus. Le mélange de données est conçu pour équilibrer les compétences :</p>
+<ul>
+<li><b>60 % de code source</b> : 1 170 milliards de tokens de code issus de GitHub et de Common Crawl, couvrant <b>338 langages de programmation</b> (contre 86 pour la première version de DeepSeek-Coder) ;</li>
+<li><b>10 % de mathématiques</b>, avec le corpus de DeepSeekMath (papier 34) ;</li>
+<li><b>30 % de langage naturel</b>, pour préserver les capacités générales.</li>
+</ul>
+<p>La collecte de code web suit le même pipeline itératif que DeepSeekMath. Les auteurs montrent par ablation que ce nouveau corpus améliore nettement les performances par rapport au corpus de la première version. L'objectif « Fill-in-the-Middle » (compléter un trou au milieu d'un fichier), essentiel pour l'autocomplétion dans les éditeurs, est conservé pour le petit modèle. Le contexte est étendu de 16K à <b>128K tokens</b> par la méthode YaRN, ce qui permet de traiter des dépôts entiers.</p>
+
+<h4>Alignement</h4>
+<p>Le modèle est affiné sur des instructions de code, de mathématiques et générales, puis optimisé par apprentissage par renforcement avec <b>GRPO</b> (papier 34). Pour le code, la récompense ne vient pas directement des tests unitaires, trop bruités et souvent incomplets, mais d'un <b>modèle de récompense</b> entraîné sur les résultats des tests. Les auteurs montrent que ce modèle généralise mieux que le signal brut des tests.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>Code</b> : 90,2 % sur HumanEval et 76,2 % sur MBPP+, un nouvel état de l'art ; 43,4 % sur LiveCodeBench (questions récentes, non contaminées), au niveau de GPT-4o. Le modèle est premier ou proche du premier sur de nombreux langages en réparation de code (Aider) et sur les tâches de dépôt réel.</li>
+<li><b>Mathématiques</b> : 75,7 % sur MATH, proche de GPT-4o (76,6 %), et 4 problèmes sur 30 à AIME 2024.</li>
+<li><b>Généraliste</b> : il conserve des capacités de langage proches de DeepSeek-V2, grâce au mélange de données.</li>
+</ul>
+<p>Limites reconnues : il suit moins bien les instructions complexes que GPT-4 Turbo, ce qui le pénalise sur les tâches d'ingénierie logicielle réelles comme SWE-bench (12,7 %).</p>
+
+<h4>Héritage</h4>
+<p>DeepSeek-Coder-V2 a montré qu'un mélange d'experts ouvert et économique à l'inférence pouvait rivaliser avec les meilleurs modèles fermés en code. Cette idée a été confirmée par V3 et R1 (papiers 32 et 33). Son approche (continuer un pré-entraînement généraliste avec un mélange riche en code et en mathématiques, puis utiliser GRPO) est devenue courante. Ses capacités ont ensuite été fusionnées dans DeepSeek-V2.5 puis V3, DeepSeek ne maintenant plus de modèle de code séparé.</p>

@@ -1,0 +1,28 @@
+<h4>Contexte</h4>
+<p>Fin décembre 2024, le laboratoire chinois DeepSeek publie DeepSeek-V3, un modèle à mélange d'experts (MoE) de <b>671 milliards de paramètres</b>, dont <b>37 milliards actifs</b> par token, avec un contexte de 128 000 tokens. Ses performances rivalisent avec GPT-4o et Claude 3.5 Sonnet, mais c'est son coût qui fait sensation : l'entraînement complet n'a demandé que <b>2,788 millions d'heures-GPU H800</b>, soit environ 5,6 millions de dollars au prix de location. C'est un ordre de grandeur de moins que les estimations pour les modèles comparables des laboratoires américains, obtenu sur des GPU bridés par les contrôles à l'exportation. Le rapport est d'une transparence rare sur l'architecture et l'ingénierie.</p>
+
+<h4>Architecture</h4>
+<ul>
+<li><b>Multi-head Latent Attention (MLA)</b>, héritée de V2. Les clés et valeurs sont compressées dans un vecteur latent de faible dimension, ce qui réduit fortement le cache KV à l'inférence, sans la perte de qualité de l'attention multi-requêtes.</li>
+<li><b>DeepSeekMoE</b> (papier 36). Chaque couche contient 256 experts « routés » à grain fin, dont 8 actifs par token, plus un expert « partagé » toujours actif qui capture les connaissances communes.</li>
+<li><b>Équilibrage sans perte auxiliaire</b>. Habituellement, une perte supplémentaire force une charge égale entre experts, au prix de la performance. V3 ajoute plutôt un biais à chaque expert, ajusté dynamiquement : il baisse si l'expert est surchargé et monte s'il est sous-utilisé. Le biais n'intervient que dans le routage, pas dans le calcul de la sortie.</li>
+<li><b>Prédiction multi-tokens (MTP)</b>. Des modules supplémentaires prédisent séquentiellement les tokens suivants (t+2...), ce qui densifie le signal d'entraînement et sert au décodage spéculatif à l'inférence.</li>
+</ul>
+
+<h4>Ingénierie de l'entraînement</h4>
+<ul>
+<li><b>Précision mixte FP8</b> : c'est le premier entraînement à cette échelle validé en FP8, avec une quantification fine par tuiles et blocs et une accumulation en haute précision pour garder l'exactitude.</li>
+<li><b>DualPipe</b> : un algorithme de parallélisme en pipeline qui superpose les phases de calcul et de communication avant et arrière, ce qui masque presque entièrement le coût des échanges entre GPU qu'impose le MoE.</li>
+<li><b>Communication tout-à-tout optimisée</b> entre nœuds, adaptée à la bande passante InfiniBand et NVLink, et entraînement sans parallélisme tensoriel coûteux.</li>
+<li><b>Stabilité</b> : sur les 14 800 milliards de tokens de pré-entraînement, aucun pic de perte irrécupérable et aucun retour en arrière.</li>
+</ul>
+<p>Le contexte est étendu à 32K puis à 128K par YaRN.</p>
+
+<h4>Post-entraînement</h4>
+<p>L'affinage supervisé utilise 1,5 million d'exemples. Point clé : les données de raisonnement sont générées en <b>distillant</b> un modèle de raisonnement interne de la série R1, avec des longues chaînes de pensée nettoyées pour garder un style clair et concis. Le RL utilise GRPO avec des récompenses par règles (mathématiques, code) et par modèle. Le rapport annonce ainsi la convergence entre modèle conversationnel et modèle de raisonnement.</p>
+
+<h4>Résultats</h4>
+<p>V3 est le meilleur modèle ouvert de l'époque : 88,5 sur MMLU, 75,9 sur MMLU-Pro et 59,1 sur GPQA-Diamond. Il est particulièrement fort en mathématiques (90,2 sur MATH-500) et en code. Il égale ou dépasse GPT-4o et Claude 3.5 Sonnet sur de nombreux benchmarks.</p>
+
+<h4>Héritage</h4>
+<p>V3 est la base de DeepSeek-R1 (papier 33), publié un mois plus tard, et la combinaison des deux a provoqué en janvier 2025 le « moment DeepSeek » : une chute boursière de Nvidia et une remise en question du lien entre dépense de calcul et capacité. Les auteurs précisent que le coût annoncé n'inclut pas la recherche et les expériences préalables. Les techniques de V3 (MLA, MoE sans perte auxiliaire, FP8, MTP) ont été largement reprises dans l'industrie et prolongées dans V3.2 et V4 (papier 31).</p>

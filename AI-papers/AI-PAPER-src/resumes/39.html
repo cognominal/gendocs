@@ -1,0 +1,28 @@
+<h4>Contexte : comprendre et générer</h4>
+<p>Les modèles multimodaux se partagent traditionnellement en deux familles : ceux qui <b>comprennent</b> les images (LLaVA, Qwen-VL) et ceux qui les <b>génèrent</b> (Stable Diffusion, DALL-E). Les unifier dans un seul modèle autorégressif est un objectif ancien, car un modèle qui sait à la fois décrire et dessiner pourrait raisonner de manière plus intégrée. Les premières tentatives, comme Chameleon de Meta, utilisaient un seul encodeur visuel pour les deux tâches, souvent un tokenizer discret de type VQ. Elles se heurtaient à un conflit : la compréhension a besoin de représentations sémantiques de haut niveau, alors que la génération a besoin de détails spatiaux de bas niveau.</p>
+
+<h4>Janus : découpler l'encodage visuel</h4>
+<p>Janus (octobre 2024), du nom du dieu romain à deux visages, propose de <b>découpler l'encodage visuel</b> tout en gardant un seul Transformer autorégressif :</p>
+<ul>
+<li>pour la <b>compréhension</b>, un encodeur <b>SigLIP</b> extrait des caractéristiques sémantiques de l'image, projetées par un adaptateur dans l'espace du LLM ;</li>
+<li>pour la <b>génération</b>, un <b>tokenizer VQ</b> convertit l'image en identifiants discrets, et le LLM apprend à prédire ces identifiants un par un, comme des mots, avant qu'un décodeur reconstitue l'image.</li>
+</ul>
+<p>Le Transformer central (un modèle de langage DeepSeek) est partagé : il traite les deux types de séquences avec les mêmes poids.</p>
+
+<h4>Janus-Pro : passer à l'échelle</h4>
+<p>Janus-Pro (Xiaokang Chen et al., janvier 2025) garde cette architecture et l'améliore sur trois axes.</p>
+<ol>
+<li><b>Stratégie d'entraînement</b> : l'étape 1 (entraînement des adaptateurs sur ImageNet) est allongée pour mieux modéliser les dépendances entre pixels. L'étape 2 abandonne les données ImageNet au profit de données texte-image denses, plus efficaces. Le mélange de l'étape 3 (affinage supervisé) est rééquilibré entre données multimodales, texte pur et texte-image.</li>
+<li><b>Données</b> : environ 90 millions d'échantillons supplémentaires pour la compréhension (légendes, tableaux, graphiques, documents) et environ <b>72 millions d'images synthétiques esthétiques</b> pour la génération, dans un rapport d'environ 1:1 avec les données réelles. Les données réelles, bruitées, rendaient la génération instable et peu esthétique.</li>
+<li><b>Taille</b> : en plus de la version 1B, une version <b>7B</b> fondée sur DeepSeek-LLM 7B. La convergence est nettement plus rapide à cette taille.</li>
+</ol>
+
+<h4>Résultats</h4>
+<ul>
+<li><b>Génération</b> : Janus-Pro-7B obtient <b>80 %</b> sur GenEval (suivi précis d'instructions de composition : nombre d'objets, couleurs, positions), au-dessus de DALL-E 3 (67 %) et de Stable Diffusion 3 Medium (74 %). Il atteint 84,19 sur DPG-Bench (prompts denses), également au-dessus.</li>
+<li><b>Compréhension</b> : 79,2 sur MMBench, au-dessus de Janus (69,4), de TokenFlow et de MetaMorph, d'autres modèles unifiés.</li>
+</ul>
+<p>Les images générées restent en résolution 384×384, ce qui limite les détails fins (petits visages, par exemple). La compréhension est aussi contrainte par cette résolution d'entrée.</p>
+
+<h4>Héritage</h4>
+<p>Publié le même mois que DeepSeek-R1, sous licence MIT, Janus-Pro a contribué au « moment DeepSeek » de janvier 2025 en montrant qu'un petit laboratoire pouvait rivaliser avec DALL-E 3 sur certains benchmarks. L'idée de découpler les encodeurs pour la compréhension et la génération a influencé d'autres modèles unifiés (BAGEL, Show-o2). Le débat entre encodeur unique et encodeurs découplés reste ouvert.</p>

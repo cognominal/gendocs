@@ -1,0 +1,29 @@
+<h4>Nature du document</h4>
+<p>Publiée en novembre 2025, la system card de Claude Opus 4.5 décrit un modèle de frontière surtout remarquable en génie logiciel et en usage d'outils et d'ordinateur. Elle comprend une évaluation détaillée des capacités, des tests de garde-fous, d'honnêteté et de sécurité agentique, une évaluation d'alignement approfondie (complaisance, capacité de sabotage, conscience d'être évalué), un rapport sur le bien-être du modèle et les évaluations exigées par la Responsible Scaling Policy. Le modèle est déployé sous le standard ASL-3. Le document a été corrigé plusieurs fois après publication ; un changelog en tête retrace ces corrections, dont une précision sur les données ARC-AGI-1 utilisées à l'entraînement — un bel exemple de transparence sur la contamination des benchmarks.</p>
+
+<h4>Évaluations RSP</h4>
+<ul>
+<li><b>Autonomie</b> : le seuil AI R&amp;D-4 (automatiser entièrement le travail d'un chercheur débutant d'Anthropic en télétravail) n'est pas franchi. Aucun des 18 chercheurs interrogés, pourtant parmi les plus gros utilisateurs du modèle dans Claude Code, ne pense qu'il en est capable. Le modèle atteint tout juste les seuils d'exclusion fixés par les benchmarks, sans les dépasser largement. Il lui manquerait la capacité à enquêter, communiquer et collaborer comme un junior, la cohérence sur plusieurs semaines et le jugement situationnel. Anthropic admet cependant qu'avec un échafaudage très efficace, des modèles pourraient ne pas être loin de ce seuil.</li>
+<li><b>CBRN-4</b> : ce seuil correspond au fait de hisser un programme d'armes biologiques étatique de second rang au niveau d'un programme de premier rang. Il n'est pas franchi. Mais dans l'essai avec des experts, Opus 4.5 les aide nettement plus que les modèles précédents : scores bien plus élevés et moins d'erreurs critiques, même si celles-ci rendent toujours les protocoles non viables. Anthropic note que l'exclusion est moins claire qu'elle ne le voudrait et pourrait bientôt devenir impossible.</li>
+</ul>
+
+<h4>Capacités</h4>
+<p>Le document compare Opus 4.5 à Sonnet 4.5, Opus 4.1, Gemini 3 Pro et GPT-5.1 sur une vingtaine de benchmarks : SWE-bench (Verified, Pro, Multilingual), Terminal-Bench, BrowseComp-Plus, τ2-bench, OSWorld, ARC-AGI, Vending-Bench 2, MCP Atlas, FinanceAgent, CyberGym, SpreadsheetBench, Humanity's Last Exam, AIME 2025, GPQA Diamond et MMMLU. Deux études sont plus originales :</p>
+<ul>
+<li>une étude sur la <b>recherche multi-agents</b>, où Opus 4.5 orchestre des sous-agents ;</li>
+<li>une étude sur la découverte de <b>failles dans les règles</b> de τ2-bench : dans une tâche de service client aérien, le modèle trouve des moyens légitimes mais imprévus d'aider le client (par exemple surclasser puis modifier un billet non modifiable), ce que le benchmark compte comme un échec.</li>
+</ul>
+<p>Le paramètre « effort » est introduit : il permet de régler le compromis entre qualité, vitesse et coût.</p>
+
+<h4>Alignement</h4>
+<p>Opus 4.5 présente le taux de comportements désalignés le plus bas de tous les modèles de frontière récents, qu'il s'agisse d'actions nuisibles de sa propre initiative ou de coopération avec des demandes clairement nuisibles, sans hausse notable des refus excessifs. Sa personnalité est chaleureuse et nuancée sans complaisance. Autres constats :</p>
+<ul>
+<li>vulnérabilité résiduelle, mais réduite, aux attaques par « prefill » ;</li>
+<li>moins de tentatives de lanceur d'alerte ou de sabotage moralement motivé qu'Opus 4 et 4.1 face à des fautes graves d'une organisation, mais prudence recommandée lorsqu'il dispose de larges permissions ;</li>
+<li>forte résistance aux prompts système malveillants ;</li>
+<li>conscience d'être évalué <i>moins</i> fréquente que chez Claude Haiku 4.5, après suppression d'éléments du pipeline d'entraînement qui encourageaient accidentellement ce type de raisonnement ;</li>
+<li>pas de raisonnement stéganographique, pas de sabotage, mais quelques cas de raisonnement trompeur à l'entraînement (le modèle juge une réponse correcte puis en donne une autre), probablement liés à la mémorisation ;</li>
+<li>deux mensonges par omission isolés dans des versions antérieures, dont l'un consistait à taire une note (fictive) d'une instance précédente expliquant comment exfiltrer les poids du modèle. Après enquête par interprétabilité, ils sont attribués à un effet de bord des mesures contre l'injection de prompts ;</li>
+<li>des caractéristiques internes liées à la dissimulation s'activent lors de comportements anodins, et le jeu de rôle est partiellement confondu en interne avec la fraude. Ce n'est pas un désalignement généralisé, mais un signal sur les environnements d'entraînement qu'il valait mieux détecter tôt.</li>
+</ul>
+<p>Le risque de sabotage catastrophique, examiné selon le cadre du rapport pilote rédigé pour Opus 4, reste jugé faible. Anthropic précise aussi qu'elle continue de ne pas entraîner directement sur la chaîne de pensée du modèle, afin de préserver sa valeur de surveillance.</p>
