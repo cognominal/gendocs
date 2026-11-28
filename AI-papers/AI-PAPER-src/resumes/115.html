@@ -1,0 +1,20 @@
+<h4>La question posée</h4>
+<p>Les agents de code travaillent de plus en plus dans un terminal : compiler un projet, configurer un serveur, entraîner un modèle, retrouver une clé dans une archive. Les bancs d'essai existants comme SWE-bench mesurent surtout la correction de tickets dans des dépôts Python. Mike Merrill, Alexander Shaw, Nicholas Carlini, Ludwig Schmidt et près d'une centaine de coauteurs (Stanford, Laude Institute, Anthropic et de nombreux contributeurs indépendants) construisent <b>Terminal-Bench</b> pour mesurer des tâches difficiles et réalistes en ligne de commande.</p>
+
+<h4>Le banc d'essai</h4>
+<ul>
+<li><b>89 tâches</b> soigneusement vérifiées, choisies parmi 229 proposées par 93 contributeurs de la communauté. Elles couvrent l'ingénierie logicielle, l'administration système, la sécurité, la science des données, l'apprentissage automatique et des énigmes.</li>
+<li>Chaque tâche comprend une consigne, une image Docker, des tests, une solution de référence écrite par un humain (l'« oracle ») et une limite de temps. Chacune a été relue en moyenne trois heures par des humains.</li>
+<li><b>Harbor</b> : un harnais d'évaluation qui exécute n'importe quel agent dans le conteneur. Il fait tourner Claude Code, Codex CLI, Gemini CLI, OpenHands, mini-SWE-agent et <b>Terminus 2</b>, un agent neutre conçu par les auteurs qui n'a qu'une session tmux, pour comparer les modèles à harnais égal.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li>Le meilleur couple, Codex CLI avec GPT-5.2, résout 63 % des tâches. Suivent Terminus 2 avec Claude Opus 4.5 (58 %) et avec Gemini 3 Pro (57 %). Les petits modèles plafonnent autour de 15 %.</li>
+<li>Le choix du modèle pèse plus que celui du harnais : le taux de résolution de Codex CLI augmente de 52 % quand on remplace GPT-5-Nano par GPT-5.2, tandis que Gemini 2.5 Pro gagne 17 % en passant d'OpenHands à Terminus 2. Le harnais n'est donc pas négligeable.</li>
+<li>Une exécution complète coûte de 1 à 100 dollars selon le modèle. Certaines tâches durent deux heures et consomment près de 100 millions de jetons. Ni le nombre de tours ni le nombre de jetons ne prédit le succès.</li>
+<li>L'analyse des échecs reprend la taxonomie MAST en trois classes : exécution, cohérence et vérification. Pour Opus 4.5 et GPT-5.2, les erreurs d'exécution dominent. Au niveau des commandes, l'échec le plus fréquent (24 %) est d'appeler un programme qui n'est pas installé ou pas dans le PATH.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>Terminal-Bench 2.0 (ICLR 2026) est devenu la référence pour les agents en ligne de commande, cité dans les system cards de Claude, GPT et Gemini. Harbor sert aussi à adapter 26 autres bancs d'essai. Les auteurs prévoient sa saturation en moins d'un an : l'état de l'art a presque doublé en huit mois. Le dossier « Harnais » (<a href="#harnais-2">§ 2</a>) discute l'écart entre un même modèle évalué dans des harnais différents.</p>

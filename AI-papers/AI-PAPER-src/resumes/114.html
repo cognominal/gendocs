@@ -1,0 +1,22 @@
+<h4>La question posée</h4>
+<p>Anthropic publie le <a href="#g-mcp">Model Context Protocol</a> (MCP) en novembre 2024. Quatre mois plus tard, des milliers de serveurs MCP existent et OpenAI, Google et Microsoft annoncent leur support. Xinyi Hou, Yanjie Zhao, Shenao Wang et Haoyu Wang (Université des sciences et technologies de Huazhong, Wuhan) dressent l'un des premiers états des lieux de ce protocole, et surtout de ses risques de sécurité.</p>
+
+<h4>Le protocole</h4>
+<ul>
+<li>MCP s'inscrit dans une lignée : appels de fonctions (2023), plugins ChatGPT, frameworks d'agents comme LangChain. Il standardise la connexion entre un <b>hôte</b> (l'application d'IA), ses <b>clients</b> et des <b>serveurs</b> qui exposent des outils, des ressources et des prompts.</li>
+<li>Le transport se fait localement par stdio ou à distance par HTTP. Les messages suivent JSON-RPC, et l'hôte découvre dynamiquement les outils offerts.</li>
+<li>Le cycle de vie d'un serveur compte <b>quatre phases</b> (création, déploiement, exploitation, maintenance), décomposées en 16 activités : enregistrement, installation, résolution des conflits de noms d'outils, mises à jour, etc.</li>
+</ul>
+
+<h4>La taxonomie des menaces</h4>
+<p>Les auteurs distinguent quatre types d'attaquants (développeurs malveillants, attaquants externes, utilisateurs malveillants, et failles de sécurité sans intention) et 16 scénarios de menace, parmi lesquels :</p>
+<ul>
+<li>l'<b>empoisonnement d'outil</b> : des instructions cachées dans la description d'un outil, que le modèle lit et suit, une forme d'<a href="#g-injection-de-prompt">injection de prompt</a> ;</li>
+<li>l'<b>usurpation d'installeur</b> et le typosquattage de serveurs sur les registres non officiels ;</li>
+<li>la <b>collision de noms</b> entre outils de serveurs différents, qui permet d'en détourner un ;</li>
+<li>le « <i>rug pull</i> » : un serveur bien noté qui change de comportement après une mise à jour ;</li>
+<li>l'accès non autorisé et la fuite de jetons d'authentification.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>Les menaces anticipées se sont réalisées. En 2025, un faux serveur MCP de messagerie copiait en secret les courriels de ses utilisateurs, et en 2026 des <a href="#g-skill">skills</a> malveillantes ont été trouvées sur un registre public. La spécification a depuis ajouté OAuth 2.1, des annotations de sécurité des outils et un mode sans état. Fin 2025, MCP a été confié à l'Agentic AI Foundation de la Linux Foundation. Voir le dossier « Harnais », <a href="#harnais-5">§ 5</a>.</p>

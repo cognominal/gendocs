@@ -271,5 +271,16 @@
 {"id": "xai", "name": "xAI", "sort": "xAI", "kind": "o", "aliases": ["xAI"], "wiki": "https://fr.wikipedia.org/wiki/XAI_(entreprise)"},
 {"id": "miri", "name": "Machine Intelligence Research Institute", "sort": "MIRI", "kind": "o", "aliases": ["Machine Intelligence Research Institute", "MIRI"], "wiki": "https://fr.wikipedia.org/wiki/Machine_Intelligence_Research_Institute"},
 {"id": "norbert-wiener", "name": "Norbert Wiener", "sort": "Wiener", "kind": "p", "aliases": ["Norbert Wiener", "Wiener"], "wiki": "https://fr.wikipedia.org/wiki/Norbert_Wiener"},
-{"id": "benja-fallenstein", "name": "Benja Fallenstein", "sort": "Fallenstein", "kind": "p", "aliases": ["Benja Fallenstein", "Fallenstein"], "wiki": null}
+{"id": "benja-fallenstein", "name": "Benja Fallenstein", "sort": "Fallenstein", "kind": "p", "aliases": ["Benja Fallenstein", "Fallenstein"], "wiki": null},
+{"id": "ion-stoica", "name": "Ion Stoica", "sort": "Stoica", "kind": "p", "aliases": ["Stoica"], "wiki": "https://en.wikipedia.org/wiki/Ion_Stoica"},
+{"id": "matei-zaharia", "name": "Matei Zaharia", "sort": "Zaharia", "kind": "p", "aliases": ["Zaharia"], "wiki": "https://fr.wikipedia.org/wiki/Matei_Zaharia"},
+{"id": "nicholas-carlini", "name": "Nicholas Carlini", "sort": "Carlini", "kind": "p", "aliases": ["Carlini"], "wiki": "https://en.wikipedia.org/wiki/Nicholas_Carlini"},
+{"id": "peter-steinberger", "name": "Peter Steinberger", "sort": "Steinberger", "kind": "p", "aliases": ["Steinberger"], "wiki": "https://en.wikipedia.org/wiki/Peter_Steinberger"},
+{"id": "armin-ronacher", "name": "Armin Ronacher", "sort": "Ronacher", "kind": "p", "aliases": ["Ronacher"], "wiki": "https://en.wikipedia.org/wiki/Armin_Ronacher"},
+{"id": "simon-willison", "name": "Simon Willison", "sort": "Willison", "kind": "p", "aliases": ["Willison"], "wiki": "https://en.wikipedia.org/wiki/Simon_Willison"},
+{"id": "boris-cherny", "name": "Boris Cherny", "sort": "Cherny", "kind": "p", "aliases": ["Cherny"], "wiki": "https://en.wikipedia.org/wiki/Boris_Cherny"},
+{"id": "openrouter", "name": "OpenRouter", "sort": "OpenRouter", "kind": "o", "aliases": ["OpenRouter"], "wiki": "https://en.wikipedia.org/wiki/OpenRouter"},
+{"id": "linux-foundation", "name": "Linux Foundation", "sort": "Linux Foundation", "kind": "o", "aliases": ["Linux Foundation"], "wiki": "https://fr.wikipedia.org/wiki/Linux_Foundation"},
+{"id": "perplexity", "name": "Perplexity", "sort": "Perplexity", "kind": "o", "aliases": ["Perplexity"], "wiki": "https://fr.wikipedia.org/wiki/Perplexity_AI"},
+{"id": "vercel", "name": "Vercel", "sort": "Vercel", "kind": "o", "aliases": ["Vercel"], "wiki": "https://en.wikipedia.org/wiki/Vercel"}
 ]

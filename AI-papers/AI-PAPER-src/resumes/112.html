@@ -1,0 +1,20 @@
+<h4>La question posée</h4>
+<p>En mars 2024, Cognition présente Devin, un « ingénieur logiciel IA » fermé. En réaction, une communauté lance en quelques semaines OpenDevin, rebaptisé ensuite <b>OpenHands</b> : une plateforme ouverte pour construire, exécuter et évaluer des agents qui codent, naviguent sur le web et interagissent avec un ordinateur comme un développeur. Ce papier de Xingyao Wang, Graham Neubig et de nombreux contributeurs (UIUC, CMU, Yale, All Hands AI, etc.) en décrit l'architecture.</p>
+
+<h4>L'architecture</h4>
+<ul>
+<li><b>Flux d'événements</b> : chaque action de l'agent (commande, code, navigation, message) et chaque observation qui en résulte est un événement enregistré dans un journal. C'est l'historique de l'agent, et il se rejoue.</li>
+<li><b>Runtime isolé</b> : chaque session a un conteneur Docker qui offre un shell bash, un noyau IPython et un navigateur Chromium piloté par Playwright. L'agent peut tout faire dans ce <a href="#g-sandbox-bac-a-sable">bac à sable</a> sans toucher la machine hôte.</li>
+<li><b>Agenthub</b> : plusieurs agents interchangeables. Le principal, CodeActAgent, agit par code (<a href="#p108">fiche 108</a>). Un agent de navigation et des micro-agents spécialisés complètent l'ensemble, et un agent peut déléguer une sous-tâche à un autre.</li>
+<li>Des <b>compétences</b> (skills) sous forme de fonctions Python : ouvrir un fichier, éditer, chercher, lire un PDF.</li>
+<li>Une suite d'évaluation intégrée de <b>15 bancs d'essai</b> : SWE-bench, HumanEvalFix, WebArena, MiniWoB++, GAIA, GPQA, etc.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li>CodeActAgent v1.8 avec Claude 3.5 Sonnet résout 26 % de SWE-bench Lite, au niveau des meilleurs systèmes spécialisés de l'époque. Sur WebArena et GAIA, les résultats restent corrects sans réglage spécifique à ces tâches.</li>
+<li>Le projet compte alors plus de 32 000 étoiles GitHub et plus de 2 100 contributions de plus de 188 contributeurs, sous licence MIT.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>OpenHands (ICLR 2025) est devenu l'un des harnais de référence des bancs d'essai : Terminal-Bench (<a href="#p115">fiche 115</a>) le compte parmi ses agents évalués. L'architecture en flux d'événements, avec un runtime en conteneur, se retrouve dans les agents de code « cloud » (Codex dans le cloud, Claude Code sur le web, Devin). Les entraînements par RL d'agents de code, qui exécutent des millions d'épisodes dans des bacs à sable, la reprennent aussi (voir DSec, <a href="#p44">fiche 44</a>). Voir le dossier « Harnais », <a href="#harnais-4">§ 4</a>.</p>

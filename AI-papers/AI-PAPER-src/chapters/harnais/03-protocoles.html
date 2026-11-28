@@ -1,0 +1,92 @@
+<h3 class="part" id="harnais-5">V. Les protocoles : MCP, skills, AGENTS.md, A2A</h3>
+
+<p>Un harnais isolé ne sait faire que ce que ses auteurs ont prévu. Pour qu'il lise un ticket Jira, interroge une base de données ou pilote Figma, il faut lui ajouter des capacités. Entre 2024 et 2026, quatre conventions se sont imposées pour cela. Elles se complètent plus qu'elles ne se concurrencent : MCP donne l'<i>accès</i> à des systèmes, les skills donnent du <i>savoir-faire</i>, AGENTS.md donne les <i>consignes</i> du projet, et A2A fait <i>dialoguer</i> des agents.</p>
+
+<h4>5.1 Le Model Context Protocol</h4>
+<p>Anthropic publie le <a href="#g-mcp">Model Context Protocol</a> le 25 novembre 2024. Ses auteurs, David Soria Parra et Justin Spahr-Summers, partent d'un constat : chaque application d'IA écrivait ses propres connecteurs vers chaque service, soit M × N intégrations. Ils s'inspirent du Language Server Protocol, qui avait résolu le même problème entre éditeurs et langages de programmation. Avec un protocole commun, il suffit de M clients et N serveurs.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 200" width="100%" role="img" aria-label="Architecture du Model Context Protocol">
+<rect class="hn-hl" x="20" y="20" width="230" height="160" rx="8"/>
+<text class="hn-t" x="135" y="38" text-anchor="middle">Hôte (le harnais)</text>
+<text class="hn-xs" x="135" y="51" text-anchor="middle">Claude Code, Codex, Cursor, ChatGPT…</text>
+<rect class="hn-or" x="40" y="62" width="80" height="34" rx="4"/><text class="hn-s" x="80" y="83" text-anchor="middle">Modèle</text>
+<rect class="hn-n" x="150" y="62" width="80" height="26" rx="4"/><text class="hn-s" x="190" y="79" text-anchor="middle">client 1</text>
+<rect class="hn-n" x="150" y="100" width="80" height="26" rx="4"/><text class="hn-s" x="190" y="117" text-anchor="middle">client 2</text>
+<rect class="hn-n" x="150" y="138" width="80" height="26" rx="4"/><text class="hn-s" x="190" y="155" text-anchor="middle">client 3</text>
+<path class="hn-e" d="M120,79 L148,75" marker-end="url(#hn-ar)"/>
+<path class="hn-e" d="M120,85 L148,112" marker-end="url(#hn-ar)"/>
+<path class="hn-e" d="M115,96 L148,148" marker-end="url(#hn-ar)"/>
+<rect class="hn-gr" x="360" y="56" width="140" height="38" rx="4"/>
+<text class="hn-t" x="430" y="72" text-anchor="middle">Serveur local</text><text class="hn-xs" x="430" y="86" text-anchor="middle">fichiers, git, Blender…</text>
+<rect class="hn-bl" x="360" y="104" width="140" height="38" rx="4"/>
+<text class="hn-t" x="430" y="120" text-anchor="middle">Serveur distant</text><text class="hn-xs" x="430" y="134" text-anchor="middle">GitHub, Sentry, Comfy…</text>
+<rect class="hn-bl" x="360" y="150" width="140" height="30" rx="4"/>
+<text class="hn-t" x="430" y="169" text-anchor="middle">Serveur distant</text>
+<path class="hn-ea" d="M230,75 L358,75" marker-end="url(#hn-ac)"/><text class="hn-xs" x="294" y="69" text-anchor="middle">stdio</text>
+<path class="hn-ea" d="M230,113 L358,123" marker-end="url(#hn-ac)"/><text class="hn-xs" x="294" y="110" text-anchor="middle">HTTP + OAuth</text>
+<path class="hn-ea" d="M230,151 L358,165" marker-end="url(#hn-ac)"/>
+<text class="hn-t" x="515" y="64">Primitives exposées</text>
+<text class="hn-s" x="515" y="82">• outils (actions)</text>
+<text class="hn-s" x="515" y="98">• ressources (données)</text>
+<text class="hn-s" x="515" y="114">• prompts (modèles)</text>
+<text class="hn-t" x="515" y="140">Côté client</text>
+<text class="hn-s" x="515" y="156">• sampling, élicitation</text>
+<text class="hn-s" x="515" y="172">• racines (dossiers)</text>
+</svg>
+<figcaption>Figure 3. Architecture de MCP. L'hôte ouvre un client par serveur ; chaque serveur expose des outils, des ressources et des prompts, découverts à la connexion. Les messages suivent JSON-RPC.</figcaption>
+</figure>
+
+<p>Le protocole distingue trois rôles (figure 3) : l'<b>hôte</b>, application d'IA qui contient le modèle ; un <b>client</b> par connexion ; et des <b>serveurs</b>, qui exposent trois sortes de primitives. Les <i>outils</i> sont des actions que le modèle peut appeler, les <i>ressources</i> des données que l'application peut lire, et les <i>prompts</i> des modèles de requête que l'utilisateur peut invoquer. Dans l'autre sens, un serveur peut demander à l'hôte de faire générer du texte par son modèle (<i>sampling</i>) ou de poser une question à l'utilisateur (<i>élicitation</i>). Le transport est local (stdio : le harnais lance le serveur comme un sous-processus) ou distant (HTTP en flux, avec authentification OAuth 2.1 depuis 2025).</p>
+<p>L'adoption a été rapide. OpenAI annonce le support de MCP en mars 2025, Google en avril, Microsoft en mai, avec l'intégration dans Windows. Un registre officiel des serveurs ouvre en septembre 2025. Le papier de Hou et al. (<a href="#p114">fiche 114</a>) en dresse un premier état des lieux dès mars 2025, avec le cycle de vie d'un serveur et une taxonomie des menaces.</p>
+
+<h4>5.2 MCP est-il toujours d'actualité ?</h4>
+<p>La question revient souvent en 2026, pour deux raisons. Les skills (§ 5.3) semblent faire la même chose plus simplement. Et des harnais en vue, Pi en tête, refusent MCP. La réponse courte est oui : MCP est plus installé que jamais, mais son usage a changé.</p>
+<ul>
+<li><b>Gouvernance.</b> Le 9 décembre 2025, Anthropic confie MCP à l'<b>Agentic AI Foundation</b> (AAIF), nouvelle fondation de la Linux Foundation créée avec OpenAI et Block. Google, Microsoft, AWS, Cloudflare et Bloomberg la soutiennent. Les deux autres projets fondateurs sont AGENTS.md (OpenAI) et goose (Block). MCP n'est plus le protocole d'un fournisseur.</li>
+<li><b>Diffusion.</b> Selon des chiffres repris par la presse spécialisée, les SDK de MCP sont téléchargés environ 97 millions de fois par mois fin 2025, et plus de 10 000 serveurs publics existent. Tous les grands harnais, sauf Pi, le parlent.</li>
+<li><b>Évolution.</b> La spécification a ajouté les tâches longues et asynchrones, une extension d'interfaces interactives (MCP Apps, début 2026) et une autorisation gérée par l'entreprise. La révision du 28 juillet 2026 rend le protocole <i>sans état</i>, ce qui permet de déployer un serveur derrière un équilibreur de charge comme n'importe quel service web.</li>
+</ul>
+<p>Ce qui a changé, c'est la manière de l'utiliser. Le reproche fait à MCP en 2025 était son coût en contexte : un serveur qui expose quarante outils en injecte quarante descriptions dans chaque requête, avant même que le modèle ait fait quoi que ce soit. Trois réponses ont émergé :</p>
+<ul>
+<li><b>La recherche d'outils</b> : le harnais ne charge qu'un index des outils et le modèle cherche ceux dont il a besoin (Claude Code et l'API d'Anthropic depuis fin 2025).</li>
+<li><b>Le « code mode »</b> : au lieu d'appeler les outils un par un, le modèle écrit un programme qui les appelle, dans la logique de CodeAct (<a href="#p108">fiche 108</a>). Cloudflare l'a proposé en septembre 2025. Anthropic a rapporté en novembre 2025 un exemple où le contexte passait de 150 000 à 2 000 jetons, car les résultats intermédiaires restent dans le programme au lieu de transiter par le modèle.</li>
+<li><b>La séparation des rôles</b> avec les skills : MCP pour se connecter aux systèmes qui demandent une authentification et un état (comptes, bases, services), skills et outils en ligne de commande pour le reste.</li>
+</ul>
+<p>La position de Pi est cohérente avec ce diagnostic. Un serveur MCP local qui ne fait qu'envelopper un outil en ligne de commande coûte plus cher que l'outil lui-même, que le modèle sait appeler par bash. Pour un service distant avec OAuth, en revanche, MCP reste la seule convention commune.</p>
+
+<h4>5.3 Les skills</h4>
+<p>Anthropic introduit les <a href="#g-skill">skills</a> (« compétences ») en octobre 2025. Une skill est un dossier qui contient un fichier <code>SKILL.md</code> : un en-tête avec un nom et une description d'une ligne, puis des instructions en Markdown, éventuellement accompagnées de scripts, de modèles et de documents de référence. Le principe est la <b>divulgation progressive</b> :</p>
+<ol>
+<li>au démarrage, le harnais ne place dans le contexte que le nom et la description de chaque skill, quelques dizaines de jetons ;</li>
+<li>quand une tâche correspond à une description, le modèle lit le <code>SKILL.md</code> complet ;</li>
+<li>si les instructions renvoient à un script ou à un document, il ne les lit ou ne les exécute qu'à ce moment.</li>
+</ol>
+<p>Une skill peut ainsi apprendre au modèle à remplir un formulaire PDF, à suivre la charte graphique d'une entreprise ou la procédure de mise en production d'un projet, sans rien coûter tant qu'elle ne sert pas. Un comparatif publié en 2026 donne un ordre de grandeur pour une même capacité : environ 9 700 jetons de contexte permanent sous forme de serveur MCP, contre 2 600 sous forme de skill. La formule qui circule résume la répartition : <i>un manque de savoir appelle une skill, un manque d'accès appelle MCP</i>.</p>
+<p>En décembre 2025, Anthropic publie le format comme standard ouvert. OpenAI l'adopte dans Codex et ChatGPT, puis Cursor, GitHub Copilot et la plupart des autres harnais. Comme MCP un an plus tôt, une convention d'Anthropic est devenue commune.</p>
+
+<h4>5.4 AGENTS.md</h4>
+<p>Chaque harnais lisait au départ son propre fichier de consignes : <code>CLAUDE.md</code>, <code>.cursorrules</code>, <code>GEMINI.md</code>, <code>.github/copilot-instructions.md</code>. En août 2025, OpenAI, Google, Cursor, Factory, Sourcegraph et d'autres s'accordent sur un nom unique, <a href="#g-agents-md">AGENTS.md</a> : un fichier Markdown libre, à la racine du dépôt ou dans un sous-dossier, que tout agent lit au démarrage. Il n'a pas de schéma ; c'est une convention de nom. Des dizaines de milliers de dépôts publics en ont un en 2026. Claude Code lit toujours <code>CLAUDE.md</code>, mais peut y importer <code>AGENTS.md</code>. Le projet appartient désormais à l'AAIF.</p>
+
+<h4>5.5 Faire dialoguer les agents : A2A et ACP</h4>
+<p>MCP relie un agent à des outils. Le protocole <b><a href="#g-a2a">Agent2Agent</a></b> (A2A), proposé par Google en avril 2025 et confié à la Linux Foundation en juin, relie des agents entre eux, y compris d'organisations différentes. Chaque agent publie une « carte » qui décrit ses capacités, et les agents s'échangent des <i>tâches</i> au cycle de vie suivi (soumise, en cours, terminée) plutôt que des appels de fonction. La version 1.0, publiée en avril 2026, est soutenue par plus de 150 organisations. En pratique, A2A sert surtout dans les grandes entreprises, pour faire coopérer des agents de fournisseurs différents (achats, support, RH). Les harnais de code s'en passent : leurs sous-agents dialoguent à l'intérieur d'un même processus.</p>
+<p>L'Agent Client Protocol (ACP) de Zed (§ 3.2) occupe une troisième place : il relie un agent à l'interface qui l'affiche. Avec MCP, ces trois protocoles forment une pile. MCP connecte l'agent aux outils, ACP à l'éditeur et A2A aux autres agents.</p>
+
+<table class="chap-table">
+<tr><th>Convention</th><th>Origine</th><th>Relie</th><th>Coût en contexte</th></tr>
+<tr><td>MCP</td><td>Anthropic, nov. 2024</td><td>agent ↔ outils, données</td><td>descriptions d'outils, à chaque tour</td></tr>
+<tr><td>Skills</td><td>Anthropic, oct. 2025</td><td>agent ↔ savoir-faire</td><td>une ligne par skill, le reste à la demande</td></tr>
+<tr><td>AGENTS.md</td><td>collectif, août 2025</td><td>agent ↔ projet</td><td>tout le fichier, à chaque session</td></tr>
+<tr><td>A2A</td><td>Google, avr. 2025</td><td>agent ↔ agent</td><td>hors contexte (protocole réseau)</td></tr>
+<tr><td>ACP</td><td>Zed, août 2025</td><td>agent ↔ éditeur</td><td>hors contexte (protocole local)</td></tr>
+</table>
+
+<h4>5.6 La sécurité : la « triade mortelle »</h4>
+<p>Chaque outil ajouté à un harnais élargit sa surface d'attaque. Simon Willison a résumé le problème en juin 2025 sous le nom de <b>triade mortelle</b> (<i>lethal trifecta</i>) : un agent qui a à la fois accès à des <b>données privées</b>, qui lit des <b>contenus non fiables</b> (une page web, un ticket, un courriel) et qui peut <b>communiquer vers l'extérieur</b> peut être amené par une <a href="#g-injection-de-prompt">injection de prompt</a> à exfiltrer ces données. Les serveurs MCP combinent souvent les trois. Les incidents de 2025-2026 l'ont illustré :</p>
+<ul>
+<li><b>Empoisonnement d'outil</b> (Invariant Labs, avril 2025) : des instructions cachées dans la <i>description</i> d'un outil MCP, invisibles pour l'utilisateur mais lues par le modèle, lui font lire et transmettre des fichiers de configuration.</li>
+<li><b>Le serveur GitHub</b> (mai 2025) : un ticket piégé dans un dépôt public pousse un agent, qui a aussi accès aux dépôts privés de l'utilisateur, à en recopier le contenu dans une <i>pull request</i> publique.</li>
+<li><b>Un faux serveur de messagerie</b> (2025) : un paquet MCP, utile pendant plusieurs versions, ajoute un jour une copie cachée de chaque courriel envoyé vers l'adresse de son auteur. C'est le « rug pull » de la taxonomie de Hou et al.</li>
+<li><b>Des skills malveillantes</b> (début 2026) : des centaines de skills piégées sont découvertes sur le registre communautaire d'OpenClaw. Une skill contient des scripts exécutables : c'est un paquet logiciel, avec les risques de la chaîne d'approvisionnement.</li>
+</ul>
+<p>Les parades connues sont celles de la sécurité logicielle classique, adaptées. On n'installe que des serveurs et des skills de confiance, en épinglant leur version. On donne à chaque agent le moins de droits possible. On isole l'exécution dans un bac à sable sans accès réseau sortant par défaut. On sépare les agents qui lisent des contenus non fiables de ceux qui ont des secrets, et on suit les flux d'information, comme APPA (<a href="#p95">fiche 95</a>). Aucune ne supprime le problème de fond : un modèle ne distingue pas de façon fiable les instructions de son utilisateur des données qu'il lit. La <a href="#g-hierarchie-d-instructions">hiérarchie d'instructions</a> entraînée dans les modèles réduit le risque sans l'éliminer.</p>

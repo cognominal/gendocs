@@ -30,7 +30,8 @@ T = {
   'renforcement': 'Dossier : l\'apprentissage par renforcement des LLM, du RLHF au RLVR',
   'attention': 'Dossier : attention efficace et cache KV',
   'alignement': 'Dossier : l\'alignement, des lois d\'Asimov au bouton d\'arrêt',
-  'short': {'transformer': 'Transformer', 'mcts': 'MCTS', 'renforcement': 'Renforcement', 'attention': 'Attention et cache KV', 'alignement': 'Alignement'},
+  'harnais': 'Dossier : les harnais, de la boucle d\'agent aux routeurs de modèles',
+  'short': {'transformer': 'Transformer', 'mcts': 'MCTS', 'renforcement': 'Renforcement', 'attention': 'Attention et cache KV', 'alignement': 'Alignement', 'harnais': 'Harnais'},
   'gloss_n': 'Glossaire ({n} termes)', 'gloss': 'Glossaire',
   'engloss_n': 'Lexique anglais-français ({n} termes)', 'engloss': 'Lexique anglais-français',
   'engloss_intro': 'Les termes anglais du glossaire, classés par ordre alphabétique. Chaque terme français '
@@ -61,7 +62,8 @@ T = {
   'renforcement': 'Досье: обучение с подкреплением для LLM, от RLHF до RLVR',
   'attention': 'Досье: эффективное внимание и KV-кэш',
   'alignement': 'Досье: согласование ИИ, от законов Азимова до кнопки выключения',
-  'short': {'transformer': 'Transformer', 'mcts': 'MCTS', 'renforcement': 'Обучение с подкреплением', 'attention': 'Внимание и KV-кэш', 'alignement': 'Согласование'},
+  'harnais': 'Досье: обвязки агентов, от агентного цикла до маршрутизаторов моделей',
+  'short': {'transformer': 'Transformer', 'mcts': 'MCTS', 'renforcement': 'Обучение с подкреплением', 'attention': 'Внимание и KV-кэш', 'alignement': 'Согласование', 'harnais': 'Обвязки'},
   'gloss_n': 'Глоссарий ({n} терминов)', 'gloss': 'Глоссарий',
   'engloss_n': 'Англо-русский словарь ({n} терминов)', 'engloss': 'Англо-русский словарь',
   'engloss_intro': 'Английские термины глоссария в алфавитном порядке. Каждый русский термин '
@@ -80,7 +82,7 @@ T = {
  },
 }[LANG]
 
-DOSSIERS = ['transformer', 'mcts', 'renforcement', 'attention', 'alignement']
+DOSSIERS = ['transformer', 'mcts', 'renforcement', 'attention', 'alignement', 'harnais']
 # each dossier is chapters/<id>.html, or a folder chapters/<id>/ whose *.html parts are
 # concatenated in name order; anchor #<id>. Parts may open with <h3 class="part" id="...">,
 # which are listed under the dossier in the table of contents.
@@ -117,6 +119,7 @@ SECTION_COLORS = {
     'Autres papiers de référence': '#0e7490',
     'Nouveautés octobre–novembre 2026': '#be185d',
     'Contrôle et arrêt des IA': '#991b1b',
+    'Harnais, outils et routage': '#0e7490',
 }
 DEFAULT_COLOR = '#0f766e'
 
@@ -206,6 +209,7 @@ FICHE_DOSSIERS = {  # fiche number -> dossiers that develop its subject
     'renforcement': [16, 27, 29, 33, 34, 44, 52, 55, 61, 69, 71, 72, 74, 75, 76, 80, 82],
     'attention': [9, 31, 32, 35, 45, 51, 87],
     'alignement': [2, 16, 17, 18, 19, 20, 27, 28, 29, 58, 74, 80, 82, 99, 101, 103, 104, 105, 106],
+    'harnais': [44, 56, 57, 60, 64, 95, 107, 108, 109, 110, 111, 112, 113, 114, 115],
 }
 
 

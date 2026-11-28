@@ -1,0 +1,19 @@
+<h4>La question posée</h4>
+<p>Au début de 2024, un agent LLM agit le plus souvent en émettant un appel d'outil au format JSON, ou du texte selon un format fixe : une action par tour, avec des arguments typés. Xingyao Wang, Heng Ji et leurs coauteurs (Université de l'Illinois à Urbana-Champaign et Apple) proposent que l'action soit plutôt du <b>code Python exécutable</b>. Le code a des variables, des boucles et des conditions, il compose plusieurs outils en un seul tour et réutilise toutes les bibliothèques existantes. Les messages d'erreur de l'interpréteur servent aussi de retour pour se corriger.</p>
+
+<h4>Le dispositif</h4>
+<ul>
+<li><b><a href="#g-codeact">CodeAct</a></b> : à chaque tour, le modèle écrit un bloc de code. Un interpréteur Python l'exécute et renvoie la sortie ou l'erreur comme observation, dans le schéma pensée–action–observation de ReAct (<a href="#p56">fiche 56</a>).</li>
+<li><b>M<sup>3</sup>ToolEval</b> : un banc d'essai de tâches qui exigent de combiner plusieurs outils sur plusieurs tours, pour comparer CodeAct au JSON et au texte à action égale.</li>
+<li><b>CodeActInstruct</b> : 7 000 interactions multi-tours collectées avec CodeAct, qui servent à affiner Llama 2 et Mistral pour obtenir <b>CodeActAgent</b>.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur 17 LLM, CodeAct égale ou dépasse le JSON et le texte, avec jusqu'à 20 points de taux de succès en plus et jusqu'à 30 % d'actions en moins.</li>
+<li>L'écart est le plus grand pour les modèles les plus capables : ils savent tirer parti du contrôle de flux et des bibliothèques.</li>
+<li>CodeActAgent sait entraîner un modèle avec scikit-learn ou tracer des courbes, et se corrige à partir des traces d'erreur. Ses capacités générales ne baissent pas après l'affinage.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>CodeAct est devenu l'agent par défaut d'OpenHands (<a href="#p112">fiche 112</a>), du même premier auteur. L'idée a gagné tout l'écosystème. Les harnais de code donnent au modèle un shell et le laissent écrire ses propres scripts plutôt que de multiplier les outils spécialisés : Pi (<a href="#harnais-4">dossier « Harnais », § 4</a>) n'a que quatre outils, dont bash. Le « code mode » des clients MCP fait de même : il fait écrire au modèle du code qui appelle les outils, au lieu d'un appel JSON par outil.</p>

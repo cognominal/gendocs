@@ -1,0 +1,107 @@
+<h3 class="part" id="harnais-3">III. Terminal, éditeur, web : trois surfaces</h3>
+
+<p>Un même harnais peut se présenter sous plusieurs formes. Claude Code existe en ligne de commande, en extension d'éditeur, dans l'application de bureau et sur le web ; Codex aussi. Le moteur (la boucle, les outils, la compaction) est le même. Ce qui change, c'est <i>où</i> le code s'exécute, <i>qui</i> regarde, et <i>comment</i> l'humain intervient. Ces différences pèsent autant sur l'usage que les écarts de score.</p>
+
+<h4>3.1 Le harnais dans le terminal</h4>
+<p>Les harnais en ligne de commande (CLI) ont une interface textuelle plein écran (TUI) : une zone de saisie, le fil de la conversation, les appels d'outils et leurs résultats, des demandes de permission. Claude Code, Codex CLI, Gemini CLI, OpenCode, Aider, Pi, Amp et Crush sont de ce type. Leurs atouts tiennent à l'environnement Unix :</p>
+<ul>
+<li><b>Ils tournent là où est le code</b> : sur le portable, sur un serveur par SSH, dans un conteneur, sur une machine de calcul. L'agent voit les vrais fichiers, les vrais outils et les vraies variables d'environnement.</li>
+<li><b>Ils se composent</b> : un mode non interactif (<code>claude -p</code>, <code>codex exec</code>) permet de les appeler depuis un script, une tâche cron ou l'intégration continue, et de chaîner leur sortie avec d'autres commandes.</li>
+<li><b>Ils sont indépendants de l'éditeur</b> : l'utilisateur garde vim, Emacs ou VS Code, et l'agent modifie les fichiers à côté.</li>
+<li><b>Ils se multiplient</b> : un terminal se découpe en panneaux, et un <a href="#g-multiplexeur">multiplexeur</a> permet de faire tourner cinq agents à la fois, de s'en détacher et d'y revenir (partie VII).</li>
+</ul>
+<p>Leurs limites : relire un gros diff dans un terminal est moins confortable que dans un éditeur graphique, les images et les documents riches passent mal, et l'agent agit sur la machine de l'utilisateur, avec ses secrets, d'où l'importance du bac à sable (§ 1.6).</p>
+
+<h4>3.2 Le harnais dans l'éditeur</h4>
+<p>Les harnais intégrés à un éditeur (IDE) partent d'un autre geste : l'humain lit et écrit du code, et l'agent intervient à côté. Cursor (Anysphere, 2023) et Windsurf (Codeium, racheté par Cognition en 2025) sont des forks de VS Code construits autour de l'IA ; GitHub Copilot, Cline et ses dérivés (Roo Code, Kilo Code) sont des extensions de VS Code ; Zed et les IDE de JetBrains ont leurs propres agents. Leurs atouts :</p>
+<ul>
+<li>les modifications apparaissent comme des <b>diffs en ligne</b>, acceptés ou rejetés morceau par morceau ;</li>
+<li>l'agent profite de l'état de l'éditeur : fichiers ouverts, sélection, diagnostics du serveur de langage (LSP), terminal intégré ;</li>
+<li>l'agent cohabite avec la <b>complétion</b> en ligne, l'autre grand usage de l'IA pour le code, qui demande une latence de quelques dizaines de millisecondes et des modèles spécialisés.</li>
+</ul>
+<p>La frontière s'est brouillée en 2025. Zed a proposé l'<b>Agent Client Protocol</b> (ACP, août 2025), qui permet de brancher un agent en ligne de commande dans n'importe quel éditeur qui le parle : Claude Code, Gemini CLI ou Codex s'affichent alors dans Zed, JetBrains ou Neovim. Inversement, Claude Code et Codex ont des extensions VS Code qui ne sont qu'une interface graphique au-dessus du même moteur.</p>
+
+<h4>3.3 Le harnais dans le navigateur et le cloud</h4>
+<p>Troisième surface : l'agent tourne sur une machine virtuelle du fournisseur et l'utilisateur le pilote depuis une page web ou son téléphone. Devin (Cognition, mars 2024) a lancé le genre ; suivent le Copilot coding agent de GitHub (mai 2025), Codex dans le cloud (mai 2025), Jules de Google (2025), les agents d'arrière-plan de Cursor et Claude Code sur le web (octobre 2025). Le fonctionnement est commun :</p>
+<ol>
+<li>le fournisseur clone le dépôt dans un conteneur et exécute un script d'installation ;</li>
+<li>l'agent travaille seul, souvent plusieurs dizaines de minutes ;</li>
+<li>le résultat revient sous forme de branche ou de <i>pull request</i>, que l'humain relit.</li>
+</ol>
+<p>C'est un mode <b>asynchrone</b> : on lance dix tâches avant une réunion et on relit les résultats après. La machine de l'utilisateur n'est jamais exposée, et le bac à sable est fourni d'office. En contrepartie, l'environnement doit être reproductible (dépendances, bases de test, secrets), l'agent n'a pas accès aux ressources locales, et l'humain ne peut pas corriger la trajectoire en cours de route aussi facilement. Les fournisseurs ajoutent des passerelles : reprendre en local une session lancée sur le web (« téléportation » dans Claude Code), ou piloter depuis le téléphone une session qui tourne sur son propre ordinateur.</p>
+
+<h4>3.4 Les applications de conversation</h4>
+<p>ChatGPT, claude.ai et Gemini sont aussi des harnais, même si on les pense rarement ainsi. Ils donnent au modèle un interpréteur Python dans un bac à sable, la recherche web, la génération d'images, des connecteurs vers les courriels ou les documents, et des pages interactives (artifacts, canvas). Ce sont des harnais généralistes, sans accès à la machine de l'utilisateur, pour un public qui ne programme pas. En janvier 2026, Anthropic a apporté à ce public un harnais d'agent sur le poste de travail, Claude Cowork, qui reprend le moteur de Claude Code dans l'application de bureau et agit sur les fichiers d'un dossier choisi.</p>
+
+<table class="chap-table">
+<tr><th>Surface</th><th>Exemples</th><th>Atout principal</th><th>Limite principale</th></tr>
+<tr><td>Terminal</td><td>Claude Code, Codex CLI, Pi, Aider</td><td>composable, proche du code, scriptable</td><td>diffs moins lisibles, machine exposée</td></tr>
+<tr><td>Éditeur</td><td>Cursor, Copilot, Cline, Zed</td><td>diffs en ligne, complétion, LSP</td><td>lié à un éditeur, une session à la fois</td></tr>
+<tr><td>Web, cloud</td><td>Codex cloud, Claude Code web, Devin, Jules</td><td>asynchrone, parallèle, isolé</td><td>environnement à préparer, moins de contrôle</td></tr>
+<tr><td>Conversation</td><td>ChatGPT, claude.ai, Gemini</td><td>aucune installation, grand public</td><td>pas d'accès au poste ni au dépôt</td></tr>
+</table>
+
+<h4>3.5 Une tendance : un moteur, plusieurs surfaces</h4>
+<p>En 2026, les laboratoires séparent le moteur de la surface. Anthropic publie le moteur de Claude Code sous le nom de Claude Agent SDK (septembre 2025), sur lequel reposent ses propres surfaces et des produits tiers. Le moteur de Codex est open source (Apache 2.0, réécrit en Rust en 2025) et pilote le CLI, l'extension VS Code et le cloud. Le choix de la surface devient une affaire de moment : terminal pour la session interactive, cloud pour les tâches longues lancées en série, éditeur pour la relecture fine.</p>
+
+<h3 class="part" id="harnais-4">IV. Le paysage des harnais (novembre 2026)</h3>
+
+<h4>4.1 Les harnais des laboratoires</h4>
+<p><b>Claude Code</b> (Anthropic). Lancé en préversion en février 2025 avec Claude 3.7 Sonnet, disponible en mai 2025 avec Claude 4, c'est en 2026 l'un des harnais les plus utilisés. Son créateur, Boris Cherny, le décrit comme « une boucle sur un modèle avec des outils ». Ses outils : lire, éditer, écrire, bash, grep, glob, web, liste de tâches et sous-agents. S'y ajoutent les hooks, les <a href="#g-skill">skills</a>, les plugins, les serveurs <a href="#g-mcp">MCP</a>, un mode plan (l'agent explore et propose sans rien modifier) et un mode automatique où un classifieur remplace les demandes de permission. Il ne fonctionne qu'avec les modèles Claude, ou ceux qu'une passerelle compatible présente comme tels. Le code est fermé.</p>
+<p><b>Codex</b> (OpenAI). Le CLI, publié en avril 2025, est open source. Il se distingue par un bac à sable système activé par défaut et par l'outil <code>apply_patch</code>, un format de patch pour lequel les modèles GPT-5-Codex sont entraînés. OpenAI a fait de Codex une famille : CLI, extension d'éditeur, cloud, revue de code automatique sur GitHub. Le CLI accepte d'autres fournisseurs, mais il est réglé pour les modèles d'OpenAI.</p>
+<p><b>Gemini CLI</b> (Google, juin 2025, Apache 2.0) se distingue par un quota gratuit généreux et l'intégration de la recherche Google. Alibaba en a dérivé Qwen Code pour ses modèles Qwen. Moonshot (Kimi CLI), Mistral (Vibe) et d'autres laboratoires ont publié leurs propres harnais en ligne de commande, en général pour servir de vitrine à leurs modèles de code.</p>
+
+<h4>4.2 Les harnais indépendants</h4>
+<ul>
+<li><b>Aider</b> (Paul Gauthier, 2023) est le doyen. Il construit une « carte du dépôt » (les signatures des fonctions, classées par importance) pour donner au modèle une vue d'ensemble à faible coût, fait un commit git à chaque modification et publie un classement de modèles qui fait référence, le banc d'essai polyglot.</li>
+<li><b>OpenCode</b> (équipe SST, 2025) est un harnais ouvert en ligne de commande, multi-fournisseurs, dont l'architecture client-serveur permet plusieurs interfaces (TUI, bureau, web). Il est au centre du conflit sur les abonnements (partie VIII).</li>
+<li><b>Cline</b> (2024, d'abord nommé Claude Dev) est une extension VS Code ouverte qui a popularisé le couple plan/action. Ses forks Roo Code et Kilo Code ont chacun une communauté.</li>
+<li><b>Goose</b> (Block, janvier 2025) est un agent ouvert, généraliste, très tôt fondé sur MCP. Block l'a confié en décembre 2025 à l'Agentic AI Foundation (partie V).</li>
+<li><b>Amp</b> (Sourcegraph, 2025) est fermé et multi-modèles. Il choisit lui-même le modèle de chaque sous-tâche et a été parmi les premiers à cacher le choix de modèle à l'utilisateur.</li>
+<li><b>OpenHands</b> (<a href="#p112">fiche 112</a>) est la plateforme ouverte issue de la recherche. Elle sert de harnais de référence dans les bancs d'essai et propose une version cloud.</li>
+</ul>
+
+<h4>4.3 Pi : le harnais minimal</h4>
+<p>Pi est écrit par Mario Zechner, développeur autrichien connu pour le moteur de jeu libGDX. Il l'a présenté en novembre 2025 sous licence MIT, après avoir longtemps utilisé Claude Code. Son argument est que les harnais commerciaux changent sans prévenir (prompt système, outils, comportement), ajoutent des fonctions dont il n'a pas besoin, et consomment du contexte pour les décrire. Il a donc écrit le sien, réduit à l'essentiel :</p>
+<ul>
+<li><b>quatre outils</b> : <code>read</code>, <code>write</code>, <code>edit</code> et <code>bash</code> ;</li>
+<li>un <b>prompt système de moins de mille jetons</b>, que l'utilisateur peut remplacer (<code>SYSTEM.md</code>) ou compléter (<code>APPEND_SYSTEM.md</code>) ;</li>
+<li><b>pas de MCP</b> : un outil en ligne de commande avec un README coûte moins de contexte qu'un serveur MCP qui décrit vingt outils à chaque tour, et le modèle sait s'en servir avec bash ;</li>
+<li><b>pas de sous-agents, de mode plan, de liste de tâches ni de demandes de permission</b>. Pour un sous-agent, l'agent lance une autre instance de Pi dans bash ; pour un plan, il écrit un fichier ; pour la sécurité, on utilise un conteneur ;</li>
+<li><b>des extensions en TypeScript</b>, qui peuvent ajouter outils, commandes et éléments d'interface, et des sessions arborescentes où l'on peut revenir à un message antérieur et partir dans une autre direction ;</li>
+<li><b>tous les fournisseurs</b> : une bibliothèque commune (<code>pi-ai</code>) parle aux API d'Anthropic, d'OpenAI, de Google, de Mistral, d'OpenRouter et des serveurs locaux, et permet de changer de modèle en cours de session.</li>
+</ul>
+<p>Pi est vite devenu un composant autant qu'un outil. Armin Ronacher, créateur de Flask, a expliqué en janvier 2026 qu'il servait de moteur à OpenClaw, l'assistant personnel le plus en vue du début 2026 (partie VI). Selon plusieurs sources, le projet a rejoint en avril 2026 Earendil, la société de Ronacher. En juin 2026, son dépôt comptait environ 65 000 étoiles sur GitHub.</p>
+
+<h4>4.4 Oh My Pi : le harnais maximal sur la même base</h4>
+<p>Oh My Pi (<code>omp</code>) est un fork de Pi publié par le développeur Can Bölük (dépôt <code>can1357/oh-my-pi</code>, dont le README crédite aussi Stencil Labs). Son nom imite Oh My Zsh, la distribution qui ajoute « tout ce qu'il faut » au shell zsh. Il prend le parti inverse de Pi et ajoute ce que Pi refuse :</p>
+<ul>
+<li>l'intégration de <b>serveurs de langage</b> (LSP) : l'agent obtient les définitions, les références et les erreurs de compilation comme un IDE, au lieu de les chercher par grep ;</li>
+<li>un <b>débogueur</b> : l'agent peut poser des points d'arrêt et inspecter les variables ;</li>
+<li>des <b>sous-agents</b> et un modèle « conseiller » (<i>advisor</i>) que l'agent principal consulte sur les décisions difficiles ;</li>
+<li>un <b>routage par rôle</b> : un modèle rapide pour les tâches simples, un modèle lent pour la réflexion, un autre pour la planification, avec repli automatique en cas d'échec d'un fournisseur ;</li>
+<li>une quarantaine de fournisseurs et un cœur en partie réécrit en Rust pour la vitesse.</li>
+</ul>
+<p>Son auteur s'est fait connaître par un billet de 2026 qui montrait qu'en changeant seulement le format d'édition du harnais (des lignes repérées par une courte empreinte plutôt que par leur texte exact), on améliorait nettement de nombreux modèles, sans toucher aux modèles eux-mêmes. C'est la leçon de SWE-agent, deux ans plus tard. Oh My Pi s'installe avec <code>bun install -g @oh-my-pi/pi-coding-agent</code> et comptait environ 15 000 étoiles en juin 2026.</p>
+<p>Le couple Pi et Oh My Pi illustre un choix que chaque utilisateur doit faire. Un harnais minimal est prévisible et économe en jetons, et il laisse le modèle faire le travail. Un harnais complet donne au modèle des outils d'IDE et plusieurs modèles spécialisés, au prix de complexité et de contexte. Les deux partagent le même moteur, ce qui montre qu'en 2026 le harnais est devenu une couche logicielle qu'on choisit, qu'on forke et qu'on configure.</p>
+
+<h4>4.5 Les agents autonomes et les fabriques</h4>
+<p>Une dernière catégorie vend moins un outil qu'un « ingénieur » : Devin (Cognition), les Droids de Factory, Jules (Google), le Copilot coding agent. Ces agents reçoivent un ticket et rendent une <i>pull request</i>, avec leurs propres environnements, leur mémoire du projet et leur intégration à Slack, Jira ou Linear. Leurs harnais sont fermés, et ils sont souvent multi-modèles. Factory et d'autres publient des scores élevés sur Terminal-Bench, signe que ces harnais commerciaux sont réglés avec soin.</p>
+
+<h4>4.6 Le harnais comme bibliothèque</h4>
+<p>Enfin, pour construire son propre agent, on dispose de bibliothèques : le Claude Agent SDK et l'OpenAI Agents SDK, LangGraph, Pydantic AI, le Vercel AI SDK, Mastra, et les bibliothèques de Pi. Elles fournissent la boucle, la gestion des outils, la compaction et le traçage. Les harnais spécialisés de la partie VI sont en général construits ainsi.</p>
+
+<table class="chap-table">
+<tr><th>Harnais</th><th>Origine</th><th>Code</th><th>Surfaces</th><th>Modèles</th></tr>
+<tr><td>Claude Code</td><td>Anthropic, 2025</td><td>fermé</td><td>CLI, IDE, bureau, web</td><td>Claude</td></tr>
+<tr><td>Codex</td><td>OpenAI, 2025</td><td>ouvert (CLI)</td><td>CLI, IDE, web</td><td>surtout GPT</td></tr>
+<tr><td>Gemini CLI</td><td>Google, 2025</td><td>ouvert</td><td>CLI</td><td>Gemini</td></tr>
+<tr><td>Cursor</td><td>Anysphere, 2023</td><td>fermé</td><td>IDE, web</td><td>multiples</td></tr>
+<tr><td>Aider</td><td>P. Gauthier, 2023</td><td>ouvert</td><td>CLI</td><td>multiples</td></tr>
+<tr><td>OpenCode</td><td>SST, 2025</td><td>ouvert</td><td>CLI, bureau</td><td>multiples</td></tr>
+<tr><td>Cline</td><td>2024</td><td>ouvert</td><td>IDE</td><td>multiples</td></tr>
+<tr><td>Pi</td><td>M. Zechner, 2025</td><td>ouvert (MIT)</td><td>CLI, bibliothèque</td><td>multiples</td></tr>
+<tr><td>Oh My Pi</td><td>C. Bölük, 2026</td><td>ouvert</td><td>CLI</td><td>multiples, par rôle</td></tr>
+<tr><td>OpenHands</td><td>communauté, 2024</td><td>ouvert (MIT)</td><td>web, CLI, cloud</td><td>multiples</td></tr>
+<tr><td>Devin</td><td>Cognition, 2024</td><td>fermé</td><td>web</td><td>multiples</td></tr>
+</table>

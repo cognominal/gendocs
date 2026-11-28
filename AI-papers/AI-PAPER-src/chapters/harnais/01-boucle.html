@@ -1,0 +1,173 @@
+<style>
+.hn-n{fill:#fff;stroke:#555;stroke-width:1.2}
+.hn-hl{fill:#cffafe;stroke:#0e7490;stroke-width:1.4}
+.hn-or{fill:#fde68a;stroke:#b45309;stroke-width:1.4}
+.hn-gr{fill:#dcfce7;stroke:#15803d;stroke-width:1.2}
+.hn-gy{fill:#f5f5f4;stroke:#a8a29e;stroke-width:1.2}
+.hn-rd{fill:#fee2e2;stroke:#b91c1c;stroke-width:1.2}
+.hn-bl{fill:#dbeafe;stroke:#1d4ed8;stroke-width:1.2}
+.hn-e{stroke:#888;stroke-width:1.2;fill:none}
+.hn-ea{stroke:#0e7490;stroke-width:1.6;fill:none}
+.hn-ed{stroke:#888;stroke-width:1.1;fill:none;stroke-dasharray:4 3}
+.hn-t{font:600 11px Helvetica,Arial,sans-serif;fill:#1f1f1f}
+.hn-s{font:10px Helvetica,Arial,sans-serif;fill:#444}
+.hn-xs{font:8.5px Helvetica,Arial,sans-serif;fill:#666}
+.hn-c{font:9.5px "DejaVu Sans Mono",Menlo,monospace;fill:#1f1f1f}
+</style>
+<svg width="0" height="0" style="position:absolute"><defs>
+<marker id="hn-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#666"/></marker>
+<marker id="hn-ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0e7490"/></marker>
+</defs></svg>
+
+<p class="chap-lead">Un modèle de langage ne fait qu'une chose : il reçoit une suite de <a href="#g-jeton">jetons</a> et prédit la suivante. Pour qu'il lise un fichier, lance une commande, corrige un bug ou génère une vidéo, il faut un programme autour de lui. Ce programme appelle le modèle, exécute les actions qu'il demande, lui renvoie le résultat et recommence. On l'appelle le <a href="#g-harnais">harnais</a> (<i>harness</i>, ou <i>scaffold</i> dans les papiers de recherche). Claude Code, Codex, Cursor, OpenHands et Pi sont des harnais, comme le pipeline fixe d'Agentless et l'agent minimal de Terminal-Bench. Ce dossier décrit ce qu'ils font, pourquoi un même modèle peut gagner ou perdre vingt points selon le harnais, comment ils se distinguent (terminal, éditeur, web), et quels protocoles les relient aux outils (MCP, skills). Il couvre aussi les harnais spécialisés, du code à la génération d'images, les multiplexeurs qui en font tourner plusieurs à la fois, et deux questions économiques : les abonnements, qui lient parfois le modèle à son harnais, et les routeurs comme OpenRouter, qui choisissent le modèle et le fournisseur.</p>
+
+<div class="box"><div class="box-t">Comment lire ce dossier</div>
+Les parties I et II définissent le harnais et montrent, papiers à l'appui, qu'il compte autant que le modèle. Les parties III à V décrivent les harnais actuels : les surfaces (terminal, éditeur, web), les principaux produits, et les protocoles (MCP, skills, AGENTS.md, A2A). La partie VI porte sur les harnais spécialisés, dont ceux de génération d'images et de vidéos, et la partie VII sur les multiplexeurs et gestionnaires d'agents. Les parties VIII et IX traitent des abonnements et des routeurs, et la partie X récapitule. Ce domaine change de mois en mois. Les faits de produit sont donnés à la date de novembre 2026, et ceux qui ne reposent que sur la presse ou des blogs sont signalés comme tels.</div>
+
+<h3 class="part first" id="harnais-1">I. Qu'est-ce qu'un harnais ?</h3>
+
+<h4>1.1 Du modèle à l'agent</h4>
+<p>Le mot vient de l'équitation : le harnais est ce qui relie le cheval à la charrette. L'image est juste. Le modèle fournit la force (la capacité de raisonner et d'écrire du code), et le harnais la transmet à quelque chose d'utile. Sans harnais, un LLM répond à une question ; avec un harnais, il devient un <a href="#g-agent">agent</a> qui agit sur un environnement.</p>
+<p>L'idée remonte aux premiers travaux sur l'<a href="#g-utilisation-d-outils">utilisation d'outils</a>. ReAct (<a href="#p56">fiche 56</a>, 2022) fait alterner, dans une même trace, pensées, actions et observations : le modèle écrit « Action : chercher[Paris] », un programme exécute la recherche et insère le résultat dans le texte, puis le modèle continue. Toolformer (<a href="#p57">fiche 57</a>, 2023) apprend au modèle à insérer lui-même des appels d'API. Reflexion (<a href="#p60">fiche 60</a>, 2023) ajoute une mémoire des échecs : après une tentative ratée, le modèle écrit une leçon que le harnais lui remet sous les yeux à l'essai suivant. CoALA (<a href="#p64">fiche 64</a>, 2023) propose un cadre général : un agent a des mémoires (de travail, épisodique, sémantique, procédurale), un espace d'actions internes et externes, et une boucle de décision. Dans le vocabulaire de CoALA, le harnais est tout ce qui n'est pas le modèle.</p>
+<p>Entre 2023 et 2026, le harnais est passé du script de recherche au produit. Les fournisseurs d'API ont ajouté les appels d'outils natifs (OpenAI, juin 2023 ; Anthropic, 2024), puis des harnais complets : Claude Code (février 2025), Codex CLI (avril 2025), Gemini CLI (juin 2025). Fin 2026, ces outils sont parmi les produits d'IA les plus utilisés par les développeurs, et les laboratoires les entraînent avec leurs propres modèles.</p>
+
+<h4>1.2 La boucle agentique</h4>
+<p>Le cœur de tout harnais est une <a href="#g-boucle-agentique">boucle agentique</a> de quelques lignes :</p>
+<ol>
+<li>assembler le contexte : prompt système, description des outils, historique de la conversation ;</li>
+<li>appeler le modèle ;</li>
+<li>si la réponse contient des appels d'outils, les exécuter (après autorisation si nécessaire), ajouter leurs résultats à l'historique et revenir à l'étape 1 ;</li>
+<li>sinon, afficher la réponse et attendre l'utilisateur.</li>
+</ol>
+<p>Tout le reste est affaire de détail, mais c'est dans ces détails que les harnais diffèrent : quels outils, quel texte dans le prompt système, que faire quand l'historique dépasse la <a href="#g-fenetre-de-contexte">fenêtre de contexte</a>, quelles actions demandent une permission, où le code s'exécute. La figure 1 en donne une vue d'ensemble.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 274" width="100%" role="img" aria-label="La boucle agentique">
+<rect class="hn-or" x="250" y="20" width="140" height="44" rx="6"/>
+<text class="hn-t" x="320" y="40" text-anchor="middle">Modèle (LLM)</text>
+<text class="hn-xs" x="320" y="54" text-anchor="middle">prédit texte + appels d'outils</text>
+<rect class="hn-hl" x="40" y="96" width="560" height="96" rx="8"/>
+<text class="hn-t" x="56" y="114">Harnais</text>
+<rect class="hn-n" x="60" y="124" width="110" height="54" rx="4"/>
+<text class="hn-t" x="115" y="142" text-anchor="middle">Contexte</text>
+<text class="hn-xs" x="115" y="156" text-anchor="middle">prompt système, outils</text>
+<text class="hn-xs" x="115" y="168" text-anchor="middle">historique, compaction</text>
+<rect class="hn-n" x="190" y="124" width="120" height="54" rx="4"/>
+<text class="hn-t" x="250" y="142" text-anchor="middle">Analyse</text>
+<text class="hn-xs" x="250" y="156" text-anchor="middle">texte final ou</text>
+<text class="hn-xs" x="250" y="168" text-anchor="middle">appel d'outil ?</text>
+<rect class="hn-n" x="330" y="124" width="120" height="54" rx="4"/>
+<text class="hn-t" x="390" y="142" text-anchor="middle">Permissions</text>
+<text class="hn-xs" x="390" y="156" text-anchor="middle">règles, hooks,</text>
+<text class="hn-xs" x="390" y="168" text-anchor="middle">demande à l'humain</text>
+<rect class="hn-n" x="470" y="124" width="110" height="54" rx="4"/>
+<text class="hn-t" x="525" y="142" text-anchor="middle">Exécution</text>
+<text class="hn-xs" x="525" y="156" text-anchor="middle">bac à sable, shell,</text>
+<text class="hn-xs" x="525" y="168" text-anchor="middle">MCP, sous-agents</text>
+<path class="hn-ea" d="M115,124 C115,60 200,42 248,42" marker-end="url(#hn-ac)"/>
+<path class="hn-ea" d="M392,42 C440,42 260,80 250,122" marker-end="url(#hn-ac)"/>
+<path class="hn-e" d="M310,151 L328,151" marker-end="url(#hn-ar)"/>
+<path class="hn-e" d="M450,151 L468,151" marker-end="url(#hn-ar)"/>
+<path class="hn-ea" d="M525,178 C525,226 115,226 115,180" marker-end="url(#hn-ac)"/>
+<text class="hn-xs" x="320" y="232" text-anchor="middle">résultat de l'outil ajouté à l'historique, et on recommence</text>
+<rect class="hn-gy" x="40" y="246" width="250" height="22" rx="4"/>
+<text class="hn-s" x="165" y="261" text-anchor="middle">Utilisateur : consigne, approbation, interruption</text>
+<rect class="hn-gy" x="350" y="246" width="250" height="22" rx="4"/>
+<text class="hn-s" x="475" y="261" text-anchor="middle">Environnement : fichiers, terminal, web, API</text>
+</svg>
+<figcaption>Figure 1. La boucle agentique. Le modèle ne touche jamais l'environnement : il demande une action, et le harnais décide de l'exécuter ou non.</figcaption>
+</figure>
+
+<p>Le schéma a une conséquence de sécurité essentielle : le modèle ne fait jamais rien lui-même. Il produit du texte qui <i>demande</i> une action, et c'est le harnais qui l'exécute. Toutes les protections sont donc dans le harnais : demandes de permission, bac à sable, listes de commandes interdites, journal des actions. La partie V revient sur ce point, qui explique aussi pourquoi un harnais mal conçu peut transformer une <a href="#g-injection-de-prompt">injection de prompt</a> en exécution de code.</p>
+
+<h4>1.3 Les outils</h4>
+<p>Les outils sont décrits au modèle par un nom, un texte d'explication et un schéma JSON de leurs arguments. Le modèle a été entraîné à produire, quand c'est utile, un bloc structuré qui les appelle. Les harnais de code convergent vers un petit noyau :</p>
+<ul>
+<li><b>lire</b> un fichier, par fenêtres numérotées, pour ne pas saturer le contexte ;</li>
+<li><b>éditer</b> par remplacement d'un passage exact (« chercher / remplacer »), par diff ou par patch, plutôt qu'en réécrivant tout le fichier ;</li>
+<li><b>écrire</b> un nouveau fichier ;</li>
+<li><b>exécuter</b> une commande shell, avec une limite de temps et une sortie tronquée ;</li>
+<li><b>chercher</b> dans les fichiers (grep, ripgrep) et par motif de nom (glob) ;</li>
+<li>souvent, <b>lire le web</b> et chercher en ligne ;</li>
+<li>parfois, <b>lancer un <a href="#g-sous-agent">sous-agent</a></b> : une autre instance du modèle, avec son propre contexte, qui fait une tâche et ne renvoie que sa conclusion.</li>
+</ul>
+<p>La conception de ces outils n'a rien d'anodin. SWE-agent (<a href="#p109">fiche 109</a>) l'a montré dès 2024, et la partie II y revient. Une ligne de pensée opposée, issue de CodeAct (<a href="#p108">fiche 108</a>), réduit les outils au minimum : puisque le modèle sait programmer, un shell suffit, et il écrira ses propres scripts. Pi n'offre que quatre outils (lire, écrire, éditer, bash), et mini-SWE-agent un seul (bash).</p>
+
+<h4>1.4 Le contexte et la compaction</h4>
+<p>Une session de code dure souvent des heures. Chaque fichier lu, chaque sortie de commande s'ajoute à l'historique, qui finit par remplir la fenêtre de contexte, même d'un million de jetons. Les harnais ont plusieurs parades :</p>
+<ul>
+<li><b>tronquer</b> les sorties d'outils trop longues et le dire au modèle ;</li>
+<li><b>déléguer</b> les explorations coûteuses à des sous-agents, dont seul le résumé revient dans le contexte principal ;</li>
+<li><b>compacter</b> : quand le contexte approche de sa limite, le harnais demande au modèle de résumer la session (but, décisions, fichiers modifiés, prochaines étapes), puis repart d'un historique qui ne contient que ce résumé. C'est la <a href="#g-compaction">compaction</a>, automatique dans Claude Code et Codex. Elle fait perdre du détail, et un modèle compacté oublie parfois une consigne donnée au début ;</li>
+<li><b>tenir des notes</b> : listes de tâches (outil TodoWrite de Claude Code), fichiers de plan, mémoire persistante d'une session à l'autre.</li>
+</ul>
+<p>Le contexte a aussi un coût. Les fournisseurs facturent chaque jeton relu à chaque tour, sauf ceux qui sont dans le <i>cache de prompt</i>, facturés environ dix fois moins. Un harnais bien conçu garde donc stable le début du contexte (prompt système, outils, fichiers de consignes) pour qu'il reste en cache, et n'ajoute qu'à la fin. Changer d'outil, de modèle ou de fournisseur en cours de session invalide ce cache, ce qui pèse dans l'économie des routeurs (partie IX).</p>
+
+<h4>1.5 Le prompt système et les fichiers de consignes</h4>
+<p>Le prompt système du harnais explique au modèle qui il est, quels outils il a, quel style adopter, quand demander et quand agir. Celui de Claude Code compte plusieurs milliers de jetons ; celui de Pi moins de mille. S'y ajoutent les consignes du projet, lues dans un fichier à la racine du dépôt : <code>CLAUDE.md</code> pour Claude Code, <code>AGENTS.md</code> pour Codex et la plupart des autres. Ce dernier est devenu un standard commun (partie V). On y écrit comment compiler, tester, quelles conventions suivre, quels pièges éviter. C'est la mémoire procédurale de CoALA, en Markdown.</p>
+
+<h4>1.6 Permissions, bac à sable et hooks</h4>
+<p>Un agent qui exécute des commandes peut détruire des données (<code>rm -rf</code>, <code>git push --force</code>), exfiltrer des secrets ou installer un paquet piégé. Les harnais combinent trois défenses :</p>
+<ul>
+<li><b>Les permissions</b> : le harnais demande l'accord de l'utilisateur avant une action risquée, selon des règles réglables (« toujours autoriser <code>npm test</code> », « ne jamais lire <code>.env</code> »). Claude Code a plusieurs modes, du tout-demander au mode automatique où un classifieur juge chaque action. Codex propose lecture seule, écriture dans l'espace de travail, ou accès complet.</li>
+<li><b>Le <a href="#g-sandbox-bac-a-sable">bac à sable</a></b> : l'exécution est confinée par le système. Codex CLI utilise Seatbelt sur macOS, Landlock et seccomp sur Linux ; les harnais web utilisent des conteneurs ou des micro-machines virtuelles. C'est la même technologie que DSec (<a href="#p44">fiche 44</a>) pour l'entraînement par renforcement.</li>
+<li><b>Les hooks</b> : des scripts de l'utilisateur, appelés par le harnais avant ou après chaque action, qui peuvent bloquer une commande, reformater un fichier ou envoyer une notification.</li>
+</ul>
+<p>Pi fait le choix inverse : aucune demande de permission. Son auteur estime que les demandes répétées habituent l'utilisateur à tout accepter sans lire, et qu'il vaut mieux faire tourner l'agent dans un conteneur. Le débat n'est pas tranché. APPA (<a href="#p95">fiche 95</a>) propose une troisième voie : suivre les flux d'information pour interdire qu'une donnée lue sur le web n'atteigne une commande sensible.</p>
+
+<div class="box"><div class="box-t">Le modèle entraîné avec son harnais</div>
+Depuis 2025, les laboratoires entraînent leurs modèles de code par <a href="#g-rlvr">renforcement à récompenses vérifiables</a>, dans des environnements qui ressemblent à leur propre harnais : mêmes outils, même format d'édition, même prompt système. Le modèle apprend donc les habitudes de ce harnais. GPT-5-Codex est entraîné pour Codex et son outil <code>apply_patch</code> ; les modèles Claude connaissent par cœur les outils de Claude Code. C'est une des raisons pour lesquelles un modèle tourne parfois mieux dans le harnais de son laboratoire, et parfois moins bien qu'on le croirait dans un autre (partie II).</div>
+
+<h3 class="part" id="harnais-2">II. Le harnais compte autant que le modèle</h3>
+
+<h4>2.1 SWE-agent : l'interface agent-ordinateur</h4>
+<p>Le premier résultat net vient de Princeton, en mai 2024. SWE-agent (<a href="#p109">fiche 109</a>) prend GPT-4 Turbo et lui donne, au lieu d'un shell Linux, une <a href="#g-aci">interface agent-ordinateur</a> (ACI) conçue pour lui : un visualiseur qui affiche 100 lignes numérotées d'un fichier, des commandes de recherche qui renvoient un résumé, une commande d'édition vérifiée par un linter. Sur SWE-bench Lite, le même modèle passe de 11 % à 18 % de tickets résolus. Les ablations sont parlantes : sans le linter, l'agent introduit une erreur de syntaxe, ne la voit pas, et s'enlise ; avec une fenêtre de fichier entière, il se perd dans le texte. Les auteurs en tirent une analogie : les humains ont des interfaces homme-machine soignées, et les modèles ont besoin d'interfaces aussi soignées, mais différentes.</p>
+
+<h4>2.2 Agentless : faut-il seulement un agent ?</h4>
+<p>Deux mois plus tard, Agentless (<a href="#p111">fiche 111</a>) prend le contre-pied : plus de boucle, mais un processus fixe en trois étapes (localiser, réparer, valider) où le modèle ne choisit jamais l'étape suivante. Avec GPT-4o, il résout 32 % de SWE-bench Lite pour 70 centimes par tâche, mieux que les agents ouverts de l'époque. OpenAI l'adopte pour annoncer les scores de GPT-4o et d'o1. La leçon de 2024 est qu'avec des modèles encore fragiles, un harnais qui contraint le modèle vaut mieux qu'un harnais qui lui laisse la main.</p>
+<p>La leçon s'est inversée en 2025. Les modèles entraînés par renforcement à agir longtemps (Claude 3.7 Sonnet, o3, puis leurs successeurs) tirent meilleur parti d'une boucle ouverte que d'un pipeline, et les harnais fixes ont disparu des classements. Mais l'idée d'Agentless subsiste dans les harnais spécialisés, avec leurs étapes imposées (partie VI), et dans une règle de méthode : tout agent complexe doit battre un pipeline simple.</p>
+
+<h4>2.3 CodeAct et le harnais minimal</h4>
+<p>CodeAct (<a href="#p108">fiche 108</a>) pose une question voisine : sous quelle forme le modèle doit-il agir ? Sa réponse, du code Python exécutable, donne jusqu'à 20 points de succès de plus que les appels JSON, avec 30 % d'actions en moins, et l'écart grandit avec la capacité du modèle. Poussée à l'extrême, l'idée donne le <b>harnais minimal</b>. mini-SWE-agent, publié par l'équipe de SWE-agent en 2025, tient en une centaine de lignes de Python. Il n'a qu'un outil, bash, et un historique purement linéaire, sans compaction ni sous-agent. Il obtient pourtant des scores proches des harnais complets sur SWE-bench Verified avec les modèles de 2025. Terminus 2, l'agent neutre de Terminal-Bench, ne dispose que d'une session tmux.</p>
+<p>Pi (partie IV) applique la même philosophie à un outil quotidien : quatre outils, un prompt système de moins de mille jetons, aucune fonction qui ne soit pas indispensable. Son auteur, Mario Zechner, défend l'idée que chaque outil ajouté consomme du contexte et des choix, et qu'un modèle capable fait mieux avec moins.</p>
+
+<h4>2.4 Mesurer le couple harnais-modèle : Terminal-Bench</h4>
+<p>Les bancs d'essai d'agents mesurent toujours un <i>couple</i> : un modèle dans un harnais. Terminal-Bench 2.0 (<a href="#p115">fiche 115</a>), publié en janvier 2026 par Stanford, le Laude Institute et des chercheurs d'Anthropic, est construit pour séparer les deux. Ses 89 tâches en ligne de commande tournent chacune dans un conteneur Docker. Son outil d'évaluation, Harbor, fait tourner indifféremment Claude Code, Codex CLI, Gemini CLI, OpenHands, mini-SWE-agent et Terminus 2.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 140" width="100%" role="img" aria-label="Scores Terminal-Bench 2.0 par couple harnais-modèle">
+<text class="hn-t" x="320" y="14" text-anchor="middle">Terminal-Bench 2.0 : meilleurs couples harnais-modèle (janvier 2026)</text>
+<g class="hn-s">
+<text x="208" y="42" text-anchor="end">GPT-5.2 · Codex CLI</text>
+<text x="208" y="66" text-anchor="end">Claude Opus 4.5 · Terminus 2</text>
+<text x="208" y="90" text-anchor="end">Gemini 3 Pro · Terminus 2</text>
+<text x="208" y="114" text-anchor="end">Kimi K2 Thinking · Terminus 2</text>
+</g>
+<rect class="hn-or" x="216" y="31" width="252" height="15"/>
+<rect class="hn-hl" x="216" y="55" width="232" height="15"/>
+<rect class="hn-hl" x="216" y="79" width="228" height="15"/>
+<rect class="hn-gr" x="216" y="103" width="144" height="15"/>
+<g class="hn-xs">
+<text x="474" y="42">63 %</text><text x="454" y="66">58 %</text><text x="450" y="90">57 %</text><text x="366" y="114">36 % (meilleur modèle ouvert)</text>
+</g>
+<path class="hn-ed" d="M216,24 L216,126"/>
+
+</svg>
+<figcaption>Figure 2. Les meilleurs couples harnais-modèle de Terminal-Bench 2.0, d'après le papier (<a href="#p115">fiche 115</a>). Seul le premier utilise le harnais du laboratoire ; les trois suivants utilisent Terminus 2, l'agent neutre des auteurs, réduit à une session tmux.</figcaption>
+</figure>
+
+<p>Le papier conclut que « le choix du modèle importe en général plus que celui du harnais » : dans Codex CLI, le taux de résolution augmente de 52 % quand on remplace GPT-5-Nano par GPT-5.2, alors que Gemini 2.5 Pro ne gagne que 17 % en passant d'OpenHands à Terminus 2. Mais 17 % de mieux, à modèle égal, c'est à peu près l'écart entre deux versions successives d'un modèle. Et le classement des harnais n'est pas stable : Claude Opus 4.5 obtient son meilleur score dans Terminus 2, l'agent neutre, et non dans Claude Code.</p>
+
+<h4>2.5 La « taxe du harnais »</h4>
+<p>Plusieurs mesures indépendantes de 2026 confirment ces écarts. Elles viennent de blogs et de classements, sans relecture par les pairs, et doivent être lues comme des indications :</p>
+<ul>
+<li>Arena (ex-LMArena) a comparé en 2026 vingt et un couples harnais-modèle sur des tâches de code. Selon son billet « The harness tax », le même modèle change sensiblement de rang selon le harnais, et Claude Code coûte environ 1,5 fois plus que Pi pour des résultats comparables.</li>
+<li>Un billet d'avril 2026 sur Terminal-Bench rapporte Claude Opus 4.6 à 58,0 % dans Claude Code et à 74,7 % dans un autre harnais, avec le même modèle : près de 17 points d'écart.</li>
+<li>Les entreprises qui publient leurs harnais en tête des classements (Factory, Warp, ForgeCode et d'autres) montrent qu'un harnais réglé pour un banc d'essai peut gagner plusieurs points sur le harnais officiel du laboratoire.</li>
+</ul>
+<p>Le dernier point invite à la prudence. Un harnais réglé pour Terminal-Bench, avec des consignes taillées pour ses tâches, n'est pas forcément meilleur au quotidien. Les harnais officiels optimisent autre chose : la sûreté (permissions, bac à sable), l'interaction (l'humain suit et interrompt), la durée des sessions, le coût. Une partie de la « taxe » paie ces fonctions.</p>
+
+<div class="box"><div class="box-t">Ce que le harnais apporte, et ce qu'il coûte</div>
+<b>Il apporte</b> : des outils adaptés au modèle (SWE-agent), des garde-fous qui l'empêchent de s'enliser (linter, tests), une bonne gestion du contexte (compaction, sous-agents), la sûreté (permissions, bac à sable) et l'ergonomie pour l'humain.<br>
+<b>Il coûte</b> : des jetons (prompt système, descriptions d'outils, consignes que le modèle relit à chaque tour), des choix imposés au modèle, et une dépendance : un modèle entraîné dans un harnais en garde les habitudes.<br>
+La conclusion pratique de 2026 tient en deux règles. On compare les modèles à harnais égal, comme Terminus 2 dans Terminal-Bench. Et on choisit son harnais pour l'usage, pas pour le classement.</div>

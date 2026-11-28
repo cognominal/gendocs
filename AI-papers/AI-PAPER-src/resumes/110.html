@@ -1,0 +1,20 @@
+<h4>La question posée</h4>
+<p>Un modèle fort comme GPT-4 coûte beaucoup plus cher qu'un modèle faible comme Mixtral-8x7B ; les auteurs citent un écart de 1,25 $ à 75 $ par million de jetons de sortie entre Claude 3 Haiku et Opus. Beaucoup de requêtes n'ont pas besoin du modèle fort. Isaac Ong, Amjad Almahairi, Joseph Gonzalez, Ion Stoica et leurs coauteurs (Berkeley, Anyscale, Canva) veulent un <a href="#g-routeur-llm">routeur</a> qui, avant tout appel, décide quel modèle recevra la requête. Contrairement à la cascade de FrugalGPT (<a href="#p107">fiche 107</a>), il n'appelle qu'un modèle par requête.</p>
+
+<h4>Le dispositif</h4>
+<ul>
+<li>Les routeurs sont appris sur des <b>préférences humaines</b> : les duels de Chatbot Arena, où des utilisateurs ont voté pour la meilleure de deux réponses. Les modèles sont regroupés en dix niveaux pour réduire la rareté des données.</li>
+<li>Quatre architectures : un classement pondéré par similarité (Elo calculé sur les duels les plus proches de la requête), une factorisation matricielle inspirée des systèmes de recommandation, un classifieur BERT et un classifieur fondé sur un LLM (Llama 3 8B).</li>
+<li><b>Augmentation de données</b> : des exemples étiquetés automatiquement (réponses comparées à une référence sur MMLU, ou jugées par GPT-4) complètent les duels.</li>
+<li>Un seuil règle le compromis : plus il est bas, plus de requêtes vont au modèle fort. On mesure le pourcentage d'appels au modèle fort nécessaire pour atteindre une fraction donnée de sa qualité.</li>
+</ul>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur MT-Bench, le meilleur routeur atteint 95 % de la qualité de GPT-4 en coûtant 3,66 fois moins cher ; sur MMLU et GSM8K, les gains sont plus faibles (1,4 à 1,5 fois).</li>
+<li>L'augmentation de données améliore nettement les routeurs, et un peu de données proches du domaine visé suffit.</li>
+<li>Les routeurs <b>généralisent</b> : entraînés pour la paire GPT-4/Mixtral, ils restent efficaces quand on les applique à Claude 3 Opus/Llama 3 8B sans réentraînement.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>RouteLLM (ICLR 2025) est publié en code libre avec un serveur compatible avec l'API OpenAI, et il sert de base à de nombreux travaux. Les routeurs automatiques commerciaux, comme le « Auto Router » d'OpenRouter qui s'appuie sur NotDiamond, ou le choix automatique de modèle dans ChatGPT, appliquent la même idée. Voir le dossier « Harnais », <a href="#harnais-9">§ 9</a>.</p>

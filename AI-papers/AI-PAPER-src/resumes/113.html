@@ -1,0 +1,21 @@
+<h4>La question posée</h4>
+<p>ComfyUI est l'outil le plus répandu pour composer des chaînes de génération d'images et de vidéos : un graphe de nœuds (chargement d'un modèle de <a href="#g-diffusion-modele-de">diffusion</a>, encodage du texte, échantillonneur, ControlNet, agrandissement, etc.) qui s'exécute de bout en bout. Construire un bon graphe demande de l'expertise. Xiangyuan Xue, Zeyu Lu, Di Huang, Wanli Ouyang, Lei Bai et leurs coauteurs (Shanghai AI Lab et universités chinoises) demandent si un agent LLM peut concevoir lui-même ces workflows à partir d'une consigne en langage naturel.</p>
+
+<h4>Le banc d'essai</h4>
+<ul>
+<li><b>ComfyBench</b> : 200 tâches réparties en trois niveaux. Les tâches simples (vanilla) reproduisent un workflow connu, les tâches complexes en combinent plusieurs, et les tâches créatives demandent une solution nouvelle.</li>
+<li>Une documentation annotée de 3 205 nœuds et 20 workflows de référence que l'agent peut consulter.</li>
+<li>Deux mesures : le <i>taux de passage</i> (le workflow produit s'exécute sans erreur) et le <i>taux de résolution</i> (le résultat correspond à la consigne, jugé par un modèle vision-langage).</li>
+</ul>
+
+<h4>ComfyAgent</h4>
+<p>Les auteurs observent que les LLM génèrent mal le format JSON natif de ComfyUI. Ils représentent donc les workflows <b>sous forme de code</b>, une suite d'appels de fonctions qui décrit le graphe, comme CodeAct (<a href="#p108">fiche 108</a>). Plusieurs agents collaborent : un planificateur, un agent qui cherche dans une base de workflows existants, un agent qui combine et adapte ceux qu'il trouve, et un agent qui affine le résultat.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>ComfyAgent atteint un taux de résolution comparable à o1-preview et dépasse nettement les autres agents (GPT-4o en zero-shot, few-shot, chaîne de pensée, RAG).</li>
+<li>Il ne résout cependant que 15 % des tâches créatives : composer un système de génération nouveau reste hors de portée.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>ComfyBench est le premier banc d'essai sérieux d'un agent qui <i>orchestre</i> des modèles de génération au lieu de générer lui-même. En 2026, Comfy publie un serveur MCP officiel (Comfy MCP) qui permet à Claude Code ou Codex de lancer des workflows d'image, de vidéo, d'audio et de 3D. C'est l'usage d'un harnais de code pour la création visuelle, décrit dans le dossier « Harnais », <a href="#harnais-6">§ 6</a>.</p>

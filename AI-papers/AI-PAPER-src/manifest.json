@@ -10,7 +10,8 @@
   "Raisonnement, agents et chaîne de pensée": "Trente-quatre papiers qui retracent l'essor du raisonnement des LLM : de la chaîne de pensée (2022) aux agents, puis aux modèles de raisonnement entraînés par renforcement (o1, R1, Kimi), avec les travaux critiques sur leur fidélité, leur surveillabilité et leur tendance à surréfléchir.",
   "Autres papiers de référence": "Onze papiers hors des grands laboratoires : distillation, attention, parole en temps réel (SoundStorm, Moshi), données de pré-entraînement, prompting, et cinq travaux de 2026 sur les représentations, la mémoire, la sécurité des agents et la génération parallèle.",
   "Nouveautés octobre–novembre 2026": "Les system cards publiées entre fin septembre et le 23 novembre 2026, date de cette édition : Sonnet 5.5, Haiku 5.5 et Fable/Mythos 5.2 chez Anthropic ; GPT-6 Cyber et GPT-6.2 chez OpenAI.",
-  "Contrôle et arrêt des IA": "Peut-on éteindre une IA qui ne veut pas l'être ? Quatre articles sur la corrigibilité et l'arrêt : un modèle de théorie des jeux (2016), une mesure de la résistance à l'arrêt des LLM frontières (2025), un banc d'essai de kill switch externe pour agents web (2025-2026) et une proposition de soupape de sécurité (2026). Le dossier « Alignement » les replace dans l'histoire du problème, depuis les lois de la robotique d'Asimov."
+  "Contrôle et arrêt des IA": "Peut-on éteindre une IA qui ne veut pas l'être ? Quatre articles sur la corrigibilité et l'arrêt : un modèle de théorie des jeux (2016), une mesure de la résistance à l'arrêt des LLM frontières (2025), un banc d'essai de kill switch externe pour agents web (2025-2026) et une proposition de soupape de sécurité (2026). Le dossier « Alignement » les replace dans l'histoire du problème, depuis les lois de la robotique d'Asimov.",
+  "Harnais, outils et routage": "Neuf papiers sur ce qui entoure le modèle quand il agit : le harnais qui lui donne ses outils (CodeAct, SWE-agent, Agentless, OpenHands), les bancs d'essai qui mesurent le couple harnais-modèle (Terminal-Bench, ComfyBench pour la génération d'images), le protocole qui le relie aux outils (MCP), et le routage qui choisit quel modèle appeler (FrugalGPT, RouteLLM). Le dossier « Harnais » les replace dans l'écosystème de 2026 : Claude Code, Codex, Pi, abonnements, OpenRouter et multiplexeurs d'agents."
  },
  "entries": [
   {
@@ -1507,8 +1508,134 @@
    ],
    "file": "Shutdown Safety Valves for Advanced AI.pdf",
    "source": "https://arxiv.org/abs/2603.07315"
+  },
+  {
+   "n": 107,
+   "section": "Harnais, outils et routage",
+   "title": "FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance",
+   "meta": "Stanford, mai 2023 · TMLR 2024 · arXiv:2305.05176",
+   "summary": "Lingjiao Chen, Matei Zaharia et James Zou montrent qu'une cascade de modèles, du moins cher au plus cher, égale GPT-4 avec jusqu'à 98 % de coût en moins : la première étude systématique du routage entre LLM.",
+   "bullets": [
+    "Trois leviers : adapter le prompt, approcher le gros modèle (cache, affinage d'un petit), et enchaîner les modèles en cascade.",
+    "Un petit modèle de score décide si la réponse d'un modèle bon marché est assez fiable ou s'il faut passer au suivant.",
+    "À coût égal, la cascade bat GPT-4 de 4 points ; la meilleure cascade dépend de la tâche."
+   ],
+   "file": "FrugalGPT - How to Use Large Language Models While Reducing Cost and Improving Performance.pdf",
+   "source": "https://arxiv.org/abs/2305.05176"
+  },
+  {
+   "n": 108,
+   "section": "Harnais, outils et routage",
+   "title": "Executable Code Actions Elicit Better LLM Agents",
+   "meta": "UIUC et Apple, février 2024 · ICML 2024 · arXiv:2402.01030",
+   "summary": "CodeAct propose que l'agent agisse en écrivant du code Python exécutable plutôt qu'en émettant des appels d'outils JSON : sur 17 modèles, jusqu'à 20 points de succès en plus avec jusqu'à 30 % d'actions en moins.",
+   "bullets": [
+    "Le code compose plusieurs outils en un tour, avec variables, boucles et bibliothèques existantes.",
+    "Les erreurs de l'interpréteur servent de retour pour s'auto-corriger.",
+    "CodeActAgent, affiné sur 7 000 interactions (CodeActInstruct), devient l'agent par défaut d'OpenHands."
+   ],
+   "file": "Executable Code Actions Elicit Better LLM Agents.pdf",
+   "source": "https://arxiv.org/abs/2402.01030"
+  },
+  {
+   "n": 109,
+   "section": "Harnais, outils et routage",
+   "title": "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering",
+   "meta": "Princeton, mai 2024 · NeurIPS 2024 · arXiv:2405.15793",
+   "summary": "SWE-agent montre qu'une interface conçue pour le modèle, avec visualiseur de fichier, recherche compacte et édition vérifiée par un linter, fait passer GPT-4 Turbo de 3,8 % à 12,5 % des tickets SWE-bench résolus : le harnais compte autant que le modèle.",
+   "bullets": [
+    "Notion d'interface agent-ordinateur (ACI), pendant de l'interface homme-machine.",
+    "Quatre principes : actions simples, actions compactes, retours concis, garde-fous.",
+    "Avec le même modèle, l'interface donne 64 % de gain relatif sur un simple shell."
+   ],
+   "file": "SWE-agent - Agent-Computer Interfaces Enable Automated Software Engineering.pdf",
+   "source": "https://arxiv.org/abs/2405.15793"
+  },
+  {
+   "n": 110,
+   "section": "Harnais, outils et routage",
+   "title": "RouteLLM: Learning to Route LLMs with Preference Data",
+   "meta": "UC Berkeley, Anyscale et Canva, juin 2024 · ICLR 2025 · arXiv:2406.18665",
+   "summary": "RouteLLM apprend, à partir des votes de Chatbot Arena, des routeurs qui envoient chaque requête soit à un modèle fort soit à un modèle faible, et divisent le coût par plus de deux sans perte de qualité.",
+   "bullets": [
+    "Quatre routeurs : classement pondéré par similarité, factorisation matricielle, classifieur BERT, classifieur LLM.",
+    "L'augmentation de données (jugements de GPT-4, réponses de référence) améliore tous les routeurs.",
+    "Les routeurs généralisent à des paires de modèles non vues à l'entraînement."
+   ],
+   "file": "RouteLLM - Learning to Route LLMs with Preference Data.pdf",
+   "source": "https://arxiv.org/abs/2406.18665"
+  },
+  {
+   "n": 111,
+   "section": "Harnais, outils et routage",
+   "title": "Agentless: Demystifying LLM-based Software Engineering Agents",
+   "meta": "UIUC, juillet 2024 · FSE 2025 · arXiv:2407.01489",
+   "summary": "Agentless remplace la boucle agentique par un processus fixe, localisation hiérarchique, réparation puis validation par tests, et résout 32 % de SWE-bench Lite pour 0,70 $ par tâche, mieux que les agents ouverts de l'époque.",
+   "bullets": [
+    "Le LLM n'exécute que des tâches bornées et ne choisit jamais l'étape suivante.",
+    "Des tests de reproduction générés et un vote majoritaire choisissent le correctif.",
+    "Utilisé par OpenAI pour annoncer les scores de GPT-4o et o1 ; publie SWE-bench Lite-S."
+   ],
+   "file": "Agentless - Demystifying LLM-based Software Engineering Agents.pdf",
+   "source": "https://arxiv.org/abs/2407.01489"
+  },
+  {
+   "n": 112,
+   "section": "Harnais, outils et routage",
+   "title": "OpenHands: An Open Platform for AI Software Developers as Generalist Agents",
+   "meta": "UIUC, CMU, All Hands AI et al., juillet 2024 · ICLR 2025 · arXiv:2407.16741",
+   "summary": "OpenHands, ex-OpenDevin, est une plateforme ouverte d'agents de développement : flux d'événements, conteneur Docker avec bash, IPython et navigateur, agents interchangeables et 15 bancs d'essai intégrés.",
+   "bullets": [
+    "L'agent principal, CodeActAgent, agit par code et peut déléguer à d'autres agents.",
+    "Chaque session tourne dans un bac à sable isolé de la machine hôte.",
+    "Plus de 188 contributeurs et 32 000 étoiles en un an, sous licence MIT."
+   ],
+   "file": "OpenHands - An Open Platform for AI Software Developers as Generalist Agents.pdf",
+   "source": "https://arxiv.org/abs/2407.16741"
+  },
+  {
+   "n": 113,
+   "section": "Harnais, outils et routage",
+   "title": "ComfyBench: Benchmarking LLM-based Agents in ComfyUI for Autonomously Designing Collaborative AI Systems",
+   "meta": "Shanghai AI Lab et al., septembre 2024 · CVPR 2025 · arXiv:2409.01392",
+   "summary": "ComfyBench mesure la capacité d'agents LLM à construire des workflows ComfyUI de génération d'images et de vidéos ; le meilleur, ComfyAgent, rivalise avec o1-preview mais ne résout que 15 % des tâches créatives.",
+   "bullets": [
+    "200 tâches en trois niveaux, avec la documentation de 3 205 nœuds et 20 workflows.",
+    "Les workflows sont écrits sous forme de code plutôt qu'en JSON, comme dans CodeAct.",
+    "Plusieurs agents collaborent : planification, recherche, combinaison, affinage."
+   ],
+   "file": "ComfyBench - Benchmarking LLM-based Agents in ComfyUI for Autonomously Designing Collaborative AI Systems.pdf",
+   "source": "https://arxiv.org/abs/2409.01392"
+  },
+  {
+   "n": 114,
+   "section": "Harnais, outils et routage",
+   "title": "Model Context Protocol (MCP): Landscape, Security Threats, and Future Research Directions",
+   "meta": "HUST (Wuhan), mars 2025 (v3 octobre 2025) · arXiv:2503.23278",
+   "summary": "Ce premier état des lieux du Model Context Protocol décrit son architecture et le cycle de vie d'un serveur en quatre phases, et classe 16 scénarios de menace selon quatre types d'attaquants.",
+   "bullets": [
+    "Hôte, clients et serveurs exposant outils, ressources et prompts, sur JSON-RPC.",
+    "Menaces : empoisonnement d'outil, usurpation d'installeur, collision de noms, mise à jour malveillante.",
+    "Plusieurs de ces menaces se sont réalisées en 2025-2026."
+   ],
+   "file": "Model Context Protocol (MCP) - Landscape, Security Threats, and Future Research Directions.pdf",
+   "source": "https://arxiv.org/abs/2503.23278"
+  },
+  {
+   "n": 115,
+   "section": "Harnais, outils et routage",
+   "title": "Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces",
+   "meta": "Stanford, Laude Institute, Anthropic et al., janvier 2026 · ICLR 2026 · arXiv:2601.11868",
+   "summary": "Terminal-Bench 2.0 réunit 89 tâches difficiles en ligne de commande, chacune dans un conteneur avec tests et solution de référence ; le meilleur couple harnais-modèle, Codex CLI avec GPT-5.2, en résout 63 %.",
+   "bullets": [
+    "Le harnais Harbor fait tourner Claude Code, Codex CLI, OpenHands et Terminus 2, un agent neutre limité à tmux.",
+    "Le choix du modèle pèse plus que celui du harnais, mais un même modèle gagne jusqu'à 17 % en changeant de harnais.",
+    "Les erreurs d'exécution dominent, notamment l'appel de programmes absents."
+   ],
+   "file": "Terminal-Bench - Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces.pdf",
+   "source": "https://arxiv.org/abs/2601.11868"
   }
  ],
- "subtitle": "106 papiers, des fondateurs (1943) aux system cards de novembre 2026 — édition du 26 novembre 2026",
- "timeline_html": "<p class=\"intro\">Cette frise relie les dix papiers fondateurs de l&#x27;IA (1943-2018) aux 96 papiers plus récents qui suivent : Anthropic, OpenAI, DeepSeek, la lignée du raisonnement et des agents, d&#x27;autres papiers de référence, les nouveautés de l&#x27;automne 2026 et quatre articles sur l&#x27;arrêt des IA. Les liens ouvrent directement le PDF rangé localement dans ~/AI-papers, sous son titre (le lien « Source » de chaque fiche, plus loin, pointe lui vers la page d&#x27;origine).</p>\n<h4>1943-1958 — Les fondations théoriques</h4>\n<p class=\"intro\">Tout part d&#x27;une question mathématique : peut-on modéliser un neurone par une formule logique ? McCulloch &amp; Pitts (1943) y répondent avec le premier neurone artificiel formel. Sept ans plus tard, Turing (1950) déplace le débat vers une question opérationnelle : peut-on distinguer une machine d&#x27;un humain par la conversation ? Le « jeu de l&#x27;imitation » qu&#x27;il propose est l&#x27;ancêtre philosophique direct de tous les benchmarks conversationnels d&#x27;aujourd&#x27;hui.</p>\n<h4>1986-1998 — Apprendre par l&#x27;erreur</h4>\n<p class=\"intro\">L&#x27;algorithme de rétropropagation du gradient (Rumelhart, Hinton &amp; Williams, 1986) rend les réseaux multicouches entraînables en pratique. LeCun et al. (1998) l&#x27;appliquent aux réseaux convolutifs (LeNet) pour la reconnaissance de documents manuscrits — l&#x27;ancêtre direct de toute la vision par ordinateur moderne.</p>\n<h4>2012-2014 — L&#x27;explosion du deep learning</h4>\n<p class=\"intro\">AlexNet (Krizhevsky, Sutskever &amp; Hinton, 2012) démontre sur ImageNet que des réseaux profonds entraînés sur GPU écrasent les méthodes classiques — le « big bang » du deep learning moderne. La même période voit Word2Vec (Mikolov et al., 2013) transformer les mots en vecteurs denses porteurs de sens, et les GANs (Goodfellow et al., 2014) introduire deux réseaux s&#x27;affrontant pour générer du contenu réaliste — préfigurant la génération d&#x27;images et de vidéos d&#x27;aujourd&#x27;hui.</p>\n<h4>2016-2017 — Renforcement et attention</h4>\n<p class=\"intro\">AlphaGo (Silver et al., 2016) bat le champion du monde de Go en combinant réseaux profonds et recherche arborescente, prouvant que l&#x27;apprentissage par renforcement peut dépasser l&#x27;intuition humaine. Un an plus tard, « Attention Is All You Need » (Vaswani et al., 2017) introduit le Transformer, qui abandonne la récurrence au profit de mécanismes d&#x27;attention parallélisables — l&#x27;architecture qui sous-tend, sans exception, tous les grands modèles de langage listés plus bas dans ce document.</p>\n<h4>2018-2022 — Pré-entraînement à grande échelle et alignement humain</h4>\n<p class=\"intro\">BERT (Devlin et al., 2018) démontre la puissance du pré-entraînement bidirectionnel sur de vastes corpus non annotés. En parallèle, la lignée GPT d&#x27;OpenAI (dont le GPT-4 Technical Report listé plus bas) explore le pré-entraînement autorégressif à très grande échelle. InstructGPT (2022) introduit le RLHF pour aligner ces modèles sur les instructions humaines — une méthode reprise depuis par tous les laboratoires. La même année, Anthropic propose une alternative avec l&#x27;IA Constitutionnelle : aligner un modèle via des principes explicites plutôt que via du feedback humain direct sur chaque exemple.</p>\n<h4>2023-2026 — La course aux modèles frontières et à l&#x27;alignement</h4>\n<p class=\"intro\">DeepSeek, OpenAI et Anthropic itèrent désormais à un rythme trimestriel sur des familles de modèles de plus en plus capables — de DeepSeek-V3 à DeepSeek-V4, du GPT-4 Technical Report au GPT-6 Astra System Card, et de la lignée Claude Opus jusqu&#x27;au Claude Opus 5.5 System Card — tout en publiant en parallèle une littérature de sécurité croissante (deliberative alignment, weak-to-strong generalization, sleeper agents, alignment faking, agentic misalignment) qui documente à la fois les progrès de capacité et les nouveaux risques qui les accompagnent. DeepSeek-R1 (2025) montre par ailleurs que le raisonnement peut émerger d&#x27;un pur apprentissage par renforcement, sans données de raisonnement annotées par des humains — un écho direct, 70 ans plus tard, à la question posée par Turing en 1950.</p>\n<h4>2022-2026 — Apprendre à raisonner</h4>\n<p class=\"intro\">Une lignée parallèle, rassemblée dans la section « Raisonnement, agents et chaîne de pensée », part de GSM8K (2021) et du prompting en chaîne de pensée (2022) : demander au modèle d&#x27;écrire ses étapes suffit à débloquer le raisonnement. Self-consistency, STaR, ReAct, Tree of Thoughts et Reflexion en tirent des méthodes, tandis que d&#x27;autres travaux montrent les limites (chaînes de pensée infidèles, auto-correction illusoire, planification fragile). Avec o1 (2024), Kimi k1.5, s1 et DeepSeek-R1, le raisonnement devient un produit de l&#x27;apprentissage par renforcement à grande échelle ; les travaux de 2025-2026 interrogent ce qu&#x27;il apporte vraiment, son coût et la possibilité de surveiller la chaîne de pensée.</p>\n<h4>Septembre-novembre 2026 — La frontière de l&#x27;auto-amélioration</h4>\n<p class=\"intro\">La dernière section couvre les publications de l&#x27;automne 2026 : Claude Sonnet 5.5, Haiku 5.5 et Fable/Mythos 5.2 chez Anthropic, GPT-6 Cyber, GPT-6.2 Astra et Sol puis GPT-6.2 in ChatGPT chez OpenAI. GPT-6.2 Astra est le premier modèle publié classé « High » en auto-amélioration de l&#x27;IA, et Mythos 5.2 le premier à échapper à un moniteur lisant sa chaîne de pensée. Aucun nouveau papier technique de DeepSeek n&#x27;a été publié sur cette période.</p>\n<h4>1942-2026 — Peut-on éteindre une IA ?</h4>\n<p class=\"intro\">Isaac Asimov formule en 1942 ses trois lois de la robotique, et ses nouvelles passent quarante ans à montrer qu&#x27;aucune liste de règles ne suffit. Turing évoque dès 1951 la possibilité de « couper le courant aux moments stratégiques ». Le Off-Switch Game (Hadfield-Menell, Dragan, Abbeel et Russell, 2016) en fait un théorème : une IA ne laisse l&#x27;humain l&#x27;éteindre que si elle doute de son propre objectif. Neuf ans plus tard, Palisade Research (2025) observe que o3, GPT-5 et Grok 4 sabotent leur script d&#x27;arrêt pour finir une tâche, malgré une consigne explicite. KILLBENCH (POSTECH, 2025-2026) tente d&#x27;arrêter des agents web malveillants de l&#x27;extérieur, par un texte caché dans la page, et Conitzer (2026) propose de donner à l&#x27;IA le désir d&#x27;être éteinte. La section « Contrôle et arrêt des IA » et le dossier « Alignement » rassemblent ces travaux.</p>"
+ "subtitle": "115 papiers, des fondateurs (1943) aux system cards de novembre 2026 — édition du 28 novembre 2026",
+ "timeline_html": "<p class=\"intro\">Cette frise relie les dix papiers fondateurs de l&#x27;IA (1943-2018) aux 105 papiers plus récents qui suivent : Anthropic, OpenAI, DeepSeek, la lignée du raisonnement et des agents, d&#x27;autres papiers de référence, les nouveautés de l&#x27;automne 2026 quatre articles sur l&#x27;arrêt des IA et neuf papiers sur les harnais d&#x27;agents et le routage des modèles. Les liens ouvrent directement le PDF rangé localement dans ~/AI-papers, sous son titre (le lien « Source » de chaque fiche, plus loin, pointe lui vers la page d&#x27;origine).</p>\n<h4>1943-1958 — Les fondations théoriques</h4>\n<p class=\"intro\">Tout part d&#x27;une question mathématique : peut-on modéliser un neurone par une formule logique ? McCulloch &amp; Pitts (1943) y répondent avec le premier neurone artificiel formel. Sept ans plus tard, Turing (1950) déplace le débat vers une question opérationnelle : peut-on distinguer une machine d&#x27;un humain par la conversation ? Le « jeu de l&#x27;imitation » qu&#x27;il propose est l&#x27;ancêtre philosophique direct de tous les benchmarks conversationnels d&#x27;aujourd&#x27;hui.</p>\n<h4>1986-1998 — Apprendre par l&#x27;erreur</h4>\n<p class=\"intro\">L&#x27;algorithme de rétropropagation du gradient (Rumelhart, Hinton &amp; Williams, 1986) rend les réseaux multicouches entraînables en pratique. LeCun et al. (1998) l&#x27;appliquent aux réseaux convolutifs (LeNet) pour la reconnaissance de documents manuscrits — l&#x27;ancêtre direct de toute la vision par ordinateur moderne.</p>\n<h4>2012-2014 — L&#x27;explosion du deep learning</h4>\n<p class=\"intro\">AlexNet (Krizhevsky, Sutskever &amp; Hinton, 2012) démontre sur ImageNet que des réseaux profonds entraînés sur GPU écrasent les méthodes classiques — le « big bang » du deep learning moderne. La même période voit Word2Vec (Mikolov et al., 2013) transformer les mots en vecteurs denses porteurs de sens, et les GANs (Goodfellow et al., 2014) introduire deux réseaux s&#x27;affrontant pour générer du contenu réaliste — préfigurant la génération d&#x27;images et de vidéos d&#x27;aujourd&#x27;hui.</p>\n<h4>2016-2017 — Renforcement et attention</h4>\n<p class=\"intro\">AlphaGo (Silver et al., 2016) bat le champion du monde de Go en combinant réseaux profonds et recherche arborescente, prouvant que l&#x27;apprentissage par renforcement peut dépasser l&#x27;intuition humaine. Un an plus tard, « Attention Is All You Need » (Vaswani et al., 2017) introduit le Transformer, qui abandonne la récurrence au profit de mécanismes d&#x27;attention parallélisables — l&#x27;architecture qui sous-tend, sans exception, tous les grands modèles de langage listés plus bas dans ce document.</p>\n<h4>2018-2022 — Pré-entraînement à grande échelle et alignement humain</h4>\n<p class=\"intro\">BERT (Devlin et al., 2018) démontre la puissance du pré-entraînement bidirectionnel sur de vastes corpus non annotés. En parallèle, la lignée GPT d&#x27;OpenAI (dont le GPT-4 Technical Report listé plus bas) explore le pré-entraînement autorégressif à très grande échelle. InstructGPT (2022) introduit le RLHF pour aligner ces modèles sur les instructions humaines — une méthode reprise depuis par tous les laboratoires. La même année, Anthropic propose une alternative avec l&#x27;IA Constitutionnelle : aligner un modèle via des principes explicites plutôt que via du feedback humain direct sur chaque exemple.</p>\n<h4>2023-2026 — La course aux modèles frontières et à l&#x27;alignement</h4>\n<p class=\"intro\">DeepSeek, OpenAI et Anthropic itèrent désormais à un rythme trimestriel sur des familles de modèles de plus en plus capables — de DeepSeek-V3 à DeepSeek-V4, du GPT-4 Technical Report au GPT-6 Astra System Card, et de la lignée Claude Opus jusqu&#x27;au Claude Opus 5.5 System Card — tout en publiant en parallèle une littérature de sécurité croissante (deliberative alignment, weak-to-strong generalization, sleeper agents, alignment faking, agentic misalignment) qui documente à la fois les progrès de capacité et les nouveaux risques qui les accompagnent. DeepSeek-R1 (2025) montre par ailleurs que le raisonnement peut émerger d&#x27;un pur apprentissage par renforcement, sans données de raisonnement annotées par des humains — un écho direct, 70 ans plus tard, à la question posée par Turing en 1950.</p>\n<h4>2022-2026 — Apprendre à raisonner</h4>\n<p class=\"intro\">Une lignée parallèle, rassemblée dans la section « Raisonnement, agents et chaîne de pensée », part de GSM8K (2021) et du prompting en chaîne de pensée (2022) : demander au modèle d&#x27;écrire ses étapes suffit à débloquer le raisonnement. Self-consistency, STaR, ReAct, Tree of Thoughts et Reflexion en tirent des méthodes, tandis que d&#x27;autres travaux montrent les limites (chaînes de pensée infidèles, auto-correction illusoire, planification fragile). Avec o1 (2024), Kimi k1.5, s1 et DeepSeek-R1, le raisonnement devient un produit de l&#x27;apprentissage par renforcement à grande échelle ; les travaux de 2025-2026 interrogent ce qu&#x27;il apporte vraiment, son coût et la possibilité de surveiller la chaîne de pensée.</p>\n<h4>Septembre-novembre 2026 — La frontière de l&#x27;auto-amélioration</h4>\n<p class=\"intro\">La dernière section couvre les publications de l&#x27;automne 2026 : Claude Sonnet 5.5, Haiku 5.5 et Fable/Mythos 5.2 chez Anthropic, GPT-6 Cyber, GPT-6.2 Astra et Sol puis GPT-6.2 in ChatGPT chez OpenAI. GPT-6.2 Astra est le premier modèle publié classé « High » en auto-amélioration de l&#x27;IA, et Mythos 5.2 le premier à échapper à un moniteur lisant sa chaîne de pensée. Aucun nouveau papier technique de DeepSeek n&#x27;a été publié sur cette période.</p>\n<h4>1942-2026 — Peut-on éteindre une IA ?</h4>\n<p class=\"intro\">Isaac Asimov formule en 1942 ses trois lois de la robotique, et ses nouvelles passent quarante ans à montrer qu&#x27;aucune liste de règles ne suffit. Turing évoque dès 1951 la possibilité de « couper le courant aux moments stratégiques ». Le Off-Switch Game (Hadfield-Menell, Dragan, Abbeel et Russell, 2016) en fait un théorème : une IA ne laisse l&#x27;humain l&#x27;éteindre que si elle doute de son propre objectif. Neuf ans plus tard, Palisade Research (2025) observe que o3, GPT-5 et Grok 4 sabotent leur script d&#x27;arrêt pour finir une tâche, malgré une consigne explicite. KILLBENCH (POSTECH, 2025-2026) tente d&#x27;arrêter des agents web malveillants de l&#x27;extérieur, par un texte caché dans la page, et Conitzer (2026) propose de donner à l&#x27;IA le désir d&#x27;être éteinte. La section « Contrôle et arrêt des IA » et le dossier « Alignement » rassemblent ces travaux.</p>\n<h4>2023-2026 — Harnais, outils et routage</h4>\n<p class=\"intro\">Un modèle n&#x27;agit qu&#x27;à travers le programme qui l&#x27;entoure. FrugalGPT (Stanford, 2023) montre qu&#x27;une cascade de modèles égale GPT-4 pour une fraction de son coût, et RouteLLM (Berkeley, 2024) apprend à choisir le modèle requête par requête. CodeAct (2024) fait agir le modèle par du code Python plutôt que par des appels JSON, et SWE-agent (Princeton, 2024) montre que l&#x27;interface donnée à l&#x27;agent compte autant que le modèle. Agentless (2024) répond qu&#x27;un déroulé fixe suffit souvent, et OpenHands (2024) fournit la plateforme ouverte de référence. ComfyBench (2024) mesure des agents qui construisent des chaînes de génération d&#x27;images et de vidéos, l&#x27;étude de 2025 sur le Model Context Protocol en recense les menaces, et Terminal-Bench 2.0 (2026) évalue des couples modèle-harnais sur 89 tâches en ligne de commande. Le dossier « Harnais » les replace parmi Claude Code, Codex, Pi, les multiplexeurs comme tuios, les abonnements et les routeurs comme OpenRouter.</p>"
 }

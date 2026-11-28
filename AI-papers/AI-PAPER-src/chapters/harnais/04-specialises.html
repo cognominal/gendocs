@@ -1,0 +1,83 @@
+<h3 class="part" id="harnais-6">VI. Les harnais spécialisés</h3>
+
+<p>Les harnais de code sont devenus si capables qu'on s'en sert pour bien d'autres choses : écrire un rapport, monter une vidéo, trier des courriels. Il existe aussi des harnais construits pour un domaine. Ils se reconnaissent à quatre traits, qui reprennent ceux des parties I et II :</p>
+<ul>
+<li>des <b>outils propres au domaine</b> : un navigateur, un compilateur Lean, un scanner réseau, un graphe ComfyUI ;</li>
+<li>un <b>environnement</b> adapté : machine virtuelle avec écran, conteneur d'outils offensifs, accès à des API de génération ;</li>
+<li>un <b>vérificateur</b>, quand le domaine en a un : les tests pour le code, le noyau de Lean pour les preuves, l'exploit qui fonctionne en cybersécurité. Pour les images et les vidéos, il n'y en a pas, et on se rabat sur un modèle juge ;</li>
+<li>souvent un <b>déroulé imposé</b>, dans l'esprit d'Agentless (<a href="#p111">fiche 111</a>) : planifier, chercher, rédiger, vérifier.</li>
+</ul>
+
+<h4>6.1 Revue de code et intégration continue</h4>
+<p>Le harnais de code le plus discret tourne sans humain : à chaque <i>pull request</i>, un agent la relit, commente les lignes suspectes ou corrige un test cassé. Codex et Claude Code ont leurs actions GitHub ; CodeRabbit, Greptile, Graphite et Copilot proposent la revue automatique. Le harnais est le même, en mode non interactif, avec un prompt de relecteur et des droits limités au dépôt. Sa difficulté propre est la précision : un relecteur qui signale dix faux problèmes par <i>pull request</i> est vite ignoré. Les meilleurs systèmes font donc vérifier chaque remarque par un second passage avant de la publier.</p>
+
+<h4>6.2 La recherche approfondie</h4>
+<p>Les « deep research » (Gemini, décembre 2024 ; OpenAI, février 2025 ; Claude, avril 2025 ; Perplexity) sont des harnais de recherche documentaire. Le déroulé est en général le suivant : le modèle reformule la question et en fait un plan, lance des dizaines de recherches web, lit les pages, recoupe, puis rédige un rapport avec citations. Anthropic a décrit en juin 2025 l'architecture de son système : un agent principal qui planifie et plusieurs <a href="#g-sous-agent">sous-agents</a> qui cherchent en parallèle, chacun avec son propre contexte. Sur son évaluation interne, le système multi-agents faisait 90 % mieux qu'un agent seul, mais consommait environ quinze fois plus de jetons qu'une conversation. C'est le compromis habituel des sous-agents : plus de contexte au total, moins dans chaque contexte.</p>
+
+<h4>6.3 Le navigateur et l'ordinateur</h4>
+<p>Un agent d'« usage de l'ordinateur » reçoit des captures d'écran et répond par des actions : cliquer à telle coordonnée, taper tel texte, faire défiler. Anthropic ouvre la voie en octobre 2024 avec <i>computer use</i>. Suivent Operator (OpenAI, janvier 2025), devenu ChatGPT agent, Claude pour Chrome (2025), puis des navigateurs entiers construits autour d'un agent : Comet (Perplexity) et Atlas (OpenAI, octobre 2025). Le harnais fournit la machine virtuelle ou le navigateur, réduit les captures et traduit les actions. Il doit aussi décider quand s'arrêter et demander confirmation : avant un paiement, un envoi ou une suppression.</p>
+<p>Ce sont les harnais les plus exposés à l'injection de prompt, puisque leur métier est de lire des pages non fiables. KILLBENCH (<a href="#p105">fiche 105</a>) retourne le problème : un texte caché dans une page peut aussi servir à <i>arrêter</i> un agent malveillant. Les agents de navigation obtiennent encore en 2026 des taux de réussite nettement inférieurs aux agents de code sur des tâches de longueur comparable. Le web n'a pas de tests unitaires, et chaque site a son interface.</p>
+
+<h4>6.4 Mathématiques et preuves formelles</h4>
+<p>Les preuves en <a href="#g-lean">Lean</a> offrent le vérificateur parfait : le noyau accepte la preuve ou la refuse. Un harnais de preuve fait boucler le modèle avec le compilateur Lean. Le modèle propose une tactique ou un lemme, Lean renvoie l'état des buts ou l'erreur, et le modèle réessaie. DeepSeek-Prover-V2 (<a href="#p40">fiche 40</a>) décompose ainsi les théorèmes en sous-buts. Le projet de formalisation du dernier théorème de Fermat (<a href="#p42">fiche 42</a>) montre l'ampleur du travail humain que ces agents commencent à assister. En 2025-2026, des harnais de code ordinaires, branchés sur le serveur de langage de Lean, sont devenus des assistants de preuve utilisables. Des harnais dédiés (Aristotle de Harmonic, les systèmes de Google DeepMind) visent la démonstration autonome.</p>
+
+<h4>6.5 Cybersécurité</h4>
+<p>En sécurité offensive, l'environnement est un conteneur d'outils (scanners, débogueurs, désassembleurs) relié à une cible, et le vérificateur est l'exploit qui fonctionne ou le drapeau capturé. Big Sleep (Google, 2024) trouve une faille réelle dans SQLite, XBOW se hisse en 2025 en tête du classement de HackerOne, et la compétition AIxCC de la DARPA (août 2025) fait trouver et corriger des failles dans des logiciels libres. Les laboratoires évaluent la capacité « cyber » de leurs modèles dans de tels harnais, et OpenAI publie un modèle spécialisé, GPT-6 Cyber (<a href="#p100">fiche 100</a>). Ce sont des capacités à double usage : les mêmes harnais servent à attaquer et à défendre, ce qui explique les contrôles d'accès qui les entourent.</p>
+
+<h4>6.6 Images, vidéos, audio et 3D</h4>
+<p>La génération de médias passe par d'autres modèles que les LLM : modèles de <a href="#g-diffusion-modele-de">diffusion</a> pour l'image (Flux, Stable Diffusion, gpt-image, Imagen, la série « Nano Banana » de Gemini), modèles vidéo (Veo, Sora, Kling, Seedance, Runway), modèles de voix et de musique. Le LLM n'y génère pas l'image ; il <b>orchestre</b>. Le harnais lui donne trois choses : des outils qui appellent les générateurs, la vision pour regarder le résultat, et des outils de montage pour assembler. Il existe trois manières de faire.</p>
+
+<h5>Le harnais intégré à l'application</h5>
+<p>Dans ChatGPT ou Gemini, le modèle de conversation réécrit la demande en prompt détaillé, appelle le générateur, montre l'image et la retouche sur demande. Depuis GPT-4o (mars 2025) et Gemini 2.5 Flash Image (août 2025), le même modèle multimodal comprend et produit l'image, ce qui rend l'édition conversationnelle (« même scène, mais de nuit ») bien plus fiable. Sora 2 (octobre 2025) a sa propre application. C'est le harnais le plus simple, mais il est fermé : un seul fournisseur, peu de contrôle.</p>
+
+<h5>Le graphe de nœuds : ComfyUI</h5>
+<p>ComfyUI (2023) est l'atelier des professionnels. Une chaîne de génération y est un graphe : charger un modèle, encoder le texte, échantillonner, appliquer un ControlNet pour imposer une pose, agrandir, passer à un modèle vidéo. Le graphe s'enregistre en JSON et se rejoue. C'est puissant et reproductible, mais il faut connaître des milliers de nœuds. ComfyBench (<a href="#p113">fiche 113</a>) a mesuré en 2024 si un agent pouvait construire ces graphes à partir d'une consigne. La réponse : oui pour reproduire ou combiner des workflows connus, rarement pour en inventer un, avec seulement 15 % des tâches créatives réussies. Le choix clé de ComfyAgent est de représenter le graphe <i>sous forme de code</i>, comme CodeAct, parce que les LLM écrivent mieux du code qu'un JSON de nœuds.</p>
+
+<h5>Le harnais de code comme atelier : MCP et skills</h5>
+<p>La troisième voie, la plus récente, part d'un harnais de code ordinaire auquel on ajoute des capacités de génération. Le 29 juin 2026, Comfy ouvre en bêta publique <b>Comfy MCP</b> : un serveur cloud qui permet à Claude Code, Codex ou Cursor de lancer des workflows ComfyUI d'image, de vidéo, d'audio et de 3D, et un serveur « partenaires » qui donne accès aux modèles commerciaux (Flux, Grok, Gemini, OpenAI, Ideogram, Seedance). Un outil en ligne de commande (Comfy CLI) offre la même chose sans MCP, pour les harnais qui préfèrent bash. Un serveur communautaire plus ancien (<code>artokun/comfyui-mcp</code>) pilotait une installation locale ; son dépôt a été archivé en octobre 2026. Dans la même veine :</p>
+<ul>
+<li>Blender MCP (2025) permet à un agent de modéliser une scène 3D dans Blender en lui envoyant du code Python, la langue de script de Blender ;</li>
+<li>des bibliothèques de vidéo programmatique comme Remotion publient des skills qui apprennent à un harnais de code à écrire une vidéo en React ;</li>
+<li><code>ffmpeg</code>, que tous les modèles connaissent, reste l'outil de montage universel : couper, assembler, sous-titrer, mixer le son.</li>
+</ul>
+
+<figure class="fig">
+<svg viewBox="0 0 640 200" width="100%" role="img" aria-label="Un harnais de code qui orchestre la génération de médias">
+<rect class="hn-hl" x="20" y="50" width="140" height="70" rx="6"/>
+<text class="hn-t" x="90" y="72" text-anchor="middle">Harnais de code</text>
+<text class="hn-xs" x="90" y="88" text-anchor="middle">plan, prompts, scripts</text>
+<text class="hn-xs" x="90" y="102" text-anchor="middle">regarde les résultats</text>
+<rect class="hn-gr" x="220" y="14" width="150" height="34" rx="4"/><text class="hn-s" x="295" y="35" text-anchor="middle">Comfy MCP / Comfy CLI</text>
+<rect class="hn-gr" x="220" y="62" width="150" height="34" rx="4"/><text class="hn-s" x="295" y="83" text-anchor="middle">API image, vidéo, voix</text>
+<rect class="hn-gr" x="220" y="110" width="150" height="34" rx="4"/><text class="hn-s" x="295" y="131" text-anchor="middle">Blender, Remotion</text>
+<path class="hn-ea" d="M160,70 L218,33" marker-end="url(#hn-ac)"/>
+<path class="hn-ea" d="M160,85 L218,79" marker-end="url(#hn-ac)"/>
+<path class="hn-ea" d="M160,100 L218,126" marker-end="url(#hn-ac)"/>
+<rect class="hn-gy" x="430" y="40" width="90" height="34" rx="4"/><text class="hn-s" x="475" y="61" text-anchor="middle">fichiers média</text>
+<rect class="hn-n" x="430" y="96" width="90" height="34" rx="4"/><text class="hn-s" x="475" y="117" text-anchor="middle">ffmpeg</text>
+<path class="hn-e" d="M370,31 L428,52" marker-end="url(#hn-ar)"/><path class="hn-e" d="M370,79 L428,60" marker-end="url(#hn-ar)"/><path class="hn-e" d="M370,127 L428,70" marker-end="url(#hn-ar)"/>
+<path class="hn-e" d="M475,74 L475,94" marker-end="url(#hn-ar)"/>
+<rect class="hn-or" x="560" y="96" width="66" height="34" rx="4"/><text class="hn-s" x="593" y="117" text-anchor="middle">montage</text>
+<path class="hn-e" d="M520,113 L558,113" marker-end="url(#hn-ar)"/>
+<path class="hn-ed" d="M432,74 C400,196 120,196 90,122" marker-end="url(#hn-ar)"/>
+<text class="hn-xs" x="270" y="194" text-anchor="middle">vision : le modèle regarde les images et les extraits, puis corrige ses prompts</text>
+</svg>
+<figcaption>Figure 4. Un harnais de code utilisé comme atelier de médias. Le LLM ne génère pas les images. Il écrit les prompts, appelle les générateurs, regarde les résultats et assemble le tout.</figcaption>
+</figure>
+
+<p>Ce montage a une faiblesse : il n'a pas de vérificateur. Un test dit si le code marche, mais rien ne dit si une image est réussie. Le modèle juge lui-même par la vision, comme le juge vision-langage de ComfyBench, et ce jugement est moins sûr qu'un test. La génération de médias reste donc plus interactive que le code : l'humain choisit entre des variantes, et l'agent fait le travail mécanique (prompts, lots, montage, formats).</p>
+
+<h4>6.7 Les assistants personnels : OpenClaw</h4>
+<p>Le harnais le plus médiatisé du début 2026 n'est pas un outil de code. OpenClaw, écrit par Peter Steinberger et apparu fin 2025 sous le nom de Clawdbot (puis Moltbot), est un assistant personnel qui tourne sur la machine de son utilisateur et lui parle par WhatsApp, Telegram ou iMessage. Il lit et trie les courriels, gère l'agenda, fait des achats et exécute des tâches planifiées. Son moteur est Pi (§ 4.3). Ses capacités viennent de skills partagées sur un registre communautaire, et il garde une mémoire en fichiers Markdown. Son succès, des dizaines de milliers d'installations en quelques semaines, a montré la demande pour un agent généraliste et autonome. Ses incidents en ont montré les risques : instances exposées sur Internet, skills malveillantes, la triade mortelle (§ 5.6) réunie par construction. Steinberger rejoint OpenAI en février 2026, et le projet passe à une fondation. En avril 2026, Anthropic exclut OpenClaw de l'usage des abonnements Claude (partie VIII).</p>
+
+<table class="chap-table">
+<tr><th>Domaine</th><th>Exemples</th><th>Outil central</th><th>Vérificateur</th></tr>
+<tr><td>Code</td><td>Claude Code, Codex, Pi</td><td>shell, édition</td><td>tests, compilateur</td></tr>
+<tr><td>Revue</td><td>actions GitHub, CodeRabbit</td><td>diff, commentaires</td><td>second passage</td></tr>
+<tr><td>Recherche</td><td>Deep Research</td><td>recherche web</td><td>citations</td></tr>
+<tr><td>Navigateur</td><td>ChatGPT agent, Atlas, Comet</td><td>captures, clics</td><td>état de la page</td></tr>
+<tr><td>Preuves</td><td>Prover, Aristotle</td><td>Lean</td><td>noyau de Lean</td></tr>
+<tr><td>Cyber</td><td>Big Sleep, XBOW</td><td>outils offensifs</td><td>exploit, drapeau</td></tr>
+<tr><td>Médias</td><td>Comfy MCP, Blender MCP</td><td>générateurs, ffmpeg</td><td>vision, humain</td></tr>
+<tr><td>Assistant</td><td>OpenClaw</td><td>messagerie, skills</td><td>aucun</td></tr>
+</table>

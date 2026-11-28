@@ -1,0 +1,19 @@
+<h4>La question posée</h4>
+<p>Mi-2024, les agents de génie logiciel se multiplient : SWE-agent (<a href="#p109">fiche 109</a>), OpenDevin, AutoCodeRover, Aider. Ils laissent tous le modèle décider de ses actions dans une longue boucle d'outils. Chunqiu Steven Xia, Yinlin Deng, Soren Dunn et Lingming Zhang (Université de l'Illinois à Urbana-Champaign) se demandent si cette autonomie est nécessaire. Un processus fixe en quelques étapes, où le LLM ne fait que des tâches bornées, pourrait faire aussi bien pour beaucoup moins cher.</p>
+
+<h4>Le processus</h4>
+<ol>
+<li><b>Localisation</b>, hiérarchique : le modèle choisit d'abord les fichiers suspects à partir de l'arborescence du dépôt, puis les classes et fonctions, puis les lignes précises à modifier. Une recherche par embeddings complète la sélection des fichiers.</li>
+<li><b>Réparation</b> : plusieurs correctifs candidats sont générés pour ces lignes, dans un format diff simple de type « chercher / remplacer ».</li>
+<li><b>Validation</b> : le modèle écrit un test qui reproduit le bug du ticket. Les candidats sont exécutés contre ce test et contre les tests existants, puis classés par vote majoritaire, et le meilleur est soumis.</li>
+</ol>
+<p>Le modèle ne choisit jamais l'étape suivante et n'a aucun outil en libre accès.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur SWE-bench Lite, Agentless avec GPT-4o résout 32,00 % des tâches (96 sur 300). C'est le meilleur score des solutions en code libre à l'époque, pour 0,70 $ par tâche en moyenne, bien moins que les agents comparables.</li>
+<li>Les auteurs examinent les 300 tâches à la main et trouvent des problèmes : solutions écrites dans le ticket lui-même, descriptions insuffisantes, tests trompeurs. Ils publient <b>SWE-bench Lite-S</b>, filtré de ces cas.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>OpenAI a utilisé Agentless comme harnais de référence pour annoncer les scores SWE-bench de GPT-4o puis d'o1. Le papier a imposé une base de comparaison : un agent complexe doit faire mieux qu'un simple pipeline. L'idée de flux fixes revient dans les harnais spécialisés, avec leurs étapes imposées de planification, d'exécution et de vérification, et dans le débat sur le « harnais minimal » (<a href="#harnais-2">dossier « Harnais », § 2</a>). Depuis 2025, les modèles entraînés par renforcement à agir longtemps ont toutefois redonné l'avantage aux boucles agentiques ouvertes.</p>

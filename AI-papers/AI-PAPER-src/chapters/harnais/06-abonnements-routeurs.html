@@ -1,0 +1,163 @@
+<h3 class="part" id="harnais-8">VIII. Abonnements et API : qui choisit le harnais ?</h3>
+
+<h4>8.1 Deux façons de payer</h4>
+<p>On accède à un modèle frontière de deux façons. Par l'<b>API</b>, on paie chaque jeton d'entrée et de sortie, avec une clé utilisable dans n'importe quel programme, donc dans n'importe quel harnais. Par un <b>abonnement</b> mensuel (Claude Pro à 20 $, Max à 100 $ ou 200 $ ; ChatGPT Plus à 20 $, Pro à 200 $), on paie un forfait avec des limites d'usage par tranche de quelques heures et par semaine. Pour un usage intensif d'agents de code, l'écart est considérable : des utilisateurs rapportent des consommations qui, au tarif de l'API, coûteraient plusieurs milliers de dollars par mois, pour un abonnement à 200 $. Anthropic a ajouté en août 2025 des limites hebdomadaires, en expliquant que quelques comptes faisaient tourner Claude Code en continu.</p>
+<p>Le forfait est donc une subvention de fait aux gros utilisateurs, que le fournisseur finance en comptant sur deux choses : les utilisateurs moyens consomment moins que leur forfait, et son propre harnais utilise le modèle efficacement. La seconde condition explique les conflits de 2026.</p>
+
+<h4>8.2 Anthropic : l'abonnement réservé à ses harnais</h4>
+<p>Un abonnement Claude se connecte par OAuth : on s'identifie avec son compte, et le harnais reçoit un jeton d'accès au lieu d'une clé d'API. Plusieurs harnais tiers (OpenCode, Cline, Roo Code, Pi, OpenClaw) avaient imité la procédure de connexion de Claude Code pour utiliser les abonnements de leurs utilisateurs. Anthropic y a mis fin en plusieurs étapes, rapportées par la presse :</p>
+<ul>
+<li><b>9 janvier 2026</b> : blocage technique des jetons d'abonnement utilisés hors des applications d'Anthropic. OpenCode, Cline et Roo Code cessent de fonctionner avec les comptes Claude Pro et Max.</li>
+<li><b>19-20 février 2026</b> : Anthropic précise ses conditions d'utilisation. L'accès par abonnement est réservé à ses propres produits, et les outils tiers doivent passer par l'API.</li>
+<li><b>Mars 2026</b> : selon des comptes rendus de presse, Anthropic adresse une mise en demeure aux auteurs d'OpenCode.</li>
+<li><b>4 avril 2026</b> : OpenClaw est explicitement exclu de l'usage des abonnements.</li>
+</ul>
+<p>L'argument avancé, notamment par Boris Cherny, responsable de Claude Code, est celui de la <b>capacité</b>. Les forfaits sont calculés pour l'usage que font les applications d'Anthropic, qui gardent le contexte en cache, compactent et confient les petites tâches à un modèle léger. Des harnais tiers qui ne le font pas, ou des assistants qui tournent jour et nuit, consomment bien plus de calcul par abonné. Les critiques y voient aussi une stratégie d'enfermement : le modèle le plus demandé pour le code n'est disponible au prix du forfait qu'avec le harnais de son fabricant.</p>
+<p>D'où la formule souvent entendue : « avec Anthropic, on ne choisit pas son harnais ». Elle est juste pour l'abonnement, mais pas pour le modèle. Avec une clé d'API, ou par AWS Bedrock, Google Vertex AI et Azure, Claude s'utilise dans n'importe quel harnais, au prix du jeton. Inversement, Claude Code accepte d'autres modèles : une variable d'environnement (<code>ANTHROPIC_BASE_URL</code>) le redirige vers toute API compatible. Zhipu (GLM), Moonshot (Kimi) et MiniMax vendent des forfaits de code bon marché expressément conçus pour être utilisés dans Claude Code. L'asymétrie est donc complète : le harnais d'Anthropic s'ouvre aux modèles des autres, mais l'abonnement d'Anthropic ne s'ouvre pas aux harnais des autres.</p>
+
+<h4>8.3 OpenAI : l'abonnement portable</h4>
+<p>OpenAI a pris la position inverse, à la même période. Un abonnement ChatGPT donne accès à Codex dans toutes ses formes, et OpenAI a encouragé son usage ailleurs : Thibault Sottiaux, responsable de Codex, a publiquement approuvé l'usage des comptes ChatGPT dans des harnais tiers. OpenCode a ajouté la connexion par compte ChatGPT dans sa version 1.1.11, le 10 janvier 2026, au lendemain du blocage d'Anthropic. Cline et Zed proposent eux aussi « Se connecter avec ChatGPT ». Selon la presse spécialisée, OpenAI a étendu officiellement en septembre 2026 cet accès à une liste d'outils tiers partenaires. Pour OpenAI, l'ouverture est un argument d'acquisition. Elle attire les développeurs de harnais indépendants, que la politique d'Anthropic avait éloignés.</p>
+
+<table class="chap-table">
+<tr><th>Fournisseur</th><th>Abonnement dans un harnais tiers</th><th>API dans un harnais tiers</th><th>Son harnais avec d'autres modèles</th></tr>
+<tr><td>Anthropic</td><td>non (depuis janvier 2026)</td><td>oui</td><td>oui (API compatible)</td></tr>
+<tr><td>OpenAI</td><td>oui, encouragé</td><td>oui</td><td>oui (Codex est ouvert)</td></tr>
+<tr><td>Zhipu, Moonshot, MiniMax</td><td>oui, c'est le but</td><td>oui</td><td>—</td></tr>
+</table>
+
+<h4>8.4 Ce que l'utilisateur doit en retenir</h4>
+<ul>
+<li>Le prix réel d'un agent de code dépend plus de la formule (forfait ou jeton) que du tarif affiché du modèle. Un forfait est presque toujours plus avantageux pour un usage quotidien intensif, mais il lie à un harnais chez Anthropic.</li>
+<li>Avec l'API, on paie chaque jeton, y compris ceux que le harnais consomme pour lui-même : prompt système, descriptions d'outils, consignes relues. La « taxe du harnais » (§ 2.5) devient alors une ligne de facture. Un harnais économe comme Pi coûte réellement moins cher.</li>
+<li>Les règles changent vite : les épisodes ci-dessus tiennent en neuf mois. Avant de bâtir un flux de travail sur un abonnement, il faut vérifier les conditions du moment.</li>
+</ul>
+
+<h3 class="part" id="harnais-9">IX. Les routeurs de modèles</h3>
+
+<h4>9.1 Deux sortes de routage</h4>
+<p>Un <a href="#g-routeur-llm">routeur</a> se place entre le harnais et les modèles. Il offre une API unique, en général compatible avec celle d'OpenAI, derrière laquelle se trouvent des centaines de modèles, et il décide où envoyer chaque requête. Le mot recouvre deux décisions différentes :</p>
+<ul>
+<li><b>le routage entre modèles</b> : quel modèle doit traiter cette requête ? Un modèle bon marché suffit-il, ou faut-il le meilleur ? C'est la question de la recherche, de FrugalGPT (<a href="#p107">fiche 107</a>) à RouteLLM (<a href="#p110">fiche 110</a>) ;</li>
+<li><b>le routage entre fournisseurs</b> : pour un modèle donné, quel hébergeur ? Un modèle à poids ouverts comme DeepSeek, Kimi, Qwen ou GLM est servi par des dizaines d'hébergeurs (Together, Fireworks, DeepInfra, Groq, Cerebras, Novita, etc.), à des prix, des vitesses et des qualités différents. C'est l'essentiel de l'activité commerciale des routeurs.</li>
+</ul>
+
+<figure class="fig">
+<svg viewBox="0 0 640 190" width="100%" role="img" aria-label="Un routeur de modèles">
+<rect class="hn-hl" x="14" y="70" width="110" height="50" rx="6"/>
+<text class="hn-t" x="69" y="92" text-anchor="middle">Harnais</text><text class="hn-xs" x="69" y="106" text-anchor="middle">une clé, une API</text>
+<rect class="hn-or" x="160" y="30" width="200" height="130" rx="8"/>
+<text class="hn-t" x="260" y="48" text-anchor="middle">Routeur</text>
+<rect class="hn-n" x="174" y="58" width="172" height="40" rx="4"/>
+<text class="hn-s" x="260" y="74" text-anchor="middle">1. quel modèle ?</text><text class="hn-xs" x="260" y="88" text-anchor="middle">choix explicite ou routeur appris</text>
+<rect class="hn-n" x="174" y="106" width="172" height="44" rx="4"/>
+<text class="hn-s" x="260" y="122" text-anchor="middle">2. quel fournisseur ?</text><text class="hn-xs" x="260" y="136" text-anchor="middle">prix, débit, ZDR, quantification,</text><text class="hn-xs" x="260" y="146" text-anchor="middle">qualité des appels d'outils, cache</text>
+<path class="hn-ea" d="M124,95 L158,95" marker-end="url(#hn-ac)"/>
+<rect class="hn-gr" x="410" y="18" width="210" height="30" rx="4"/><text class="hn-s" x="515" y="37" text-anchor="middle">Anthropic, OpenAI, Google</text>
+<rect class="hn-gr" x="410" y="58" width="210" height="30" rx="4"/><text class="hn-s" x="515" y="77" text-anchor="middle">Bedrock, Vertex, Azure</text>
+<rect class="hn-bl" x="410" y="98" width="100" height="30" rx="4"/><text class="hn-s" x="460" y="117" text-anchor="middle">Together</text>
+<rect class="hn-bl" x="520" y="98" width="100" height="30" rx="4"/><text class="hn-s" x="570" y="117" text-anchor="middle">Fireworks</text>
+<rect class="hn-bl" x="410" y="138" width="100" height="30" rx="4"/><text class="hn-s" x="460" y="157" text-anchor="middle">DeepInfra</text>
+<rect class="hn-bl" x="520" y="138" width="100" height="30" rx="4"/><text class="hn-s" x="570" y="157" text-anchor="middle">Groq, …</text>
+<path class="hn-e" d="M360,70 L408,33" marker-end="url(#hn-ar)"/>
+<path class="hn-e" d="M360,85 L408,73" marker-end="url(#hn-ar)"/>
+<path class="hn-ea" d="M360,125 L408,113" marker-end="url(#hn-ac)"/>
+<path class="hn-ed" d="M360,135 L408,153" marker-end="url(#hn-ar)"/>
+<text class="hn-xs" x="384" y="182" text-anchor="middle">repli automatique si un fournisseur échoue</text>
+</svg>
+<figcaption>Figure 6. Un routeur prend deux décisions : le modèle, puis le fournisseur qui le sert. La seconde porte sur le prix et la vitesse, mais aussi sur la confidentialité, la quantification et la qualité réelle des réponses.</figcaption>
+</figure>
+
+<h4>9.2 OpenRouter</h4>
+<p>OpenRouter, fondé en 2023 par Alex Atallah, cofondateur d'OpenSea, est le plus grand routeur indépendant. Selon ses propres chiffres, il donne accès fin 2026 à plus de 400 modèles servis par plus de 70 fournisseurs. Son modèle économique est simple : il revend les jetons au prix des fournisseurs et prélève une commission d'environ 5 % sur les crédits achetés. D'après la presse économique, il a levé 40 millions de dollars en 2025 (a16z, Menlo Ventures), puis 113 millions en série B en mai 2026, pour une valorisation d'environ 1,3 milliard et un revenu annualisé estimé entre 140 et 160 millions.</p>
+<p>Parce qu'il voit passer une grande part du trafic des développeurs indépendants, OpenRouter est aussi un observatoire. Ses classements publics par volume de jetons sont suivis comme un indicateur d'usage réel, et l'étude qu'il a publiée avec a16z fin 2025 sur 100 000 milliards de jetons a montré la place du code dans ce trafic, ainsi que celle des modèles ouverts. Selon des analyses de 2026, les modèles chinois représentent près de la moitié des jetons qui y transitent (46 à 50 % selon les mois), DeepSeek à lui seul environ 16 %. Ces chiffres valent pour la clientèle d'OpenRouter, pas pour le marché entier : les grandes entreprises passent surtout par les API directes et les clouds.</p>
+
+<h4>9.3 Ce qu'apporte un routeur, au-delà de l'accès</h4>
+<p>La première valeur d'un routeur est évidente : une seule clé, une seule facture, une seule API, et un changement de modèle qui ne demande que de changer une chaîne de caractères. Mais les routeurs vendent aussi d'autres services, qui expliquent leur succès auprès d'utilisateurs qui pourraient très bien s'adresser aux fournisseurs directement :</p>
+<ul>
+<li><b>Disponibilité et repli.</b> Quand un fournisseur tombe ou limite le débit, la requête part chez le suivant, ou vers un modèle de secours déclaré à l'avance. Pour un agent qui tourne une heure, une panne au milieu de la session coûte cher.</li>
+<li><b>Choix du fournisseur.</b> On peut trier par prix, par débit ou par latence, exclure ou imposer des fournisseurs, exiger qu'un fournisseur gère les appels d'outils ou les sorties structurées, et refuser les versions trop <b>quantifiées</b> d'un modèle (stockées en 8 ou 4 bits, voir <a href="#g-fp8-fp4">FP8 / FP4</a>), qui coûtent moins cher mais répondent moins bien.</li>
+<li><b>Confidentialité.</b> Un filtre « <a href="#g-zdr">zéro rétention des données</a> » (ZDR), par requête ou pour tout le compte, n'envoie les requêtes qu'aux fournisseurs qui s'engagent à ne rien conserver. Un autre filtre exclut ceux qui entraînent sur les données reçues.</li>
+<li><b>Qualité mesurée.</b> Depuis fin 2025, OpenRouter mesure la qualité réelle des appels d'outils de chaque fournisseur et, avec Auto Exacto, activé par défaut pour les requêtes avec outils, oriente le trafic vers les meilleurs. Ce choix peut toutefois entrer en conflit avec le cache de prompt, qui suppose de rester chez le même fournisseur.</li>
+<li><b>Routage automatique entre modèles.</b> L'« Auto Router », fondé sur NotDiamond, choisit le modèle à chaque requête, dans la lignée de RouteLLM.</li>
+<li><b>Clés personnelles</b> (<a href="#g-byok">BYOK</a>). On peut fournir ses propres clés chez Anthropic, OpenAI ou ailleurs, pour profiter de ses tarifs négociés ou de ses quotas, tout en gardant le routage et les replis.</li>
+<li><b>Extensions.</b> Réparation automatique des JSON malformés, recherche web ajoutée à n'importe quel modèle, lecture de PDF, budgets et garde-fous par clé, préréglages partagés, journaux d'usage, et pour les entreprises l'authentification unique et les contrats.</li>
+<li><b>Modèles gratuits.</b> Certains fournisseurs offrent des modèles gratuits, avec des limites de débit, pour se faire connaître.</li>
+</ul>
+
+<h4>9.4 Un même modèle, des réponses différentes</h4>
+<p>Le routage entre fournisseurs a révélé un problème que peu d'utilisateurs soupçonnaient : <b>un même modèle ouvert ne donne pas les mêmes résultats selon qui le sert</b>. Les causes sont multiples : quantification plus agressive, fenêtre de contexte réduite, erreurs dans le format de conversation, extraction défectueuse des appels d'outils. Fin 2025, Moonshot a publié un outil de vérification des fournisseurs de son modèle Kimi K2 qui mesurait, sur les mêmes requêtes, des écarts importants de taux d'appels d'outils réussis d'un hébergeur à l'autre. Pour un harnais, l'enjeu est direct. Un appel d'outil mal formé sur cent suffit à faire échouer une longue session. C'est ce qui a poussé OpenRouter à mesurer la qualité et à la prendre en compte dans le routage.</p>
+
+<h4>9.5 Les autres routeurs et passerelles</h4>
+<table class="chap-table">
+<tr><th>Outil</th><th>Type</th><th>Particularité</th></tr>
+<tr><td>OpenRouter</td><td>place de marché</td><td>400+ modèles, routage par fournisseur, ZDR</td></tr>
+<tr><td>LiteLLM</td><td>proxy libre</td><td>auto-hébergé, budgets, 100+ API</td></tr>
+<tr><td>Vercel AI Gateway</td><td>passerelle</td><td>intégrée à l'AI SDK et à l'hébergement</td></tr>
+<tr><td>Cloudflare AI Gateway</td><td>passerelle</td><td>cache, analyses, limites de débit</td></tr>
+<tr><td>Portkey, Requesty</td><td>passerelles</td><td>garde-fous, observabilité, repli</td></tr>
+<tr><td>Helicone</td><td>observabilité</td><td>journaux, coûts, évaluations</td></tr>
+<tr><td>Martian, NotDiamond</td><td>routeurs appris</td><td>choix du modèle par requête</td></tr>
+<tr><td>Bedrock, Vertex, Azure</td><td>clouds</td><td>contrats d'entreprise, données dans le cloud du client</td></tr>
+</table>
+<p>Les grands clouds jouent un rôle de routeur pour les entreprises : Claude est disponible sur les trois, GPT sur Azure, et chacun propose aussi une sélection de modèles ouverts. LiteLLM, auto-hébergé, sert souvent de passerelle interne, avec des budgets par équipe et une journalisation centralisée.</p>
+
+<h4>9.6 Routeurs et harnais : un mariage imparfait</h4>
+<p>La plupart des harnais indépendants (Pi, Oh My Pi, OpenCode, Cline, Aider) se branchent directement sur OpenRouter. Claude Code peut y être relié par une passerelle qui traduit son API, comme LiteLLM ou des projets communautaires, mais il est réglé pour Claude. Trois frictions subsistent :</p>
+<ul>
+<li><b>Le cache</b> : changer de fournisseur ou de modèle en cours de session invalide le cache de prompt, et chaque tour coûte alors le prix plein. Les routeurs pratiquent donc le routage « collant » (même fournisseur pour une même conversation), au détriment du repli et du choix par la qualité.</li>
+<li><b>Le réglage</b> : un harnais et un modèle entraînés ensemble (§ 1.6) perdent une partie de leur avantage si l'on change l'un des deux. Le routage par rôle d'Oh My Pi suppose que le harnais sait utiliser plusieurs modèles.</li>
+<li><b>Le routage automatique dans une boucle</b> : RouteLLM choisit un modèle par requête, mais une session d'agent est une suite de requêtes liées. Changer de modèle d'un tour à l'autre casse le cache et la cohérence. En pratique, le routage se fait plutôt par <i>rôle</i> (un modèle pour l'exploration, un autre pour l'édition, un troisième pour la revue) ou par <i>sous-agent</i>, que par tour. Le routeur de GPT-5 (août 2025), qui choisit à chaque message entre une réponse rapide et une réponse réfléchie, opère dans une conversation, pas dans une boucle d'agent.</li>
+</ul>
+
+<h3 class="part" id="harnais-10">X. Récapitulatif</h3>
+
+<h4>10.1 Ce qu'il faut retenir</h4>
+<ol>
+<li>Un <b>harnais</b> est tout ce qui entoure le modèle quand il agit : la boucle, les outils, le contexte, les permissions et le bac à sable. Le modèle ne fait que demander des actions, et le harnais les exécute.</li>
+<li>Le harnais <b>compte presque autant que le modèle</b> : SWE-agent gagne 64 % relatifs par l'interface seule, et un même modèle varie de 17 % ou plus d'un harnais à l'autre sur Terminal-Bench. Les bancs d'essai mesurent des couples.</li>
+<li>Deux philosophies coexistent : le <b>harnais minimal</b> (CodeAct, mini-SWE-agent, Pi), qui fait confiance au modèle et économise le contexte, et le <b>harnais complet</b> (Claude Code, Oh My Pi), qui lui donne des outils d'IDE, des sous-agents et des garde-fous.</li>
+<li><b>Terminal, éditeur et cloud</b> sont trois surfaces d'un même moteur : le terminal compose et se multiplie, l'éditeur montre les diffs, le cloud travaille seul et en parallèle.</li>
+<li><b>MCP</b> est toujours d'actualité. Il est gouverné par la Linux Foundation depuis décembre 2025 et sert à l'<i>accès</i> aux systèmes. Les <b>skills</b> fournissent le <i>savoir-faire</i>, à faible coût de contexte, et AGENTS.md les consignes du projet.</li>
+<li>Les <b>harnais spécialisés</b> se définissent par leurs outils et leur vérificateur. Les médias (images, vidéos, 3D) n'ont pas de vérificateur : le harnais orchestre des générateurs et l'humain juge.</li>
+<li>Les <b>multiplexeurs</b> et gestionnaires d'agents (tmux, Claude Squad, tuios) font tourner plusieurs agents isolés dans des worktrees. Le goulot devient l'attention humaine.</li>
+<li>Chez Anthropic, l'<b>abonnement</b> est lié au harnais maison depuis janvier 2026, mais pas le modèle, disponible par API partout. OpenAI fait le choix inverse.</li>
+<li>Les <b>routeurs</b> choisissent le modèle et surtout le fournisseur. Leur valeur ajoutée tient au repli, à la confidentialité (ZDR), au contrôle de la quantification et à la qualité mesurée des appels d'outils.</li>
+</ol>
+
+<table class="chap-table">
+<tr><th>Question</th><th>Papier ou fait clé</th><th>Fiches</th></tr>
+<tr><td>Agir avec des outils</td><td>ReAct, Toolformer, Reflexion, CoALA</td><td><a href="#p56">56</a>, <a href="#p57">57</a>, <a href="#p60">60</a>, <a href="#p64">64</a></td></tr>
+<tr><td>Agir par le code</td><td>CodeAct</td><td><a href="#p108">108</a></td></tr>
+<tr><td>Interface adaptée</td><td>SWE-agent (ACI)</td><td><a href="#p109">109</a></td></tr>
+<tr><td>Pipeline fixe</td><td>Agentless</td><td><a href="#p111">111</a></td></tr>
+<tr><td>Plateforme ouverte</td><td>OpenHands</td><td><a href="#p112">112</a></td></tr>
+<tr><td>Mesurer le couple</td><td>Terminal-Bench 2.0</td><td><a href="#p115">115</a></td></tr>
+<tr><td>Bac à sable</td><td>DSec, APPA</td><td><a href="#p44">44</a>, <a href="#p95">95</a></td></tr>
+<tr><td>Protocole d'outils</td><td>MCP et ses menaces</td><td><a href="#p114">114</a></td></tr>
+<tr><td>Générer des médias</td><td>ComfyBench</td><td><a href="#p113">113</a></td></tr>
+<tr><td>Router les modèles</td><td>FrugalGPT, RouteLLM</td><td><a href="#p107">107</a>, <a href="#p110">110</a></td></tr>
+</table>
+
+<h4>10.2 Repères bibliographiques</h4>
+<p>Papiers de la collection : fiches 44, 56, 57, 60, 64, 95 et 107 à 115. Autres sources :</p>
+<ul class="refs">
+<li>S. Yao et al., « ReAct: Synergizing Reasoning and Acting in Language Models », ICLR 2023.</li>
+<li>J. Yang, C. E. Jimenez et al., « SWE-agent », NeurIPS 2024 ; mini-SWE-agent, github.com/SWE-agent/mini-swe-agent, 2025.</li>
+<li>C. E. Jimenez et al., « SWE-bench: Can Language Models Resolve Real-World GitHub Issues? », ICLR 2024.</li>
+<li>Anthropic, « Introducing the Model Context Protocol », 25 novembre 2024 ; spécification sur modelcontextprotocol.io.</li>
+<li>Anthropic, « Code execution with MCP: building more efficient agents », novembre 2025 ; Cloudflare, « Code Mode », septembre 2025.</li>
+<li>Anthropic, « Equipping agents for the real world with Agent Skills », octobre 2025 ; agentskills.io, décembre 2025.</li>
+<li>Anthropic, « How we built our multi-agent research system », juin 2025.</li>
+<li>Linux Foundation, annonce de l'Agentic AI Foundation (MCP, goose, AGENTS.md), 9 décembre 2025 ; agents.md.</li>
+<li>Google, « Announcing the Agent2Agent Protocol (A2A) », avril 2025 ; O'Reilly Radar, « The interfaces are arriving », 2026, sur A2A 1.0.</li>
+<li>Zed Industries, « Agent Client Protocol », août 2025.</li>
+<li>S. Willison, « The lethal trifecta for AI agents », juin 2025 ; Invariant Labs, « MCP Security Notification: Tool Poisoning Attacks », avril 2025.</li>
+<li>M. Zechner, « What I learned building an opinionated and minimal coding agent », mariozechner.at, 30 novembre 2025.</li>
+<li>A. Ronacher, « Pi: The Minimal Agent Within OpenClaw », lucumr.pocoo.org, 31 janvier 2026.</li>
+<li>Oh My Pi, github.com/can1357/oh-my-pi.</li>
+<li>Arena, « Coding agents and the harness tax », arena.ai/blog, 2026 ; D. Vaughan, « Harness performance on Terminal-Bench », codex.danielvaughan.com, avril 2026.</li>
+<li>Comfy, « Comfy MCP: turn your agent into a creative studio », blog.comfy.org, juin 2026.</li>
+<li>G. Gosain, tuios, github.com/Gaurav-Gosain/tuios ; N. Marriott, tmux, 2007.</li>
+<li>The Register, « Anthropic clarifies ban on third-party Claude access », 20 février 2026 ; The New Stack, « Sign in with ChatGPT », 2026 ; Zed, « Use your ChatGPT subscription in Zed », 2026 ; Cline, « Introducing OpenAI Codex OAuth », 2026.</li>
+<li>OpenRouter, documentation (provider routing, zero data retention, Auto Exacto), openrouter.ai/docs ; OpenRouter et a16z, « State of AI: An Empirical 100 Trillion Token Study », décembre 2025 ; Sacra, fiche OpenRouter, 2026.</li>
+</ul>

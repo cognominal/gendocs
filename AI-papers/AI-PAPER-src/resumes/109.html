@@ -1,0 +1,23 @@
+<h4>La question posée</h4>
+<p>Un humain programme avec un éditeur, un terminal et des outils de recherche conçus pour lui. Un modèle de langage qui utilise ces mêmes outils est mal servi : <code>cat</code> sur un gros fichier inonde son contexte, et un éditeur interactif comme vim lui est inutilisable. John Yang, Carlos Jimenez, Ofir Press, Karthik Narasimhan et leurs coauteurs (Princeton) défendent l'idée qu'il faut concevoir une <b><a href="#g-aci">interface agent-ordinateur</a></b> (ACI) adaptée aux modèles, comme on conçoit une interface homme-machine pour les humains.</p>
+
+<h4>Le dispositif</h4>
+<p>SWE-agent donne à GPT-4 Turbo ou à Claude 3 Opus un petit jeu de commandes pensées pour un LM :</p>
+<ul>
+<li>un visualiseur de fichier qui montre 100 lignes à la fois, avec numéros, et se déplace par <code>scroll</code> et <code>goto</code> ;</li>
+<li>des commandes de recherche (<code>find_file</code>, <code>search_dir</code>, <code>search_file</code>) qui renvoient un résumé compact plutôt que tout le texte ;</li>
+<li>une commande <code>edit</code> qui remplace un bloc de lignes et passe un <b>linter</b> : une modification qui casse la syntaxe est refusée et l'erreur affichée ;</li>
+<li>des retours concis, y compris un message explicite quand une commande réussit sans rien afficher.</li>
+</ul>
+<p>Les auteurs en tirent quatre principes : des actions simples, des actions compactes, un retour concis et informatif, et des garde-fous qui empêchent les erreurs de se propager.</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>Sur les 2 294 tâches de SWE-bench (vrais tickets GitHub de projets Python), SWE-agent avec GPT-4 Turbo en résout 12,47 % (286). Le meilleur résultat publié jusque-là, par génération augmentée par recherche (RAG), était 3,8 %.</li>
+<li>Sur SWE-bench Lite (300 tâches), l'agent atteint 18,0 %, contre 11,0 % pour le même modèle avec un simple shell Linux : l'interface seule apporte 64 % de gain relatif.</li>
+<li>Les ablations montrent que chaque principe compte. Sans linter, l'agent s'enlise dans des modifications cassées ; avec une fenêtre de fichier trop grande ou un affichage complet des résultats de recherche, il se perd.</li>
+<li>Sur HumanEvalFix, SWE-agent atteint 87,7 % en Python.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>SWE-agent (NeurIPS 2024) est le papier qui a montré que <i>le harnais compte autant que le modèle</i>. Les outils de lecture et d'édition de Claude Code, Codex ou Aider appliquent ses principes : fenêtres de fichier, recherche compacte, édition vérifiée. L'équipe a ensuite publié mini-SWE-agent, un agent de 100 lignes qui n'utilise que bash, désormais un harnais de référence pour comparer les modèles. Voir le dossier « Harnais », <a href="#harnais-2">§ 2</a>.</p>

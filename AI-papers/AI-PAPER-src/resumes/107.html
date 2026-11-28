@@ -1,0 +1,20 @@
+<h4>La question posée</h4>
+<p>En 2023, les API de modèles de langage sont facturées au jeton, et les prix varient de deux ordres de grandeur d'un fournisseur à l'autre. Lingjiao Chen, Matei Zaharia et James Zou (Stanford) se demandent si une application peut payer beaucoup moins cher sans perdre en qualité, en ne réservant le modèle le plus coûteux qu'aux requêtes qui en ont vraiment besoin. C'est la première formulation systématique de ce que font aujourd'hui les <a href="#g-routeur-llm">routeurs</a> comme OpenRouter.</p>
+
+<h4>Trois stratégies</h4>
+<ul>
+<li><b>Adaptation du prompt</b> : raccourcir le prompt, choisir moins d'exemples few-shot, ou regrouper plusieurs requêtes en un seul appel.</li>
+<li><b>Approximation du modèle</b> : mettre les réponses en cache, ou affiner un petit modèle sur les réponses d'un gros.</li>
+<li><b>Cascade de modèles</b> : interroger d'abord un modèle bon marché. Un petit modèle de score, entraîné à part, juge la fiabilité de la réponse ; si elle est jugée insuffisante, on passe au modèle suivant, plus cher. C'est la <a href="#g-cascade-llm">cascade</a>.</li>
+</ul>
+<p>L'article met surtout en œuvre la cascade. Elle est testée sur douze API commerciales de l'époque, dont GPT-4, ChatGPT, GPT-J et des modèles de Cohere, AI21 et Textsynth, et sur des jeux de données de classification et de question-réponse (HEADLINES, OVERRULING, COQA, etc.).</p>
+
+<h4>Résultats</h4>
+<ul>
+<li>FrugalGPT égale le meilleur modèle seul (GPT-4) avec jusqu'à 98 % de coût en moins, ou bat GPT-4 de 4 points de précision à coût égal.</li>
+<li>Sur HEADLINES (dépêches financières), la cascade coûte 98 % de moins que GPT-4 et le dépasse légèrement : des modèles bon marché suffisent pour la plupart des requêtes, et leurs erreurs ne coïncident pas toujours avec celles de GPT-4.</li>
+<li>La cascade apprise dépend du jeu de données. Il n'existe pas de « meilleur modèle » universel au meilleur prix.</li>
+</ul>
+
+<h4>Héritage</h4>
+<p>FrugalGPT a lancé la recherche sur le routage et les cascades de modèles, poursuivie par RouteLLM (<a href="#p110">fiche 110</a>). Les plateformes de routage commerciales (OpenRouter, Martian, NotDiamond) en reprennent l'idée, avec une différence importante : elles routent souvent entre fournisseurs d'un <i>même</i> modèle, selon le prix, la latence ou la disponibilité, autant qu'entre modèles différents. Le dossier « Harnais » (<a href="#harnais-9">§ 9</a>) décrit ces services.</p>

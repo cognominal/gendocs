@@ -1,0 +1,82 @@
+<h3 class="part" id="harnais-7">VII. Multiplexeurs et gestionnaires d'agents</h3>
+
+<h4>7.1 Pourquoi plusieurs agents à la fois</h4>
+<p>Un agent de code travaille lentement à l'échelle humaine : une tâche sérieuse prend de cinq minutes à une heure, pendant lesquelles l'humain n'a rien à faire, sinon répondre de temps en temps à une demande de permission. La réponse naturelle est d'en lancer plusieurs : un agent corrige un bug, un deuxième écrit des tests, un troisième explore une idée, un quatrième relit le travail des autres. En 2026, beaucoup de développeurs travaillent avec trois à dix agents ouverts en même temps. Cela pose trois problèmes nouveaux :</p>
+<ul>
+<li><b>voir</b> : savoir d'un coup d'œil quel agent travaille, lequel attend une réponse, lequel a fini ;</li>
+<li><b>isoler</b> : empêcher deux agents de modifier les mêmes fichiers en même temps ;</li>
+<li><b>coordonner</b> : faire passer une information ou une tâche d'un agent à l'autre, et comparer leurs résultats.</li>
+</ul>
+<p>Trois générations d'outils y répondent : les multiplexeurs de terminal, conçus bien avant les agents ; les gestionnaires d'agents, apparus en 2025 ; et des environnements comme tuios qui combinent les deux.</p>
+
+<h4>7.2 Les multiplexeurs de terminal</h4>
+<p>Un <a href="#g-multiplexeur">multiplexeur de terminal</a> fait tourner plusieurs sessions dans une seule fenêtre et les garde en vie quand on se déconnecte. GNU Screen (1987) a créé le genre ; tmux (Nicholas Marriott, 2007) l'a modernisé avec ses panneaux, ses sessions nommées et une interface scriptable ; zellij (2021, écrit en Rust) y ajoute une interface plus découvrable et des plugins. Trois de leurs fonctions servent directement aux agents :</p>
+<ul>
+<li><b>la persistance</b> : un agent lancé dans tmux sur un serveur continue de travailler quand l'ordinateur portable se met en veille, et on le retrouve depuis un autre poste ;</li>
+<li><b>les panneaux</b> : quatre agents côte à côte, avec un shell pour vérifier leurs résultats ;</li>
+<li><b>le pilotage par script</b> : <code>tmux send-keys</code> tape du texte dans un panneau, et <code>tmux capture-pane</code> en lit le contenu. Un agent peut donc piloter un programme interactif, ou un autre agent, comme le ferait un humain.</li>
+</ul>
+<p>Ce dernier point a fait de tmux un outil d'agent à part entière. Terminus 2, l'agent neutre de Terminal-Bench (<a href="#p115">fiche 115</a>), n'a qu'une session tmux comme interface : il tape des touches et lit l'écran, ce qui lui permet d'utiliser vim, un débogueur ou un REPL. Pi, qui n'a pas de sous-agents, recommande de lancer une autre instance de lui-même dans un panneau tmux.</p>
+
+<h4>7.3 Les worktrees : un dépôt, plusieurs copies de travail</h4>
+<p>Deux agents qui modifient le même dossier se marchent sur les pieds : l'un relance les tests pendant que l'autre réécrit un fichier. La solution standard est le <a href="#g-worktree">worktree</a> git (git 2.5, 2015). Un même dépôt peut avoir plusieurs copies de travail, chacune dans son dossier et sur sa branche, qui partagent l'historique sans dupliquer les objets. On crée un worktree par agent, chaque agent travaille sur sa branche, puis on fusionne ce qui est bon. Claude Code, Codex et la plupart des gestionnaires d'agents créent désormais eux-mêmes ces worktrees.</p>
+<p>Les worktrees ne règlent pas tout. Chaque copie doit installer ses dépendances et lancer ses propres serveurs de développement, sur des ports différents. Deux agents qui touchent au même fichier produisent un conflit au moment de la fusion. Et l'humain doit relire autant de branches qu'il y a d'agents.</p>
+
+<h4>7.4 Les gestionnaires d'agents</h4>
+<p>Une famille d'outils apparus en 2025 combine les deux briques précédentes et y ajoute la connaissance des agents :</p>
+<ul>
+<li><b>Claude Squad</b> (2025, open source) : une interface en terminal qui crée, pour chaque tâche, une session tmux et un worktree, y lance Claude Code, Codex, Aider ou un autre harnais, et affiche la liste des sessions avec leurs diffs ;</li>
+<li><b>Conductor</b> (2025) : une application macOS qui fait de même avec une interface graphique, autour de Claude Code et de Codex ;</li>
+<li>des tableaux de type kanban (Vibe Kanban), où chaque carte devient une tâche confiée à un agent ;</li>
+<li>les gestionnaires intégrés aux harnais eux-mêmes : la fenêtre d'agents de Cursor, les applications de bureau de Codex et de Claude, qui affichent plusieurs sessions parallèles ;</li>
+<li>de nouveaux multiplexeurs pensés pour les agents, comme herdr ou muxel, et tuios, décrit ci-dessous.</li>
+</ul>
+
+<h4>7.5 tuios : un multiplexeur qui connaît les agents</h4>
+<p>tuios (« Terminal UI Operating System »), écrit en Go par Gaurav Gosain sous licence MIT, est un gestionnaire de fenêtres en terminal : des panneaux en mosaïque ou flottants, des espaces de travail, un démon qui garde les sessions en vie, et un serveur SSH pour s'y connecter à distance. Ce qui le distingue de tmux est qu'il <b>reconnaît les harnais</b> qui tournent dans ses panneaux (Claude Code, Codex, Gemini CLI, Pi, OpenCode, etc.), soit en analysant l'écran, soit en recevant leurs hooks. Il en tire plusieurs fonctions :</p>
+<ul>
+<li><b>l'état de chaque agent</b> (travaille, attend une réponse, a fini, a échoué) est affiché sur le panneau et dans une barre latérale ;</li>
+<li><b>une boîte de réception</b> (Inbox) rassemble tout ce qui attend l'humain : demandes de permission, questions, fins de tâches. On peut répondre à une demande sans aller dans le panneau (<code>tuios respond</code>), y compris depuis un téléphone appairé par QR code ;</li>
+<li><b>la messagerie entre agents</b> : un agent peut laisser un message à un autre (<code>tuios send-agent-message</code>), lui poser une question et attendre la réponse (<code>tuios ask-agent</code>), confier une tâche à un agent enfant (<code>tuios delegate</code>), ou poser une question à l'humain avec des réponses au choix (<code>tuios ask-human</code>) ;</li>
+<li><b>l'éventail</b> : <code>tuios fan 3 "…" --agent claude,codex,gemini</code> crée trois worktrees du dépôt, lance un harnais différent dans chacun, tape la même consigne et les affiche côte à côte. C'est un petit banc d'essai personnel, à la manière de Terminal-Bench, sur ses propres tâches ;</li>
+<li><b>les machines distantes</b> : les worktrees peuvent vivre sur un autre hôte, et leurs résultats se rapatrient (<code>tuios worktree pull</code>).</li>
+</ul>
+<p>tuios s'expose aussi aux agents eux-mêmes : en ligne de commande, comme serveur MCP, et par une skill qui explique à un agent comment lire les autres panneaux, attendre la fin d'un travail ou rendre compte de son propre état. L'agent n'est plus seulement dans le multiplexeur : il peut s'en servir.</p>
+
+<figure class="fig">
+<svg viewBox="0 0 640 200" width="100%" role="img" aria-label="Un multiplexeur d'agents">
+<rect class="hn-gy" x="10" y="10" width="620" height="180" rx="6"/>
+<rect class="hn-n" x="20" y="20" width="120" height="160" rx="4"/>
+<text class="hn-t" x="30" y="36">Barre latérale</text>
+<text class="hn-c" x="30" y="56">● claude   travaille</text>
+<text class="hn-c" x="30" y="72">◐ codex    attend</text>
+<text class="hn-c" x="30" y="88">✓ gemini   fini</text>
+<text class="hn-c" x="30" y="104">● pi       travaille</text>
+<text class="hn-t" x="30" y="132">Inbox (2)</text>
+<text class="hn-c" x="30" y="150">codex : permission ?</text>
+<text class="hn-c" x="30" y="166">gemini : terminé</text>
+<rect class="hn-hl" x="150" y="20" width="230" height="76" rx="4"/>
+<text class="hn-s" x="160" y="36">claude · worktree fix-auth</text>
+<text class="hn-c" x="160" y="54">● Edit src/auth.ts</text><text class="hn-c" x="160" y="68">● Bash npm test</text>
+<rect class="hn-or" x="390" y="20" width="230" height="76" rx="4"/>
+<text class="hn-s" x="400" y="36">codex · worktree fix-auth-2</text>
+<text class="hn-c" x="400" y="54">Autoriser « npm install » ?</text><text class="hn-c" x="400" y="68">[o]ui  [n]on  [t]oujours</text>
+<rect class="hn-gr" x="150" y="104" width="230" height="76" rx="4"/>
+<text class="hn-s" x="160" y="120">gemini · worktree fix-auth-3</text>
+<text class="hn-c" x="160" y="138">✓ 3 fichiers modifiés, tests OK</text>
+<rect class="hn-hl" x="390" y="104" width="230" height="76" rx="4"/>
+<text class="hn-s" x="400" y="120">pi · revue</text>
+<text class="hn-c" x="400" y="138">ask-agent gemini « pourquoi</text><text class="hn-c" x="400" y="152">  ce changement de type ? »</text>
+</svg>
+<figcaption>Figure 5. Un multiplexeur d'agents, dans le style de tuios. Trois harnais traitent la même tâche dans trois worktrees ; un quatrième relit et interroge les autres. La barre latérale et l'Inbox montrent à l'humain ce qui attend une réponse.</figcaption>
+</figure>
+
+<h4>7.6 Trois rôles</h4>
+<p>Ces outils se distinguent par ce qu'ils savent des agents :</p>
+<table class="chap-table">
+<tr><th>Rôle</th><th>Exemples</th><th>Ce qu'il apporte</th></tr>
+<tr><td>Multiplexeur</td><td>screen, tmux, zellij</td><td>persistance, panneaux, pilotage par script</td></tr>
+<tr><td>Gestionnaire d'agents</td><td>Claude Squad, Conductor</td><td>worktree par tâche, liste des sessions, diffs</td></tr>
+<tr><td>Multiplexeur d'agents</td><td>tuios, herdr</td><td>états, Inbox, messagerie, éventail</td></tr>
+</table>
+<p>La limite de tous ces outils n'est pas technique. Le goulot d'étranglement devient l'attention humaine : lire les diffs, juger les approches, décider quoi fusionner. Dix agents produisent dix fois plus de code à relire, et dix fois plus de factures de jetons. Les praticiens qui en tirent le meilleur parti donnent aux agents des tâches indépendantes et bien définies, font relire le travail d'un agent par un autre avant de le lire eux-mêmes, et gardent un agent pour la tâche qu'ils suivent de près.</p>
